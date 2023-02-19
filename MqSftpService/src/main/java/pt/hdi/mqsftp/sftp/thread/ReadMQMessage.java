@@ -10,19 +10,27 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 
+import pt.hdi.mqsftp.sftp.bean.MQConnectionBean;
+
 public class ReadMQMessage implements Runnable{
 
 	
-	public ReadMQMessage(String queueName) {
+	public ReadMQMessage(String queueName, MQConnectionBean conConfig) {
 		super();
 		this.qName = queueName;
+		this.conConfig = conConfig;
 	}
 
 	private String qName;
+	private MQConnectionBean conConfig;
 	
 	@Override
 	public void run() {
 		ConnectionFactory cFactory = new ConnectionFactory();
+		cFactory.setHost(conConfig.getHost());
+		cFactory.setUsername(conConfig.getUsername());
+		cFactory.setPassword(conConfig.getPassword());
+		cFactory.setPort(conConfig.getPort());
 		
 
 		try(Connection con = cFactory.newConnection();
@@ -38,11 +46,11 @@ public class ReadMQMessage implements Runnable{
 		} catch (IOException e) {
 			e.printStackTrace();
 			Executor exec = Executors.newFixedThreadPool(1);
-			exec.execute(new ReadMQMessage(qName));
+			//exec.execute(new ReadMQMessage(qName));
 		} catch (TimeoutException e) {
 			e.printStackTrace();
 			Executor exec = Executors.newFixedThreadPool(1);
-			exec.execute(new ReadMQMessage(qName));
+			//exec.execute(new ReadMQMessage(qName));
 		}
 		
 	}

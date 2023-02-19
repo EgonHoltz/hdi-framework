@@ -1,14 +1,16 @@
-package pt.hdi.mqsftp.sftp.config;
+package pt.hdi.mqsftp.sftp.bean;
 
 public class MQConnectionBean {
 	String host;
 	String username;
 	String password;
-	public MQConnectionBean(String host, String username, String password) {
+	Integer port;
+	public MQConnectionBean(String host, String username, String password, Integer port) {
 		super();
 		this.host = host;
 		this.username = username;
 		this.password = password;
+		this.port = port;
 	}
 	public String getHost() {
 		return host;
@@ -18,6 +20,9 @@ public class MQConnectionBean {
 	}
 	public String getPassword() {
 		return password;
+	}
+	public Integer getPort() {
+		return port;
 	}
 	@Override
 	public String toString() {

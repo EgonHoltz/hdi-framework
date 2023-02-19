@@ -2,6 +2,7 @@ package pt.hdi.mqsftp.sftp.thread;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
@@ -16,10 +17,13 @@ public class SendDirMonitoring implements Runnable {
 
 	@Override
 	public void run() {
-		Path fpath = Paths.get("/tmp/sftp/send");
-		WatchService ws;
-		try {
-			ws = FileSystems.getDefault().newWatchService();
+		Path fpath = Paths.get("/home/egonh/tmp/sftp/send");
+		if (!Files.exists(fpath)) {
+			System.out.println("Directory does not exists: /home/egonh/tmp/sftp/send");
+			return;
+		}
+		
+		try(WatchService ws = FileSystems.getDefault().newWatchService();) {
 			fpath.register(ws, StandardWatchEventKinds.ENTRY_CREATE);
 			
 			while(true) {
@@ -37,6 +41,7 @@ public class SendDirMonitoring implements Runnable {
 			}	
 		} catch (IOException e) {
 			System.err.println("Problems with IO: "+e.getStackTrace());
+			e.printStackTrace();
 		} catch (InterruptedException e) {
 			System.err.println("Problems with WatchEvent: "+e.getStackTrace());
 		} finally {

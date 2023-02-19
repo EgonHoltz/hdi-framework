@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import pt.hdi.mqsftp.sftp.bean.MQConnectionBean;
 import pt.hdi.mqsftp.sftp.thread.ReadMQMessage;
 import pt.hdi.mqsftp.sftp.thread.ReceiveDirMonitoring;
 import pt.hdi.mqsftp.sftp.thread.SendDirMonitoring;
@@ -22,7 +23,8 @@ public class MqSftpServiceApplication {
 		exec.execute(new ReceiveDirMonitoring());
 		exec.execute(new SendDirMonitoring());
 		// At this time, MQ reception is fixed. Later it will load as parameterized
-		exec.execute(new ReadMQMessage("clients"));
+		MQConnectionBean conConf = new MQConnectionBean("localhost", "quser", "qpass", 8041);
+		exec.execute(new ReadMQMessage("clients", conConf));
 		
 	}
 
