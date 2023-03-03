@@ -22,8 +22,9 @@ public class MqSftpServiceApplication {
 		// Start threads to verify directories of send/rcv
 		exec.execute(new ReceiveDirMonitoring());
 		exec.execute(new SendDirMonitoring());
-		// At this time, MQ reception is fixed. Later it will load as parameterized
-		MQConnectionBean conConf = new MQConnectionBean("localhost", "quser", "qpass", 8041);
+		// At this time, MQ reception is fixed. Later it will load as parameterized.
+		// This will allow to create queue instantly and does not need to change the app
+		MQConnectionBean conConf = new MQConnectionBean("localhost", "quser", "qpass");
 		exec.execute(new ReadMQMessage("clients", conConf));
 		
 	}

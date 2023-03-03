@@ -5,12 +5,19 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
+import org.springframework.context.annotation.Bean;
+
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 
 import pt.hdi.mqsftp.sftp.bean.MQConnectionBean;
+import pt.hdi.mqsftp.sftp.config.MessageListener;
 
 public class ReadMQMessage implements Runnable{
 
@@ -24,30 +31,25 @@ public class ReadMQMessage implements Runnable{
 	private String qName;
 	private MQConnectionBean conConfig;
 	
+    @Bean
+    public CachingConnectionFactory connectionFactory() {
+    	CachingConnectionFactory ccf = new CachingConnectionFactory();
+        ccf.setHost(conConfig.getHost());
+        ccf.setUsername(conConfig.getUsername());
+        ccf.setPassword(conConfig.getPassword());
+        return ccf;
+    }
+    	
 	@Override
 	public void run() {
-		ConnectionFactory cFactory = new ConnectionFactory();
-		cFactory.setHost(conConfig.getHost());
-		cFactory.setUsername(conConfig.getUsername());
-		cFactory.setPassword(conConfig.getPassword());
-		cFactory.setPort(conConfig.getPort());
-		
-
-		try(Connection con = cFactory.newConnection();
-				Channel chnl = con.createChannel()){
-			chnl.queueDeclare(qName,false,false,false,null);
+		try{
+			SimpleMessageListenerContainer smlc = new SimpleMessageListenerContainer(connectionFactory());
+			smlc.setConnectionFactory(connectionFactory());
+			smlc.setQueueNames(qName);
+			smlc.setMessageListener(new MessageListenerAdapter(new MessageListener()));
+			smlc.start();
 			
-			DeliverCallback dcb = (consumerTag, delivery) -> {
-				String msg = new String(delivery.getBody().toString());
-				System.out.println("Received msg -> " + msg);
-			};
-			chnl.basicConsume(qName, true, dcb, consumerTag -> {});
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-			Executor exec = Executors.newFixedThreadPool(1);
-			//exec.execute(new ReadMQMessage(qName));
-		} catch (TimeoutException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			Executor exec = Executors.newFixedThreadPool(1);
 			//exec.execute(new ReadMQMessage(qName));

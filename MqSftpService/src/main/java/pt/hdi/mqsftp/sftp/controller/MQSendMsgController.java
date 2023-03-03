@@ -1,5 +1,7 @@
 package pt.hdi.mqsftp.sftp.controller;
 
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,18 +15,17 @@ import pt.hdi.mqsftp.sftp.service.MQWriterService;
 @RestController
 public class MQSendMsgController {
 
-	@Autowired
-	private MQWriterService mqService;
+    @Autowired
+    private AmqpTemplate amqpTemplate;
 	
-	@GetMapping(path = "/mqsend/{qname}")
+	@GetMapping(path = "/mqsend/{qName}")
 	public ResponseEntity<Void> sendMsgByMQ(@PathVariable String qName){
-		MQConnectionBean conConfig = new MQConnectionBean("locahost", "quser", "qpass",8042);
-		boolean success = mqService.sendMQMessageByQueue(qName, conConfig, "blablabla");
-		if(success) {
+		try {
+			amqpTemplate.convertAndSend(qName,"blablabla");
 			return new ResponseEntity<>(HttpStatus.ACCEPTED);
-		} else {
+		} catch (AmqpException e) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}		
+		} 		
 	}
 
 }
