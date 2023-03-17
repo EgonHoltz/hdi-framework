@@ -1,27 +1,16 @@
 package pt.hdi.mqsftp.sftp.thread;
 
-import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import pt.hdi.mqsftp.sftp.bean.MQConnectionBean;
@@ -37,7 +26,6 @@ public class MQMonitoring implements Runnable {
 	@Autowired
 	private ApplicationContext ctx;
 	
-	@Autowired
 	private MongoTemplate mt;
 	
     public MQMonitoring(ApplicationContext ctx) {
@@ -48,20 +36,22 @@ public class MQMonitoring implements Runnable {
 	public void run() {
 
 		confService = ctx.getBean(ConfigurationService.class);
+		mt = ctx.getBean(MongoTemplate.class);
 		
 		try {
 			MQConnectionBean conConf = new MQConnectionBean("localhost", "quser", "qpass");
 			// It means, the service is starting on the first time, so look at all
 			// MQ Queue that are already instanciated once
 			List<String> rabbitQueuesNames = confService.getAllConfigs().stream()
-					.flatMap(conf -> conf.getMqConfig().stream())
-					.filter(mq -> mq.getDirection() == "recv" && mq.hasStarted())
+					.flatMap(conf -> Optional.ofNullable(conf.getMqConfig()).orElse(Collections.emptyList()).stream())
+					.filter(mq -> mq.hasStarted())
 					.map(MQConfig::getMqName)
 					.collect(Collectors.toList());
 			rabbitQueuesNames.stream().forEach(queueNames -> {
 				Optional.ofNullable(queueNames).ifPresent(queue -> {
 					Executor exec = Executors.newSingleThreadExecutor();
 					exec.execute(new ReadMQMessage(queue, conConf));
+					System.out.println("Started queue: " + queue);
 				});
 			});
 
@@ -78,16 +68,16 @@ public class MQMonitoring implements Runnable {
 					continue;
 				}
 				
-				List<String> rabbitQueuesNotStartedNames = mqNotStarted.stream()
-						.flatMap(conf -> conf.getMqConfig().stream())
-						.filter(mq -> mq.getDirection() == "recv" && !mq.hasStarted())
-						.map(MQConfig::getMqName)
+				List<MQConfig> rabbitQueuesNotStarted = mqNotStarted.stream()
+						.flatMap(conf -> Optional.ofNullable(conf.getMqConfig()).orElse(Collections.emptyList()).stream())
+						.filter(mq -> !mq.hasStarted())
 						.collect(Collectors.toList());
-				rabbitQueuesNotStartedNames.stream().forEach(queueNames -> {
+				rabbitQueuesNotStarted.stream().forEach(queueNames -> {
 					Optional.ofNullable(queueNames).ifPresent(queue -> {
 						Executor exec = Executors.newSingleThreadExecutor();
-						exec.execute(new ReadMQMessage(queue, conConf));
-						findQueueAndDeclareStarted(mqNotStarted);
+						exec.execute(new ReadMQMessage(queue.getMqName(), conConf));
+						findQueueAndDeclareStarted(confService.getByRqName(queue.getMqName()),queue.getMqName());
+						System.out.println("Added new queue and started: " + queue);
 					});
 				});
 
@@ -102,16 +92,18 @@ public class MQMonitoring implements Runnable {
 		}
 	}
 
-	private void findQueueAndDeclareStarted(List<Configuration> mqNotStarted) {
-		mqNotStarted.stream().forEach(conf -> {
-			Query q = new Query();
-			q.addCriteria(Criteria.where("_id").is(conf.getId()).and("mqConfig.started").ne(true));
-			
-			Update u = new Update();
-			u.set("mqConfig.$.started", true);
-			
-			mt.updateMulti(q, u, Configuration.class);
-		});
+	private void findQueueAndDeclareStarted(Configuration conf, String qName) {
+
+		List<MQConfig> newMqList = new ArrayList<MQConfig>();
+		for (MQConfig mqconf : conf.getMqConfig()) {
+			if (mqconf.getMqName().equals(qName)) {
+				mqconf.setStarted(true);
+			}
+			newMqList.add(mqconf);
+		}
+		conf.removeAllMqConfig();
+		newMqList.stream().forEach(n -> conf.addMqConfig(n));
+		confService.saveConfiguration(conf);
 	}
 	
 }

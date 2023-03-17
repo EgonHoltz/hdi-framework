@@ -41,4 +41,12 @@ public class ConfigurationService {
 		return configs;
 	}
 	
+	public boolean saveConfiguration(Configuration conf) {
+		Configuration savedConf = confRep.save(conf);
+		if (savedConf != null) {
+			return true;
+		}
+		return false;
+	}
+	
 }
