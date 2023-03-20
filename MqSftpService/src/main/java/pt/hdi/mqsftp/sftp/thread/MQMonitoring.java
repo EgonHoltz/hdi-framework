@@ -8,38 +8,46 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
-import pt.hdi.mqsftp.sftp.bean.MQConnectionBean;
 import pt.hdi.mqsftp.sftp.model.Configuration;
 import pt.hdi.mqsftp.sftp.model.MQConfig;
 import pt.hdi.mqsftp.sftp.service.ConfigurationService;
 
-@Component
-public class MQMonitoring implements Runnable {
+public class MQMonitoring implements Runnable{
 
 	private ConfigurationService confService;
-	
-	@Autowired
-	private ApplicationContext ctx;
-	
+		
 	private MongoTemplate mt;
 	
-    public MQMonitoring(ApplicationContext ctx) {
-        this.ctx = ctx;
-    }
+	private ApplicationContext ctx;
 	
+	public MQMonitoring(ApplicationContext appCtx) {
+		this.ctx = appCtx;
+	}
+    
 	@Override
 	public void run() {
-
-		confService = ctx.getBean(ConfigurationService.class);
 		mt = ctx.getBean(MongoTemplate.class);
+		confService = ctx.getBean(ConfigurationService.class);
 		
+		System.out.println("MQMonitoring started!");
+		
+		if (confService == null) {
+			return;
+		}
 		try {
-			MQConnectionBean conConf = new MQConnectionBean("localhost", "quser", "qpass");
 			// It means, the service is starting on the first time, so look at all
 			// MQ Queue that are already instanciated once
 			List<String> rabbitQueuesNames = confService.getAllConfigs().stream()
@@ -50,7 +58,7 @@ public class MQMonitoring implements Runnable {
 			rabbitQueuesNames.stream().forEach(queueNames -> {
 				Optional.ofNullable(queueNames).ifPresent(queue -> {
 					Executor exec = Executors.newSingleThreadExecutor();
-					exec.execute(new ReadMQMessage(queue, conConf));
+					exec.execute(new ReadMQMessage(queue, ctx));
 					System.out.println("Started queue: " + queue);
 				});
 			});
@@ -75,20 +83,19 @@ public class MQMonitoring implements Runnable {
 				rabbitQueuesNotStarted.stream().forEach(queueNames -> {
 					Optional.ofNullable(queueNames).ifPresent(queue -> {
 						Executor exec = Executors.newSingleThreadExecutor();
-						exec.execute(new ReadMQMessage(queue.getMqName(), conConf));
+						exec.execute(new ReadMQMessage(queue.getMqName(), ctx));
 						findQueueAndDeclareStarted(confService.getByRqName(queue.getMqName()),queue.getMqName());
 						System.out.println("Added new queue and started: " + queue);
 					});
 				});
-
-
 			}	
 		} catch (Exception e) {
 			System.err.println("Problems with IO: "+e.getStackTrace());
 			e.printStackTrace();
 		} finally {
-			Executor exec = Executors.newFixedThreadPool(1);
-			exec.execute(new MQMonitoring(ctx));
+			System.out.println("MQMonitoring finished");
+			//Executor exec = Executors.newFixedThreadPool(1);
+			//exec.execute(new MQMonitoring());
 		}
 	}
 
@@ -105,5 +112,5 @@ public class MQMonitoring implements Runnable {
 		newMqList.stream().forEach(n -> conf.addMqConfig(n));
 		confService.saveConfiguration(conf);
 	}
-	
+
 }

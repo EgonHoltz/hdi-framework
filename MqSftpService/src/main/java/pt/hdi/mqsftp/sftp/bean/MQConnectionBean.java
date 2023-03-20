@@ -1,16 +1,24 @@
 package pt.hdi.mqsftp.sftp.bean;
 
+import org.springframework.core.env.Environment;
+
 public class MQConnectionBean {
-	String host;
-	String username;
-	String password;
-	Integer port;
-	public MQConnectionBean(String host, String username, String password) {
+
+	private String host;
+	private String username;
+	private String password;
+	
+	public MQConnectionBean() {
 		super();
-		this.host = host;
-		this.username = username;
-		this.password = password;
 	}
+
+	public MQConnectionBean(Environment env) {
+		super();
+		this.host = env.getProperty("spring.rabbitmq.host");
+		this.username = env.getProperty("spring.rabbitmq.user");
+		this.password = env.getProperty("spring.rabbitmq.pass");
+	}
+
 	public String getHost() {
 		return host;
 	}
@@ -24,7 +32,5 @@ public class MQConnectionBean {
 	public String toString() {
 		return "MQConnectionBean [host=" + host + ", username=" + username + ", password=" + password + "]";
 	}
-	
-	
 
 }

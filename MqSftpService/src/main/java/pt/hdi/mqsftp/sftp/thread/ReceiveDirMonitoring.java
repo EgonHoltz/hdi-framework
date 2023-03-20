@@ -13,10 +13,24 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class ReceiveDirMonitoring implements Runnable {
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.stereotype.Component;
 
+public class ReceiveDirMonitoring implements Runnable{
+
+	private ApplicationContext ctx;
+	
+	public ReceiveDirMonitoring(ApplicationContext appCtx) {
+		this.ctx = appCtx;
+	}
+	
 	@Override
 	public void run() {
+		System.out.println("Started ReceiveDirMonitoring");
 		Path fpath = Paths.get("/home/egonh/tmp/sftp/recv");
 		if (!Files.exists(fpath)) {
 			System.out.println("Directory does not exists: /home/egonh/tmp/sftp/recv");
@@ -45,8 +59,9 @@ public class ReceiveDirMonitoring implements Runnable {
 		} catch (InterruptedException e) {
 			System.err.println("Problems with WatchEvent: "+e.getStackTrace());
 		} finally {
-			Executor exec = Executors.newFixedThreadPool(1);
-			exec.execute(new ReceiveDirMonitoring());
+			System.out.println("Finished ReceiveDirMonitoring");
+			//Executor exec = Executors.newFixedThreadPool(1);
+			//exec.execute(new ReceiveDirMonitoring());
 		}
 	}
 }

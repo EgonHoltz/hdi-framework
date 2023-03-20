@@ -13,10 +13,24 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
 public class SendDirMonitoring implements Runnable {
 
-	@Override
+	private ApplicationContext ctx;
+	
+	public SendDirMonitoring(ApplicationContext appCtx) {
+		this.ctx = appCtx;
+	}
+	
 	public void run() {
+		System.out.println("Started SendDirMonitoring");
 		Path fpath = Paths.get("/home/egonh/tmp/sftp/send");
 		if (!Files.exists(fpath)) {
 			System.out.println("Directory does not exists: /home/egonh/tmp/sftp/send");
@@ -25,9 +39,8 @@ public class SendDirMonitoring implements Runnable {
 		
 		try(WatchService ws = FileSystems.getDefault().newWatchService();) {
 			fpath.register(ws, StandardWatchEventKinds.ENTRY_CREATE);
-			
 			while(true) {
-				WatchKey wk = ws.poll(6, TimeUnit.SECONDS);
+				WatchKey wk = ws.poll(10, TimeUnit.SECONDS);
 				
 				if (wk != null) {
 					for (WatchEvent<?> event: wk.pollEvents()) {
@@ -38,15 +51,16 @@ public class SendDirMonitoring implements Runnable {
 					}
 					wk.reset();
 				}
-			}	
+			}
 		} catch (IOException e) {
 			System.err.println("Problems with IO: "+e.getStackTrace());
 			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			System.err.println("Problems with WatchEvent: "+e.getStackTrace());
 		} finally {
-			Executor exec = Executors.newFixedThreadPool(1);
-			exec.execute(new SendDirMonitoring());
+			System.out.println("Finished SendDirMonitoring");
+			//Executor exec = Executors.newFixedThreadPool(1);
+			//exec.execute(new SendDirMonitoring());
 		}
 	}
 	

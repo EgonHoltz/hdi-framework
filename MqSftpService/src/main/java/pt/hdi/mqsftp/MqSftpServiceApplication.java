@@ -1,30 +1,31 @@
 package pt.hdi.mqsftp;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-
-import pt.hdi.mqsftp.sftp.thread.MQMonitoring;
-import pt.hdi.mqsftp.sftp.thread.ReceiveDirMonitoring;
-import pt.hdi.mqsftp.sftp.thread.SendDirMonitoring;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
 @SpringBootApplication
 public class MqSftpServiceApplication {
-
-	
 	public static void main(String[] args) {
 		ApplicationContext ctx = SpringApplication.run(MqSftpServiceApplication.class, args);
+		System.out.println("Application started");
 		
-		
-		System.out.println("Initializing the threadpool with monitoring processes");
-		Executor exec = Executors.newFixedThreadPool(3);
-		// Start threads to verify directories of send/rcv
-		exec.execute(new ReceiveDirMonitoring());
-		exec.execute(new SendDirMonitoring());
-		exec.execute(new MQMonitoring(ctx));
-	}
+    	ResourceLoader resourceLoader = (ResourceLoader) ctx;
+        Resource resource = resourceLoader.getResource("classpath:application.properties");
+        Properties props = new Properties();
+        try (InputStream is = resource.getInputStream()) {
+            props.load(is);
+        } catch (IOException e) {
+            // handle error
+        }
+        System.out.println(props.toString());
 
+	}
 }
