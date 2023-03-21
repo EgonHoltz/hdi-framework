@@ -18,6 +18,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 public class ReceiveDirMonitoring implements Runnable{
@@ -30,10 +31,12 @@ public class ReceiveDirMonitoring implements Runnable{
 	
 	@Override
 	public void run() {
+		Environment env = ctx.getEnvironment();
 		System.out.println("Started ReceiveDirMonitoring");
-		Path fpath = Paths.get("/home/egonh/tmp/sftp/recv");
+		String recvPath = env.getProperty("spring.sftp.recvpath");
+		Path fpath = Paths.get(recvPath);
 		if (!Files.exists(fpath)) {
-			System.out.println("Directory does not exists: /home/egonh/tmp/sftp/recv");
+			System.out.println("Directory does not exists: "+recvPath);
 			return;
 		}
 

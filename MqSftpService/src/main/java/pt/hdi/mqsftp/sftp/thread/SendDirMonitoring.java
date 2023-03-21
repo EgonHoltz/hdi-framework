@@ -18,6 +18,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -30,10 +31,12 @@ public class SendDirMonitoring implements Runnable {
 	}
 	
 	public void run() {
+		Environment env = ctx.getEnvironment();
 		System.out.println("Started SendDirMonitoring");
-		Path fpath = Paths.get("/home/egonh/tmp/sftp/send");
+		String sendPath = env.getProperty("spring.sftp.sendpath");
+		Path fpath = Paths.get(sendPath);
 		if (!Files.exists(fpath)) {
-			System.out.println("Directory does not exists: /home/egonh/tmp/sftp/send");
+			System.out.println("Directory does not exists: "+sendPath);
 			return;
 		}
 		
