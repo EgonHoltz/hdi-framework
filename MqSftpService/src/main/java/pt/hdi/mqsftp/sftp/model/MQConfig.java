@@ -1,6 +1,7 @@
 package pt.hdi.mqsftp.sftp.model;
 
-import java.sql.Date;
+
+import java.util.Date;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;

@@ -26,3 +26,10 @@ abbitmq-plugins enable rabbitmq_management
 It creates a generic user, set all permissions to it and enable the UI user management
 
 Now, with user and pass "guest" it is possible to configure new MQ Queues by interface.
+
+# Testing suite
+
+To test SFTP, a server was created:
+```sh
+docker run -p 8022:22 -v /home/egonh/projects/docker/sftp:/home/client/recv -d --name sftp_test_svr -e SFTP_USERS="client:clientPass:::recv" atmoz/sftp
+```

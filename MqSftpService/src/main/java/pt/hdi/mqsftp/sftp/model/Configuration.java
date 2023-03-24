@@ -1,8 +1,9 @@
 package pt.hdi.mqsftp.sftp.model;
 
-import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -20,17 +21,17 @@ public class Configuration {
 	private Date createDate;
 	private String documentName;
 	private List<MQConfig> mqConfig;
-	private String sftpFileName;
+	private List<SFTPConfig> sftpConfig;
+	
 	
 	
 	public Configuration() {
 		super();
 	}
-	public Configuration(String documentName, List<MQConfig> mqConfig, String sftpFileName) {
+	public Configuration(String documentName, List<MQConfig> mqConfig) {
 		super();
 		this.documentName = documentName;
 		this.mqConfig = mqConfig;
-		this.sftpFileName = sftpFileName;
 	}
 	public String getId() {
 		return id;
@@ -57,13 +58,20 @@ public class Configuration {
 	public void setDocumentName(String documentName) {
 		this.documentName = documentName;
 	}
-	public String getSftpFileName() {
-		return sftpFileName;
-	}
-	public void setSftpFileName(String sftpFileName) {
-		this.sftpFileName = sftpFileName;
-	}
 	
+	public List<SFTPConfig> getSftpConfig() {
+		return sftpConfig;
+	}
+	public void removeAllSftpConfig() {
+		this.sftpConfig.clear();
+	}
+	public void addMqConfig(SFTPConfig sftpConfig) {
+		if (this.sftpConfig == null) {
+			this.sftpConfig = new ArrayList<SFTPConfig>();
+		}
+		this.sftpConfig.add(sftpConfig);	
+	}
+
 	public List<MQConfig> getMqConfig() {
 		return mqConfig;
 	}
@@ -74,14 +82,19 @@ public class Configuration {
 		if (this.mqConfig == null) {
 			this.mqConfig = new ArrayList<MQConfig>();
 		}
-		this.mqConfig.add(mqConfig);	
+		this.mqConfig.add(mqConfig);
 	}
-	
+	public void removeSftpConfig(SFTPConfig sftpConfig) {
+		this.sftpConfig.removeIf(s -> s.getSftpFileName().equals(sftpConfig.getSftpFileName()));
+	}
+	public Optional<SFTPConfig> getFirstSendSftpConfig() {
+		return sftpConfig.stream().filter(s -> s.getDestinationPath().equals("send")).findFirst();
+	}
 	@Override
 	public String toString() {
 		return "Configuration [id=" + id + ", lastModificationDate=" + lastModificationDate + ", createDate="
-				+ createDate + ", documentName=" + documentName + ", mqConfig=" + mqConfig + ", sftpFileName="
-				+ sftpFileName + "]";
+				+ createDate + ", documentName=" + documentName + ", mqConfig=" + mqConfig + ", sftpConfig="
+				+ sftpConfig + "]";
 	}
 
 }
