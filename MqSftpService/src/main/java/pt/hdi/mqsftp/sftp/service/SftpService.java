@@ -12,9 +12,9 @@ public class SftpService {
 
 	private OutboundGtw sog;
 	
-	public void sendFile(SFTPConfig sftpConf, Path file) {
-		
-		sog.sftpOutbGtw(sftpConf, file).handleMessage(null);
+	public void sendFile(SFTPConfig sftpConf, Path file) throws Exception {
+		sog = new OutboundGtw();
+		sog.sftpOutbGtw(sftpConf, file);
 		
 	}
 }

@@ -30,7 +30,7 @@ public class SFTPConnectionBean {
 		factory.setPort(port);
 		factory.setUser(username);
 		factory.setPassword(password);
-		factory.setAllowUnknownKeys(false);
+		factory.setAllowUnknownKeys(true);
 		return new CachingSessionFactory<ChannelSftp.LsEntry>(factory);
 	}
 

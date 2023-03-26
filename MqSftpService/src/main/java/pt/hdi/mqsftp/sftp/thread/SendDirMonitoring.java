@@ -87,6 +87,7 @@ public class SendDirMonitoring implements Runnable {
 			e.printStackTrace();
 		} catch (Exception e) {
 			System.err.println("Problems with WatchEvent: "+e.getStackTrace());
+			e.printStackTrace();
 		} finally {
 			System.out.println("Finished SendDirMonitoring");
 			//Executor exec = Executors.newFixedThreadPool(1);

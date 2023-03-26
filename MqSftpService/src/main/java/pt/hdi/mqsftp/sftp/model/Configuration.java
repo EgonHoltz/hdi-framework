@@ -84,11 +84,11 @@ public class Configuration {
 		}
 		this.mqConfig.add(mqConfig);
 	}
-	public void removeSftpConfig(SFTPConfig sftpConfig) {
-		this.sftpConfig.removeIf(s -> s.getSftpFileName().equals(sftpConfig.getSftpFileName()));
+	public boolean removeSftpConfig(SFTPConfig sftpConfig) {
+		return this.sftpConfig.removeIf(s -> s.getSftpFileName().equals(sftpConfig.getSftpFileName()));
 	}
 	public Optional<SFTPConfig> getFirstSendSftpConfig() {
-		return sftpConfig.stream().filter(s -> s.getDestinationPath().equals("send")).findFirst();
+		return this.sftpConfig.stream().filter(s -> s.getDirection().equals("send")).findFirst();
 	}
 	@Override
 	public String toString() {

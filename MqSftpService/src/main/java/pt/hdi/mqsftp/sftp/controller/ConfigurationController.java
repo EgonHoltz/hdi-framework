@@ -62,8 +62,8 @@ public class ConfigurationController {
 	public ResponseEntity<Void> removeSftpConfiguration(@PathVariable String configId, @RequestBody SFTPConfig sftpConfig){
 		try {
 			Configuration config = cnfgSrvc.getByDocumentName(configId);
-			config.removeSftpConfig(sftpConfig);
-			boolean removedOk = cnfgSrvc.saveConfiguration(config);
+			boolean removedOk = config.removeSftpConfig(sftpConfig);
+			removedOk &= cnfgSrvc.saveConfiguration(config);
 			if (removedOk) {
 				return new ResponseEntity<Void>(HttpStatus.OK);
 			}		
