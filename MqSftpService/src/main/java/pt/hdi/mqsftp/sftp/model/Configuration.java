@@ -90,6 +90,9 @@ public class Configuration {
 	public Optional<SFTPConfig> getFirstSendSftpConfig() {
 		return this.sftpConfig.stream().filter(s -> s.getDirection().equals("send")).findFirst();
 	}
+	public Optional<SFTPConfig> getFirstReceiveSftpConfig() {
+		return this.sftpConfig.stream().filter(s -> s.getDirection().equals("recv")).findFirst();
+	}
 	@Override
 	public String toString() {
 		return "Configuration [id=" + id + ", lastModificationDate=" + lastModificationDate + ", createDate="

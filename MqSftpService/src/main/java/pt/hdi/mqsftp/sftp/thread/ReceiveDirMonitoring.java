@@ -1,5 +1,6 @@
 package pt.hdi.mqsftp.sftp.thread;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -19,19 +20,35 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.env.Environment;
+import org.springframework.data.util.Optionals;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
+
+import pt.hdi.mqsftp.sftp.model.Configuration;
+import pt.hdi.mqsftp.sftp.service.ConfigurationService;
+import pt.hdi.mqsftp.sftp.service.DataCentralizerService;
 
 public class ReceiveDirMonitoring implements Runnable{
 
 	private ApplicationContext ctx;
 	
+	private ConfigurationService confService;
+	
+	private DataCentralizerService dcService;
+	
+	private Environment env;
+	
 	public ReceiveDirMonitoring(ApplicationContext appCtx) {
 		this.ctx = appCtx;
+		env = ctx.getEnvironment();
+		confService = ctx.getBean(ConfigurationService.class);
+		dcService = ctx.getBean(DataCentralizerService.class);
 	}
 	
 	@Override
 	public void run() {
-		Environment env = ctx.getEnvironment();
 		System.out.println("Started ReceiveDirMonitoring");
 		String recvPath = env.getProperty("spring.sftp.recvpath");
 		Path fpath = Paths.get(recvPath);
@@ -51,6 +68,23 @@ public class ReceiveDirMonitoring implements Runnable{
 						if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
 							Path fileP = fpath.resolve((Path) event.context());
 							System.out.println("new file found: " + fileP);
+							String fn = fileP.getFileName().toString();
+							String inferedDoc = fn.substring(fn.indexOf("N_") +2, fn.indexOf("_N"));
+							Configuration conf = confService.getByDocumentName(inferedDoc);
+							if (conf == null || conf.getSftpConfig() == null) {
+								System.out.println("No config found for this file");
+								if (Files.exists(fileP)) {
+									Files.delete(fileP);
+								}
+								continue;
+							}
+							if (Optionals.isAnyPresent(conf.getFirstReceiveSftpConfig())) {
+								ResponseEntity<String> res = dcService.sendReceivedFileToCentralizedServer(conf, fileP.toFile());
+								if(HttpStatus.ACCEPTED.equals(res.getStatusCode())) {
+									System.out.println("Accepted with success");
+								}
+							}
+
 						}
 					}
 					wk.reset();
@@ -61,10 +95,29 @@ public class ReceiveDirMonitoring implements Runnable{
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			System.err.println("Problems with WatchEvent: "+e.getStackTrace());
-		} finally {
-			System.out.println("Finished ReceiveDirMonitoring");
-			//Executor exec = Executors.newFixedThreadPool(1);
-			//exec.execute(new ReceiveDirMonitoring());
+		} catch (RestClientException e) {
+			System.err.println("Problems with RestClientException: "+e.getStackTrace());
+		} catch (StringIndexOutOfBoundsException e) {
+			System.out.println("File found has unaccepted format name: " +e.getStackTrace());
+		} catch (Exception e) {
+			System.out.println("Generic exception, please verify: "+e.getStackTrace());
+			e.printStackTrace();
+		}
+		finally {
+			System.out.println("Finished ReceiveDirMonitoring, removing all files");
+			File exclDir = new File(recvPath);
+			if (exclDir.exists() && exclDir.isDirectory()) {
+				File[] files = exclDir.listFiles();
+				if (files != null && files.length > 0) {
+					for(File file : files) {
+						if (file.isFile()) {
+							file.delete();
+						}
+					}
+				}
+			}
+			Executor exec = Executors.newFixedThreadPool(1);
+			exec.execute(new ReceiveDirMonitoring(ctx));
 		}
 	}
 }
