@@ -31,5 +31,5 @@ Now, with user and pass "guest" it is possible to configure new MQ Queues by int
 
 To test SFTP, a server was created:
 ```sh
-docker run -p 8022:22 -v /home/egonh/projects/docker/sftp:/home/client/recv -d --name sftp_test_svr -e SFTP_USERS="client:clientPass:::recv" atmoz/sftp
+docker run -p 8022:22 -v /home/egonh/projects/docker/sftp:/home/client/recv -d --name sftp_test_svr -e SFTP_USERS="client:clientPass:1001:100:recv" atmoz/sftp
 ```
