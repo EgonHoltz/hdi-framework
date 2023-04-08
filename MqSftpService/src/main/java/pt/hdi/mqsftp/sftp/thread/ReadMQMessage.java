@@ -70,13 +70,13 @@ public class ReadMQMessage implements Runnable{
 			SimpleMessageListenerContainer smlc = new SimpleMessageListenerContainer(connectionFactory());
 			smlc.setConnectionFactory(connectionFactory());
 			smlc.setQueueNames(qName);
-			smlc.setMessageListener(new MessageListenerAdapter(new MessageListener()));
+			smlc.setMessageListener(new MessageListenerAdapter(new MessageListener(ctx)));
 			smlc.start();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 			Executor exec = Executors.newFixedThreadPool(1);
-			//exec.execute(new ReadMQMessage(qName));
+			exec.execute(new ReadMQMessage(qName, ctx));
 		}
 		
 	}
