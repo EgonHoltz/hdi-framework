@@ -1,5 +1,6 @@
 package pt.hdi.mqsftp.sftp.thread;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -38,6 +39,8 @@ public class SendDirMonitoring implements Runnable {
 	
 	private ConfigurationService confService;
 	
+	private String sendPath;
+	
 	public SendDirMonitoring(ApplicationContext appCtx) {
 		this.ctx = appCtx;
 		env = ctx.getEnvironment();
@@ -47,7 +50,7 @@ public class SendDirMonitoring implements Runnable {
 	
 	public void run() {
 		System.out.println("Started SendDirMonitoring");
-		String sendPath = env.getProperty("spring.sftp.sendpath");
+		sendPath = env.getProperty("spring.sftp.sendpath");
 		Path fpath = Paths.get(sendPath);
 		if (!Files.exists(fpath)) {
 			System.out.println("Directory does not exists: "+sendPath);
@@ -75,7 +78,14 @@ public class SendDirMonitoring implements Runnable {
 								continue;
 							}
 							if (Optionals.isAnyPresent(conf.getFirstSendSftpConfig())) {
-								sftpService.sendFile(conf.getFirstSendSftpConfig().get(), fileP);
+								//sftpService.sendFile(conf.getFirstSendSftpConfig().get(), fileP, ctx);
+								boolean success = sftpService.doSftpSendFile(conf.getFirstSendSftpConfig().get(), fileP);
+								if (success) {
+									System.out.println("SFTP done with success");
+									if (Files.exists(fileP)) {
+										Files.delete(fileP);
+									}
+								}
 							}
 						}
 					}
@@ -89,9 +99,20 @@ public class SendDirMonitoring implements Runnable {
 			System.err.println("Problems with WatchEvent: "+e.getStackTrace());
 			e.printStackTrace();
 		} finally {
-			System.out.println("Finished SendDirMonitoring");
-			//Executor exec = Executors.newFixedThreadPool(1);
-			//exec.execute(new SendDirMonitoring());
+			System.out.println("Finished SendDirMonitoring, removing all files");
+			File exclDir = new File(sendPath);
+			if (exclDir.exists() && exclDir.isDirectory()) {
+				File[] files = exclDir.listFiles();
+				if (files != null && files.length > 0) {
+					for(File file : files) {
+						if (file.isFile()) {
+							file.delete();
+						}
+					}
+				}
+			}
+			Executor exec = Executors.newFixedThreadPool(1);
+			exec.execute(new SendDirMonitoring(ctx));
 		}
 	}
 	

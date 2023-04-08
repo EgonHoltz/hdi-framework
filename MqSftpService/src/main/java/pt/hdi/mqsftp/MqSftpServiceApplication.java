@@ -10,8 +10,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.integration.config.EnableIntegration;
 
 @SpringBootApplication
+@EnableIntegration
 public class MqSftpServiceApplication {
 	public static void main(String[] args) {
 		ApplicationContext ctx = SpringApplication.run(MqSftpServiceApplication.class, args);
