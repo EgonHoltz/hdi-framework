@@ -1,8 +1,8 @@
 # hdi-framework
 Data Integration Framework
 
-
-# Installation of environment
+## MqSftpService
+### Installation of environment
 
 Local:
 
@@ -27,9 +27,31 @@ It creates a generic user, set all permissions to it and enable the UI user mana
 
 Now, with user and pass "guest" it is possible to configure new MQ Queues by interface.
 
-# Testing suite
+### Testing suite
 
 To test SFTP, a server was created:
 ```sh
 docker run -p 8022:22 -v /home/egonh/projects/docker/sftp:/home/client/recv -d --name sftp_test_svr -e SFTP_USERS="client:clientPass:1001:100:recv" atmoz/sftp
 ```
+
+
+
+## GrpcService
+
+### Installation and build
+
+After the push of project, please build the maven using the "package" target
+
+```sh
+mvn package -DskipTests 
+```
+
+After success, change the project classpath to add the generated classes. It will be generated on:
+```
+/target/generated-sources/protobuf
+```
+Go to the folders below and add it to the classpath:
+/target/generated-sources/protobuf/grpc-java
+/target/generated-sources/protobuf/java
+Right click on the folder > Buildpath > User as source folder
+
