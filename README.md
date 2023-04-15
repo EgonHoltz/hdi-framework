@@ -64,4 +64,6 @@ Right click on the folder > Buildpath > User as source folder
 ## Rest Service
 Project declared on RestServiceApplication folder
 
+## Vue application interface
+Project declared on UIDataCentralizator folder
 
