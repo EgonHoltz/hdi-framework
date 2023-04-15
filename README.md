@@ -2,6 +2,8 @@
 Data Integration Framework
 
 ## MqSftpService
+
+Project declared on MqSftpService folder
 ### Installation of environment
 
 Local:
@@ -37,7 +39,7 @@ docker run -p 8022:22 -v /home/egonh/projects/docker/sftp:/home/client/recv -d -
 
 
 ## GrpcService
-
+Project declared on GrpcServiceApplication folder
 ### Installation and build
 
 After the push of project, please build the maven using the "package" target
@@ -57,5 +59,9 @@ Go to the folders below and add it to the classpath:
 /target/generated-sources/protobuf/java
 
 Right click on the folder > Buildpath > User as source folder
+
+
+## Rest Service
+Project declared on RestServiceApplication folder
 
 
