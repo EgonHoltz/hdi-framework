@@ -51,7 +51,11 @@ After success, change the project classpath to add the generated classes. It wil
 /target/generated-sources/protobuf
 ```
 Go to the folders below and add it to the classpath:
+
 /target/generated-sources/protobuf/grpc-java
+
 /target/generated-sources/protobuf/java
+
 Right click on the folder > Buildpath > User as source folder
+
 
