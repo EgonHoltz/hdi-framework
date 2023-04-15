@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package grpcservice;
+
+option java_multiple_files = true;
+option java_package = "pt.hdi.grpcservice";
+option java_outer_classname = "dataSend";
+
+
+service data {
+	rpc sendRqst(ServiceDataRequest) returns(ServiceDataResponse){
+	}
+}
+message ServiceDataRequest {
+  string clientId = 1;
+  string jsonMsg = 2;
+}
+
+message ServiceDataResponse {
+  string clientId = 1;
+  string jsonMsg = 2;
+}
