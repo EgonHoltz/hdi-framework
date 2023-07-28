@@ -2,12 +2,6 @@ package pt.hdi.mqsftp.sftp.service;
 
 import java.nio.file.Path;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.jcraft.jsch.ChannelSftp;
