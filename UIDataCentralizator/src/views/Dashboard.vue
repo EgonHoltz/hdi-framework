@@ -5,50 +5,46 @@
       <!-- Card stats -->
       <b-row>
         <b-col xl="3" md="6">
-          <stats-card title="Total traffic"
-                      type="gradient-red"
-                      sub-title="350,897"
-                      icon="ni ni-active-40"
+          <stats-card title="Documents"
+                      type="gradient-purple"
+                      sub-title="5"
+                      icon="ni ni-books"
                       class="mb-4">
 
-            <template slot="footer">
-              <span class="text-success mr-2">3.48%</span>
-              <span class="text-nowrap">Since last month</span>
-            </template>
           </stats-card>
         </b-col>
         <b-col xl="3" md="6">
-          <stats-card title="Total traffic"
+          <stats-card title="Received data"
                       type="gradient-orange"
-                      sub-title="2,356"
-                      icon="ni ni-chart-pie-35"
+                      sub-title="1,287"
+                      icon="ni ni-cloud-download-95"
                       class="mb-4">
 
             <template slot="footer">
-              <span class="text-success mr-2">12.18%</span>
+              <span class="text-success mr-2">25%</span>
               <span class="text-nowrap">Since last month</span>
             </template>
           </stats-card>
         </b-col>
         <b-col xl="3" md="6">
-          <stats-card title="Sales"
+          <stats-card title="Sent data"
                       type="gradient-green"
-                      sub-title="924"
-                      icon="ni ni-money-coins"
+                      sub-title="128"
+                      icon="ni ni-cloud-upload-96"
                       class="mb-4">
 
             <template slot="footer">
-              <span class="text-danger mr-2">5.72%</span>
+              <span class="text-danger mr-2">12%</span>
               <span class="text-nowrap">Since last month</span>
             </template>
           </stats-card>
 
         </b-col>
         <b-col xl="3" md="6">
-          <stats-card title="Performance"
+          <stats-card title="Duplicated found"
                       type="gradient-info"
                       sub-title="49,65%"
-                      icon="ni ni-chart-bar-32"
+                      icon="ni ni ni-ungroup"
                       class="mb-4">
 
             <template slot="footer">
@@ -62,71 +58,14 @@
 
     <!--Charts-->
     <b-container fluid class="mt--7">
-      <b-row>
-        <b-col xl="8" class="mb-5 mb-xl-0">
-          <card type="default" header-classes="bg-transparent">
-            <b-row align-v="center" slot="header">
-              <b-col>
-                <h6 class="text-light text-uppercase ls-1 mb-1">Overview</h6>
-                <h5 class="h3 text-white mb-0">Sales value</h5>
-              </b-col>
-              <b-col>
-                <b-nav class="nav-pills justify-content-end">
-                  <b-nav-item
-                       class="mr-2 mr-md-0"
-                       :active="bigLineChart.activeIndex === 0"
-                       link-classes="py-2 px-3"
-                       @click.prevent="initBigChart(0)">
-                      <span class="d-none d-md-block">Month</span>
-                      <span class="d-md-none">M</span>
-                  </b-nav-item>
-                  <b-nav-item
-                    link-classes="py-2 px-3"
-                    :active="bigLineChart.activeIndex === 1"
-                    @click.prevent="initBigChart(1)"
-                  >
-                    <span class="d-none d-md-block">Week</span>
-                    <span class="d-md-none">W</span>
-                  </b-nav-item>
-                </b-nav>
-              </b-col>
-            </b-row>
-            <line-chart
-              :height="350"
-              ref="bigChart"
-              :chart-data="bigLineChart.chartData"
-              :extra-options="bigLineChart.extraOptions"
-            >
-            </line-chart>
-          </card>
-        </b-col>
-
-        <b-col xl="4" class="mb-5 mb-xl-0">
-          <card header-classes="bg-transparent">
-            <b-row align-v="center" slot="header">
-              <b-col>
-                <h6 class="text-uppercase text-muted ls-1 mb-1">Performance</h6>
-                <h5 class="h3 mb-0">Total orders</h5>
-              </b-col>
-            </b-row>
-
-            <bar-chart
-              :height="350"
-              ref="barChart"
-              :chart-data="redBarChart.chartData"
-            >
-            </bar-chart>
-          </card>
-        </b-col>
-      </b-row>
       <!-- End charts-->
 
       <!--Tables-->
       <b-row class="mt-5">
-        <b-col xl="8" class="mb-5 mb-xl-0">
+        <!-- <b-col xl="8" class="mb-5 mb-xl-0">
           <page-visits-table></page-visits-table>
-        </b-col>
-        <b-col xl="4" class="mb-5 mb-xl-0">
+        </b-col> -->
+        <b-col xl="10" class="mb-5 mb-xl-0">
           <social-traffic-table></social-traffic-table>
         </b-col>
       </b-row>

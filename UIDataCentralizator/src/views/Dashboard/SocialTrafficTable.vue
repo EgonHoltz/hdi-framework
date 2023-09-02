@@ -3,11 +3,11 @@
     <template v-slot:header>
       <b-row align-v="center">
         <b-col>
-          <h3 class="mb-0">Social traffic</h3>
+          <h3 class="mb-0">Applications traffic</h3>
         </b-col>
-        <b-col class="text-right">
+        <!-- <b-col class="text-right">
           <base-button size="sm" type="primary">See all</base-button>
-        </b-col>
+        </b-col> -->
       </b-row>
     </template>
 
@@ -16,13 +16,19 @@
       class="table-responsive table"
       :data="tableData"
       header-row-class-name="thead-light">
-      <el-table-column label="Referral" min-width="115px" prop="name">
+      <el-table-column label="Document Name" min-width="115px" prop="document">
         <template v-slot="{row}">
-          <div class="font-weight-600">{{row.name}}</div>
+          <div class="font-weight-600">{{row.document}}</div>
         </template>
       </el-table-column>
 
-      <el-table-column label="Visitors" min-width="110px" prop="visitors">
+      <el-table-column label="Technologies to Receive data" min-width="110px" prop="techs">
+      </el-table-column>
+      <el-table-column label="Data Owner" min-width="110px" prop="owner">
+      </el-table-column>
+      <el-table-column label="Received Docs" min-width="110px" prop="rcvd">
+      </el-table-column>
+      <el-table-column label="Sent docs" min-width="110px" prop="sent">
       </el-table-column>
 
       <el-table-column min-width="220px" prop="progress">
@@ -53,35 +59,32 @@
       return {
         tableData: [
           {
-            name: 'Facebook',
-            visitors: '1,480',
-            progress: 60,
+            document: 'Individual Clients',
+            techs: 'todo',
+            owner: 'John Doe',
+            rcvd: '19',
+            sent: '10',
+            progress: 70,
             progressType: 'gradient-danger',
           },
           {
-            name: 'LinkedIn',
-            visitors: '5,480',
-            progress: 70,
-            progressType: 'gradient-success',
+            document: 'Accounts',
+            techs: 'todo',
+            owner: 'Sarah Smith',
+            rcvd: '25',
+            sent: '18',
+            progress: 60,
+            progressType: 'gradient-warning',
           },
           {
-            name: 'Google',
-            visitors: '4,807',
-            progress: 80,
-            progressType: 'gradient-primary',
-          },
-          {
-            name: 'Instagram',
-            visitors: '3,678',
-            progress: 75,
+            document: 'Companies',
+            techs: 'todo',
+            owner: 'Airi Satou',
+            rcvd: '33',
+            sent: '21',
+            progress: 10,
             progressType: 'gradient-info',
           },
-          {
-            name: 'Twitter',
-            visitors: '2,645',
-            progress: 30,
-            progressType: 'gradient-warning',
-          }
         ]
       }
     }
