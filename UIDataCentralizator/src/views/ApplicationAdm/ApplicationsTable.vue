@@ -11,6 +11,10 @@
         </b-row>
       </template>
   
+      <!-- Add New Application Button -->
+      <div class="add-button-container">
+        <el-button type="primary" @click="addNewApplication">Add New Application</el-button>
+      </div>
   
       <el-table
         class="table-responsive table"
@@ -68,14 +72,14 @@
         <el-form-item label="Functional ID">
           <el-input v-model="editForm.fundId" :disabled="isReadOnly"></el-input>
         </el-form-item>
-        <el-form-item label="Creation Date">
-          <el-input v-model="editForm.creationDate" :disabled="isReadOnly"></el-input>
+        <el-form-item label="Creation Date" v-if="isReadOnly">
+          <el-input v-model="editForm.creationDate"></el-input>
         </el-form-item>
-        <el-form-item label="Created By">
-          <el-input v-model="editForm.createdBy" :disabled="isReadOnly"></el-input>
+        <el-form-item label="Created By" v-if="isReadOnly">
+          <el-input v-model="editForm.createdBy"></el-input>
         </el-form-item>
-        <el-form-item label="Last modified Date">
-          <el-input v-model="editForm.lastModDate" :disabled="isReadOnly"></el-input>
+        <el-form-item label="Last modified Date" v-if="isReadOnly">
+          <el-input v-model="editForm.lastModDate"></el-input>
         </el-form-item>
         <el-form-item label="High Availability">
           <el-checkbox v-model="editForm.highAvailability" :disabled="isReadOnly"/> 
@@ -131,6 +135,7 @@
           },
           tableData: [
             {
+              id: "64fcd0130034532bc2cfa277",
               appname: 'Application A',
               appabrv: "AAA",
               owner: 'John Doe',
@@ -146,6 +151,7 @@
               observations: 'Application to be used to handle clients'
             },
             {
+              id: "64fcd023b739a2988337b7e3",
               appname: 'Application B',
               appabrv: "AAB",
               fundId: '64f491b3f46a2d3b7bb0d8b7',
@@ -161,6 +167,7 @@
               observations: 'Application to be used to generate report'
             },
             {
+              id: "64fcd03042d783c5aa424c0b",
               appname: 'Application C',
               appabrv: "AAC",
               fundId: '64f491f54efe50e3a0e3c923',
@@ -182,10 +189,18 @@
         saveEdit() {
           // Handle the save action here, e.g., update the row data
           console.log('Saving edited data:', this.editForm);
-          
 
+          if (this.editForm.id == null){
+            this.tableData.push(this.editForm);
+          }
+          
           // Close the edit dialog
           this.editDialogVisible = false;
+        },
+        addNewApplication(){
+          this.editDialogVisible = true;
+          this.isReadOnly = false;
+
         },
         handleEdit(row, isViewMode) {
           this.editForm.appname = row.appname;
@@ -210,5 +225,9 @@
     }
   </script>
   <style>
+  .add-button-container {
+  text-align: right;
+  margin: 20px; /* Adjust the margin as needed */
+}
   </style>
   
