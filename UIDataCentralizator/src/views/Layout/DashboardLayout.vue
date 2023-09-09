@@ -15,7 +15,7 @@
         <sidebar-item
             :link="{
               name: 'Application Administration',
-              path: '/icons',
+              path: '/application',
               icon: 'ni ni-building text-blue'
               }"
             >
@@ -24,7 +24,7 @@
         <sidebar-item
             :link="{
               name: 'Documents',
-              path: '/icons',
+              path: '/document',
               icon: 'ni ni-books text-blue'
               }"
             >
