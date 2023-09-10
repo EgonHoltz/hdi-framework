@@ -5,6 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch Chrome",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:8080",
+            "webRoot": "${workspaceFolder}/UIDataCentralizator",
+            "sourceMapPathOverrides": {
+                "webpack:///./src/*": "${webRoot}/*",
+                "webpack:///src/*": "${webRoot}/*"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Serve dev UI",
+            "program": "${workspaceFolder}/UIDataCentralizator/node_modules/@vue/cli-service/bin/vue-cli-service.js",
+            "args": ["serve"],
+            "cwd": "${workspaceFolder}/UIDataCentralizator"
+        },
+        {
             "type": "java",
             "name": "Current File",
             "request": "launch",

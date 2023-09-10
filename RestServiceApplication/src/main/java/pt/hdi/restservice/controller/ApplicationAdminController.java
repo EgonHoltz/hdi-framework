@@ -29,11 +29,13 @@ public class ApplicationAdminController {
 
     @GetMapping("/")
     public List<Application> getAllApplications(){
-        return appRep.findAll();
+            System.out.println("Called getAllApplications");
+            return appRep.findAll();
     }
 
     @PostMapping("/")
     public ResponseEntity createApplication(Application app){
+        System.out.println("Called createApplications");
         if (app == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

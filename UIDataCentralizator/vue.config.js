@@ -7,6 +7,7 @@ function resolveSrc(_path) {
 module.exports = {
   lintOnSave: true,
   configureWebpack: {
+    devtool: "source-map",
     // Set up all the aliases we use in our app.
     resolve: {
       alias: {

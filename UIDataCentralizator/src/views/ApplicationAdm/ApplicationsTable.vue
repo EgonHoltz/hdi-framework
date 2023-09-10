@@ -102,7 +102,9 @@
   </template>
   <script>
     import { BaseProgress } from '@/components';
-    import { Table, TableColumn, DropdownMenu, DropdownItem, Dropdown, Button, FormItem, Dialog, Form, Checkbox} from 'element-ui'
+    import { mapGetters } from "vuex";
+    import { Table, TableColumn, DropdownMenu, DropdownItem, Dropdown, Button, FormItem, Dialog, Form, Checkbox} from 'element-ui';
+    import {FETCH_APPLICATIONS, ADD_APPLICATION, EDIT_APPLICATION} from '@/store/application/application.constants';
     export default {
       components: {
         BaseProgress,
@@ -185,7 +187,26 @@
           ]
         }
       },
+      created() {
+        this.isReadOnly = false;
+      },
+      mounted(){
+        this.afterRender();
+      },
       methods: {
+        afterRender(){
+          this.fetchApplications();
+        },
+        fetchApplications(){
+          console.log("fetch data");
+          this.$store.dispatch(`application/fetchApplications`).then( 
+            () => {
+                this.applications = this.getApplications;
+                console.log(this.applications);
+            }, err => {
+                this.$alert(`${err.message}`, 'Erro', 'error');
+            });
+        },
         saveEdit() {
           // Handle the save action here, e.g., update the row data
           console.log('Saving edited data:', this.editForm);
