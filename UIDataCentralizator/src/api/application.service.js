@@ -3,7 +3,7 @@ import API_URL from './config.js'
 export const appService = {
     // TODO: add token as receiving data on method
     async getAllApplications(/*token*/) {
-        let response = await fetch(`${API_URL}/application`, {
+        let response = await fetch(`${API_URL}/application/`, {
           method: "GET",
           headers: {
             'Content-Type': 'application/json',
@@ -11,13 +11,14 @@ export const appService = {
           }
         });
         if (response.ok) {
+          console.log("Service called: " + response)
           return await response.json();
         } else {
           throw Error(handleResponses(response.status));
         }
       },
     async addApplication(/*token,*/ payload) {
-      const response = await fetch(`${API_URL}/application`, {
+      const response = await fetch(`${API_URL}/application/`, {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
@@ -26,13 +27,18 @@ export const appService = {
         body: JSON.stringify(payload)
       })
       if (response.ok) {
-        return await response.json();
+        try {
+          const json = await response.json();
+          return json;
+        } catch (error){
+          throw new Error("Invalid JSON response from the server");
+        }
       } else {
         throw Error(handleResponses(response.status));
       }
     },
     async editApplication(/*token,*/ payload) {
-      const response = await fetch(`${API_URL}/application/${payload._id}`, {
+      const response = await fetch(`${API_URL}/application/${payload.id}`, {
         method: "PUT",
         headers: {
           'Content-Type': 'application/json',

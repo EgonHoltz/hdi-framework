@@ -12,12 +12,12 @@ public class Application {
     String appName;
     String appAbrv;
     String functionalId;
-    String Owner;
+    String owner;
     Long recvData;
     Long sentData;
     BigDecimal errorsPercentage;
     String observations;
-    Boolean highAvaiability;
+    Boolean highAvailability;
     
     @CreatedDate
     Date creationDate;
@@ -26,7 +26,19 @@ public class Application {
     @LastModifiedDate
     Date lastModDate;
 
-
+    public Application() {
+    }
+    public Application(Application app) {
+        this.appName = app.getAppName();
+        this.appAbrv = app.getAppAbrv();
+        this.functionalId = app.getFunctionalId();
+        this.owner = app.getOwner();
+        this.recvData = 0L;
+        this.sentData = 0L;
+        this.errorsPercentage = new BigDecimal(0);
+        this.observations = app.getObservations();
+        this.highAvailability = app.getHighAvailability();
+    }
     public String getId() {
         return id;
     }
@@ -52,10 +64,10 @@ public class Application {
         this.functionalId = functionalId;
     }
     public String getOwner() {
-        return Owner;
+        return owner;
     }
     public void setOwner(String owner) {
-        Owner = owner;
+        this.owner = owner;
     }
     public Long getRecvData() {
         return recvData;
@@ -87,11 +99,11 @@ public class Application {
     public void setLastModDate(Date lastModDate) {
         this.lastModDate = lastModDate;
     }
-    public Boolean getHighAvaiability() {
-        return highAvaiability;
+    public Boolean getHighAvailability() {
+        return highAvailability;
     }
-    public void setHighAvaiability(Boolean highAvaiability) {
-        this.highAvaiability = highAvaiability;
+    public void setHighAvailability(Boolean highAvailability) {
+        this.highAvailability = highAvailability;
     }
     public BigDecimal getErrorsPercentage() {
         return errorsPercentage;

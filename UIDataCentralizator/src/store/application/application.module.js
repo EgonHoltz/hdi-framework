@@ -26,7 +26,8 @@ const actions = {
             applicationService.getAllApplications(/*rootState.auth.token*/)
               .then(
                 res => {
-                  commit(SET_APPLICATIONS, res.body);
+                  console.log("on response module " + res)
+                  commit(SET_APPLICATIONS, res);
                   resolve(res)
                 },
                 err => {

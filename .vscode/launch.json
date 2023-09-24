@@ -46,9 +46,11 @@
         {
             "type": "java",
             "name": "RestServiceApplication",
-            "request": "launch",
+            "request": "attach",
             "mainClass": "pt.hdi.restservice.RestServiceApplication",
-            "projectName": "RestServiceApplication"
+            "hostName": "localhost",
+            "port": 8002,
+            "projectName": "RestServiceApplication" 
         }
     ]
 }

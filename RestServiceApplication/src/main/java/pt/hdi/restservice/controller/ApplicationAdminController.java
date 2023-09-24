@@ -34,31 +34,35 @@ public class ApplicationAdminController {
     }
 
     @PostMapping("/")
-    public ResponseEntity createApplication(Application app){
+    public ResponseEntity createApplication(@RequestBody Application app){
         System.out.println("Called createApplications");
         if (app == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        Application newApp = appRep.save(app);
+        Application newApp = new Application(app);
+        newApp = appRep.save(newApp);
         if (newApp != null){
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            return new ResponseEntity<>(newApp, HttpStatus.CREATED);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public ResponseEntity changeApplication(@PathVariable String id, @RequestBody Application app){
+        System.out.println("Called changeApplication");
         if (id == null || app == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Optional<Application> appFound = appRep.findById(id);
         
         if (!appFound.isPresent() ){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        BeanUtils.copyProperties(appFound, app, ObjectHelper.getNullPropertyNames(appFound));
+        Application appChanged = appFound.get();
+        BeanUtils.copyProperties(app, appChanged, ObjectHelper.getNullPropertyNames(appChanged));
+        appRep.save(appChanged);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(appFound, HttpStatus.OK);
     }
 
 

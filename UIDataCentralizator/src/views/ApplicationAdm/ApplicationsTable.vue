@@ -1,4 +1,5 @@
 <template>
+
     <b-card body-class="p-0" header-class="border-0">
       <template v-slot:header>
         <b-row align-v="center">
@@ -10,7 +11,15 @@
           </b-col> -->
         </b-row>
       </template>
-  
+
+      <el-alert
+        v-if="visibleAlert !== null"
+        :title="alertTitle"
+        :type=visibleAlert
+        @close="visibleAlert = null"
+        >
+      </el-alert>
+
       <!-- Add New Application Button -->
       <div class="add-button-container">
         <el-button type="primary" @click="addNewApplication">Add New Application</el-button>
@@ -20,9 +29,9 @@
         class="table-responsive table"
         :data="tableData"
         header-row-class-name="thead-light">
-        <el-table-column label="Application Name" min-width="115px" prop="appname">
+        <el-table-column label="Application Name" min-width="115px" prop="appName">
           <template v-slot="{row}">
-            <div class="font-weight-600">{{row.appname}}</div>
+            <div class="font-weight-600">{{row.appName}}</div>
           </template>
         </el-table-column>
   
@@ -60,26 +69,27 @@
     >
       <!-- Edit Form -->
       <el-form ref="editForm" :model="editForm" label-width="200px">
+        <el-input v-model="editForm.id" v-if="false"></el-input>
         <el-form-item label="Application Name">
-          <el-input v-model="editForm.appname" :disabled="isReadOnly"></el-input>
+          <el-input v-model="editForm.appName" :disabled="isReadOnly"></el-input>
         </el-form-item>
         <el-form-item label="Application Abbreviation">
-          <el-input v-model="editForm.appabrv" :disabled="isReadOnly"></el-input>
+          <el-input v-model="editForm.appAbrv" :disabled="isReadOnly"></el-input>
         </el-form-item>
         <el-form-item label="Owner">
           <el-input v-model="editForm.owner" :disabled="isReadOnly"></el-input>
         </el-form-item>
         <el-form-item label="Functional ID">
-          <el-input v-model="editForm.fundId" :disabled="isReadOnly"></el-input>
+          <el-input v-model="editForm.functionalId" :disabled="isReadOnly"></el-input>
         </el-form-item>
         <el-form-item label="Creation Date" v-if="isReadOnly">
-          <el-input v-model="editForm.creationDate"></el-input>
+          <el-input v-model="editForm.creationDate" :disabled="true"></el-input>
         </el-form-item>
         <el-form-item label="Created By" v-if="isReadOnly">
-          <el-input v-model="editForm.createdBy"></el-input>
+          <el-input v-model="editForm.createdBy" :disabled="true"></el-input>
         </el-form-item>
         <el-form-item label="Last modified Date" v-if="isReadOnly">
-          <el-input v-model="editForm.lastModDate"></el-input>
+          <el-input v-model="editForm.lastModDate" :disabled="true"></el-input>
         </el-form-item>
         <el-form-item label="High Availability">
           <el-checkbox v-model="editForm.highAvailability" :disabled="isReadOnly"/> 
@@ -103,11 +113,12 @@
   <script>
     import { BaseProgress } from '@/components';
     import { mapGetters } from "vuex";
-    import { Table, TableColumn, DropdownMenu, DropdownItem, Dropdown, Button, FormItem, Dialog, Form, Checkbox} from 'element-ui';
+    import { Table, TableColumn, DropdownMenu, DropdownItem, Dropdown, Button, FormItem, Dialog, Form, Checkbox, Alert} from 'element-ui';
     import {FETCH_APPLICATIONS, ADD_APPLICATION, EDIT_APPLICATION} from '@/store/application/application.constants';
     export default {
       components: {
         BaseProgress,
+        [Alert.name]: Alert,
         [Checkbox.name]: Checkbox,
         [Form.name]: Form,
         [Dialog.name]: Dialog,
@@ -123,10 +134,11 @@
         return {
           editDialogVisible: false,
           editForm: {
-            appname: '',
-            appabrv: '',
+            id: null,
+            appName: '',
+            appAbrv: '',
             owner: '',
-            fundId: '',
+            functionalId: '',
             creationDate: '',
             createdBy: '',
             lastModDate: '',
@@ -134,14 +146,16 @@
             observations: '',
 
             isReadOnly: false, // Control read-only mode
+            visibleAlert: null,
+            alertTitle: '',
           },
           tableData: [
             {
               id: "64fcd0130034532bc2cfa277",
-              appname: 'Application A',
-              appabrv: "AAA",
+              appName: 'Application A',
+              appAbrv: "AAA",
               owner: 'John Doe',
-              fundId: '64f48f55e631314afd773ee2',
+              functionalId: '64f48f55e631314afd773ee2',
               rcvd: '19',
               sent: '10',
               creationDate: '2023-08-23 15:00:02',
@@ -154,9 +168,9 @@
             },
             {
               id: "64fcd023b739a2988337b7e3",
-              appname: 'Application B',
-              appabrv: "AAB",
-              fundId: '64f491b3f46a2d3b7bb0d8b7',
+              appName: 'Application B',
+              appAbrv: "AAB",
+              functionalId: '64f491b3f46a2d3b7bb0d8b7',
               owner: 'Sarah Smith',
               rcvd: '25',
               sent: '18',
@@ -170,9 +184,9 @@
             },
             {
               id: "64fcd03042d783c5aa424c0b",
-              appname: 'Application C',
-              appabrv: "AAC",
-              fundId: '64f491f54efe50e3a0e3c923',
+              appName: 'Application C',
+              appAbrv: "AAC",
+              functionalId: '64f491f54efe50e3a0e3c923',
               owner: 'Airi Satou',
               rcvd: '33',
               sent: '21',
@@ -189,6 +203,7 @@
       },
       created() {
         this.isReadOnly = false;
+        this.visibleAlert = null;
       },
       mounted(){
         this.afterRender();
@@ -199,40 +214,78 @@
         },
         fetchApplications(){
           console.log("fetch data");
-          this.$store.dispatch(`application/fetchApplications`).then( 
+          this.$store.dispatch(`application/${FETCH_APPLICATIONS}`).then( 
             () => {
-                this.applications = this.getApplications;
+                this.applications = this.$store.getters['application/getApplications'];
                 console.log(this.applications);
+                this.tableData = [];
+                this.tableData = this.tableData.concat(this.applications);
+                console.log(this.tableData);
             }, err => {
-                this.$alert(`${err.message}`, 'Erro', 'error');
+                this.alertTitle = "Error while fetch"
             });
+        },
+        showSuccessAlert() {
+          this.visibleAlert = 'success';
+        },
+        showErrorAlert() {
+          this.visibleAlert = 'error';
+        },
+        hideAlert() {
+          this.visibleAlert = null;
         },
         saveEdit() {
           // Handle the save action here, e.g., update the row data
           console.log('Saving edited data:', this.editForm);
 
-          if (this.editForm.id == null){
-            this.tableData.push(this.editForm);
+          var currentId = this.editForm.id;
+          //No id, it create a new, with id, it edit current
+          if (currentId == undefined || currentId == null ){
+            this.$store.dispatch(`application/${ADD_APPLICATION}`,this.editForm).then( 
+            () => {
+              this.editDialogVisible = false;
+              this.alertTitle = "Application created with success!"
+              this.showSuccessAlert();
+            }, err => {
+              this.editDialogVisible = false;
+              this.alertTitle = "Error on creation. Please contact the IT team"
+              this.showErrorAlert();
+            });
+          } else {
+            this.$store.dispatch(`application/${EDIT_APPLICATION}`,this.editForm).then( 
+            () => {
+              this.editDialogVisible = false;
+              this.alertTitle = "Application changed with success!"
+              this.showSuccessAlert();
+            }, err => {
+              this.editDialogVisible = false;
+              this.alertTitle = "Error on change. Please contact the IT team"
+              this.showErrorAlert();
+            });
           }
-          
-          // Close the edit dialog
-          this.editDialogVisible = false;
+          this.fetchApplications();
+        },
+        hideAlertWithDelay() {
+          setTimeout(() => {
+            this.visibleAlert = null; // Hide the alert after the delay
+            this.alertTitle = '';
+          }, 15000); // 15 seconds in milliseconds
         },
         addNewApplication(){
           this.editDialogVisible = true;
           this.isReadOnly = false;
-
         },
         handleEdit(row, isViewMode) {
-          this.editForm.appname = row.appname;
-          this.editForm.appabrv = row.appabrv;
+          this.editForm.appName = row.appName;
+          this.editForm.appAbrv = row.appAbrv;
           this.editForm.owner = row.owner;
-          this.editForm.fundId = row.fundId
+          this.editForm.functionalId = row.functionalId
           this.editForm.creationDate = row.creationDate;
           this.editForm.createdBy = row.createdBy;
           this.editForm.lastModDate = row.lastModDate;
           this.editForm.highAvailability = row.highAvailability;
           this.editForm.observations = row.observations;
+          this.editForm.id = row.id;
 
           this.editDialogVisible = true;
           // Handle edit action
