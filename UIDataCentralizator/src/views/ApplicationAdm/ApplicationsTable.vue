@@ -42,11 +42,11 @@
         <el-table-column label="Sent docs" min-width="110px" prop="sent">
         </el-table-column>
   
-        <el-table-column label="Errors percentage" min-width="220px" prop="progress">
+        <el-table-column label="Errors percentage" min-width="220px" prop="errorsPercentage">
           <template v-slot="{row}">
             <div class="d-flex align-items-center">
-              <span class="mr-2">{{row.progress}}%</span>
-              <base-progress :type="row.progressType" :value="row.progress" />
+              <span class="mr-2">{{row.errorsPercentage}}%</span>
+              <base-progress :type="row.progressType" :value="row.errorsPercentage" />
             </div>
           </template>
         </el-table-column>
@@ -150,54 +150,6 @@
             alertTitle: '',
           },
           tableData: [
-            {
-              id: "64fcd0130034532bc2cfa277",
-              appName: 'Application A',
-              appAbrv: "AAA",
-              owner: 'John Doe',
-              functionalId: '64f48f55e631314afd773ee2',
-              rcvd: '19',
-              sent: '10',
-              creationDate: '2023-08-23 15:00:02',
-              createdBy: 'John Doe',
-              lastModDate: '2023-08-23 15:00:54',
-              highAvailability: false,
-              progress: 70,
-              progressType: 'gradient-danger',
-              observations: 'Application to be used to handle clients'
-            },
-            {
-              id: "64fcd023b739a2988337b7e3",
-              appName: 'Application B',
-              appAbrv: "AAB",
-              functionalId: '64f491b3f46a2d3b7bb0d8b7',
-              owner: 'Sarah Smith',
-              rcvd: '25',
-              sent: '18',
-              creationDate: '2023-08-21 17:00:36',
-              createdBy: 'Sarah Smith',
-              lastModDate: '2023-08-24 18:23:55',
-              highAvailability: true,
-              progress: 60,
-              progressType: 'gradient-warning',
-              observations: 'Application to be used to generate report'
-            },
-            {
-              id: "64fcd03042d783c5aa424c0b",
-              appName: 'Application C',
-              appAbrv: "AAC",
-              functionalId: '64f491f54efe50e3a0e3c923',
-              owner: 'Airi Satou',
-              rcvd: '33',
-              sent: '21',
-              creationDate: '2023-05-02 08:41:52',
-              createdBy: 'Sarah Smith',
-              lastModDate: '2023-07-06 15:23:23',
-              highAvailability: true,
-              progress: 10,
-              progressType: 'gradient-info',
-              observations: 'Application to be used to handle accounts'
-            },
           ]
         }
       },
@@ -217,19 +169,28 @@
           this.$store.dispatch(`application/${FETCH_APPLICATIONS}`).then( 
             () => {
                 this.applications = this.$store.getters['application/getApplications'];
-                console.log(this.applications);
                 this.tableData = [];
                 this.tableData = this.tableData.concat(this.applications);
-                console.log(this.tableData);
+                // Compute the progressType for each application
+                this.tableData.forEach((app) => {
+                  if (app.errorsPercentage != null) {
+                    app.progressType = app.errorsPercentage < 50 ? 'gradient-info' : 'gradient-warning';
+                  } else {
+                    app.errorsPercentage = 0;
+                    app.progressType = 'gradient-danger';
+                  }
+                });
             }, err => {
                 this.alertTitle = "Error while fetch"
             });
         },
         showSuccessAlert() {
           this.visibleAlert = 'success';
+          this.hideAlertWithDelay();
         },
         showErrorAlert() {
           this.visibleAlert = 'error';
+          this.hideAlertWithDelay();
         },
         hideAlert() {
           this.visibleAlert = null;
@@ -246,6 +207,7 @@
               this.editDialogVisible = false;
               this.alertTitle = "Application created with success!"
               this.showSuccessAlert();
+              this.fetchApplications();
             }, err => {
               this.editDialogVisible = false;
               this.alertTitle = "Error on creation. Please contact the IT team"
@@ -257,16 +219,17 @@
               this.editDialogVisible = false;
               this.alertTitle = "Application changed with success!"
               this.showSuccessAlert();
+              this.fetchApplications();
             }, err => {
               this.editDialogVisible = false;
               this.alertTitle = "Error on change. Please contact the IT team"
               this.showErrorAlert();
             });
           }
-          this.fetchApplications();
         },
         hideAlertWithDelay() {
           setTimeout(() => {
+            console.log("close the alert")
             this.visibleAlert = null; // Hide the alert after the delay
             this.alertTitle = '';
           }, 15000); // 15 seconds in milliseconds

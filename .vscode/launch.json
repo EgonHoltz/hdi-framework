@@ -20,7 +20,9 @@
             "request": "launch",
             "name": "Serve dev UI",
             "program": "${workspaceFolder}/UIDataCentralizator/node_modules/@vue/cli-service/bin/vue-cli-service.js",
-            "args": ["serve"],
+            "args": [
+                "serve"
+            ],
             "cwd": "${workspaceFolder}/UIDataCentralizator"
         },
         {
@@ -50,7 +52,17 @@
             "mainClass": "pt.hdi.restservice.RestServiceApplication",
             "hostName": "localhost",
             "port": 8002,
-            "projectName": "RestServiceApplication" 
+            "projectName": "RestServiceApplication"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-RestServiceApplication<RestServiceApplication>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "pt.hdi.restservice.RestServiceApplication",
+            "projectName": "RestServiceApplication",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }
