@@ -170,7 +170,7 @@
             () => {
                 this.applications = this.$store.getters['application/getApplications'];
                 this.tableData = [];
-                this.tableData = this.tableData.concat(this.applications);
+                this.tableData = this.applications;
                 // Compute the progressType for each application
                 this.tableData.forEach((app) => {
                   if (app.errorsPercentage != null) {
@@ -262,7 +262,7 @@
     }
   </script>
   <style>
-  .add-button-container {
+.add-button-container {
   text-align: right;
   margin: 20px; /* Adjust the margin as needed */
 }

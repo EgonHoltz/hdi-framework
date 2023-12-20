@@ -7,52 +7,28 @@
       <!--Tables-->
       <b-row class="mt-5">
         <b-col xl="10" class="mb-5 mb-xl-0">
-          <el-card class="document-card">
-            <div class="document-label">
-              <h2>{{ documentEntity }}</h2>
-            </div>
-            <div class="document-header">
-              <h3>Document Details</h3>
-            </div>
-            <div class="document-buttons">
-              <el-button @click="redirectToModify">Modify</el-button>
-              <el-button @click="redirectToAssociate">Associate Applications</el-button>
-              <el-button @click="requestDataDeletion">Request Data Deletion</el-button>
-            </div>
-          </el-card>
+          <document-card></document-card>
         </b-col>
       </b-row>
       <!--End tables-->
     </b-container>
-  </div>    
+  </div>
 </template>
 <script>
-    // Charts
-  
-    // Components
-    import { Card, Button} from 'element-ui'
-import BaseHeader from '../components/BaseHeader.vue';
+  // Components
+  import BaseHeader from '../components/BaseHeader.vue';
+
+  // Cards
+  import DocumentCard from './Document/DocumentCard.vue';
    
     export default {
       components: {
-         BaseHeader,
-        [Card.name]: Card,
-        [Button.name]: Button
+        BaseHeader,
+        DocumentCard
       },
       props: {
-        documentEntity: String,
-        documentId: Number,
       },
       methods: {
-        redirectToModify() {
-          this.$router.push({ name: 'modify-document', params: { id: this.documentId } });
-        },
-        redirectToAssociate() {
-          this.$router.push({ name: 'associate-applications', params: { id: this.documentId } });
-        },
-        requestDataDeletion() {
-          this.$router.push({ name: 'request-data-deletion', params: { id: this.documentId } });
-        },
       }
     };
   </script>

@@ -28,6 +28,16 @@ const routes = [
         component: () => import(/* webpackChunkName: "demo" */ '../views/Document.vue')
       },
       {
+        path: '/create-document',
+        name: 'Document creation',
+        component: () => import(/* webpackChunkName: "demo" */ '../views/Document/DocumentForm.vue')
+      },
+      {
+        path: '/modify-document/:id',
+        name: 'Document modification',
+        component: () => import(/* webpackChunkName: "demo" */ '../views/Document/DocumentForm.vue')
+      },
+      {
         path: '/icons',
         name: 'icons',
         component: () => import(/* webpackChunkName: "demo" */ '../views/Icons.vue')

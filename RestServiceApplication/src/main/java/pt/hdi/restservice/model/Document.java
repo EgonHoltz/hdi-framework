@@ -9,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 public class Document{
     String id;
     String documentName;
+    String documentShortDetail;
     String owner;
     Boolean containsSensitiveData;
     Boolean dataToHold;
@@ -26,6 +27,7 @@ public class Document{
 
     public Document(Document doc) {
         this.documentName = doc.getDocumentName();
+        //this.documentShortDetail = doc.getDo
         this.owner = doc.getOwner();
         this.containsSensitiveData = doc.getContainsSensitiveData();
         this.dataToHold = doc.getDataToHold();
@@ -48,12 +50,12 @@ public class Document{
     public void setDocumentName(String documentName) {
         this.documentName = documentName;
     }
+    public String getDocumentShortDetail() {
+        return documentShortDetail;
+    }
 
-    @Override
-    public String toString() {
-        return "Document [id=" + id + ", documentName=" + documentName + ", owner=" + owner + ", containsSensitiveData="
-                + containsSensitiveData + ", dataToHold=" + dataToHold + ", approvedBy=" + approvedBy + ", Observation="
-                + observation + ", lastModificationDate=" + lastModificationDate + ", createDate=" + createDate + "]";
+    public void setDocumentShortDetail(String documentShortDetail) {
+        this.documentShortDetail = documentShortDetail;
     }
 
     public String getOwner() {
@@ -112,6 +114,12 @@ public class Document{
         this.createDate = createDate;
     }
 
+    @Override
+    public String toString() {
+        return "Document [id=" + id + ", documentName=" + documentName + ", documentShortDetail="+ documentShortDetail + ", owner=" + owner 
+                + ", containsSensitiveData=" + containsSensitiveData + ", dataToHold=" + dataToHold + ", approvedBy=" + approvedBy 
+                + ", Observation=" + observation + ", lastModificationDate=" + lastModificationDate + ", createDate=" + createDate + "]";
+    }
     
 
 }

@@ -32,6 +32,21 @@ public class DocumentAdminController {
             return docRep.findAll();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity getDocumentById(@PathVariable String id){
+        System.out.println("Called getDocumentById");
+        if (id == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Optional<Document> docFound = docRep.findById(id);
+        
+        if (!docFound.isPresent() ){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(docFound.get(), HttpStatus.OK);
+}
+
+
     @PostMapping("/")
     public ResponseEntity createDocument(@RequestBody Document doc){
         System.out.println("Called createDocument");
