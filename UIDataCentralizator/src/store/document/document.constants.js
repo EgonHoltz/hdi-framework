@@ -1,6 +1,6 @@
 // Actions
 export const FETCH_DOCUMENTS = "fetchDocuments";
-export const FETCH_ONE_DOCUEMNT = "fetchOneDocument";
+export const FETCH_DOCUMENT = "fetchDocument";
 export const ADD_DOCUMENT = "addDocument";
 export const EDIT_DOCUMENT = "editDocument";
 

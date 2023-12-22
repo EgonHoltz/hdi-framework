@@ -18,7 +18,8 @@ export const docService = {
         }
       },
     async getOneDocument(/*token,*/ payload) {
-      let response = await fetch(`${API_URL}/document/${payload.id}`, {
+      console.log("calling getOne");
+      let response = await fetch(`${API_URL}/document/${payload}`, {
         method: "GET",
         headers: {
           'Content-Type': 'application/json',
@@ -33,6 +34,7 @@ export const docService = {
       }
     },
     async addDocument(/*token,*/ payload) {
+      console.log("calling creation");
       const response = await fetch(`${API_URL}/document/`, {
         method: "POST",
         headers: {

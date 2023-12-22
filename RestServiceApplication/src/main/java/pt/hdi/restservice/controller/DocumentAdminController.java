@@ -63,7 +63,7 @@ public class DocumentAdminController {
 
     @PutMapping("/{id}")
     public ResponseEntity changeApplication(@PathVariable String id, @RequestBody Document doc){
-        System.out.println("Called changeApplication");
+        System.out.println("Called changeApplication " + id);
         if (id == null || doc == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -72,11 +72,11 @@ public class DocumentAdminController {
         if (!docFound.isPresent() ){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        Document docChanged = docFound.get();
-        BeanUtils.copyProperties(doc, docChanged, ObjectHelper.getNullPropertyNames(docChanged));
-        docRep.save(docChanged);
+        Document docOld = docFound.get();
+        BeanUtils.copyProperties(doc, docOld, ObjectHelper.getNullPropertyNames(docOld));
+        docRep.save(doc);
 
-        return new ResponseEntity<>(docFound, HttpStatus.OK);
+        return new ResponseEntity<>(doc, HttpStatus.OK);
     }
 
     

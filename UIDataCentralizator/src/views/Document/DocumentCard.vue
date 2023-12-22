@@ -58,6 +58,26 @@
               id: "aa6s571657a6767",
               documentName: "Accounts",
               documentShortDetail: "Threat Accounts records"
+            },
+            {
+              id: "aa6s571657a6767",
+              documentName: "Accounts",
+              documentShortDetail: "Threat Accounts records"
+            },
+            {
+              id: "aa6s571657a6767",
+              documentName: "Accounts",
+              documentShortDetail: "Threat Accounts records"
+            },
+            {
+              id: "aa6s571657a6767",
+              documentName: "Accounts",
+              documentShortDetail: "Threat Accounts records"
+            },
+            {
+              id: "aa6s571657a6767",
+              documentName: "Accounts",
+              documentShortDetail: "Threat Accounts records"
             }
 
           ], // Initialize as an empty array
@@ -72,9 +92,10 @@
         },
         fetchDocuments(){
           console.log("fetch data");
-          this.$store.dispatch(`application/${FETCH_DOCUMENTS}`).then( 
-            () => {
-                this.documents = this.$store.getters['document/getDocuments'];
+          this.$store.dispatch(`document/${FETCH_DOCUMENTS}`).then( 
+            (res) => {
+                //this.documents = this.$store.getters['document/getDocuments'];
+                this.documentEntities = this.documentEntities.concat(res);
 
             }, err => {
                 this.alertTitle = "Error while fetch"
@@ -83,13 +104,13 @@
 
         redirectToModify(id) {
           console.log("going to modify the entity: " +id);
-          this.$router.push({ name: 'modify-document', params: { id: id } });
+          this.$router.push({ name: 'documentModification', params: { id: id } });
         },
         redirectToAssociate(id) {
-          this.$router.push({ name: 'associate-applications', params: { id: id } });
+          this.$router.push({ name: '/associate-applications', params: { id: id } });
         },
         requestDataDeletion(id) {
-          this.$router.push({ name: 'request-data-deletion', params: { id: id } });
+          this.$router.push({ name: '/request-data-deletion', params: { id: id } });
         },
       }
     };

@@ -29,12 +29,12 @@ const routes = [
       },
       {
         path: '/create-document',
-        name: 'Document creation',
+        name: 'documentCreation',
         component: () => import(/* webpackChunkName: "demo" */ '../views/Document/DocumentForm.vue')
       },
       {
         path: '/modify-document/:id',
-        name: 'Document modification',
+        name: 'documentModification',
         component: () => import(/* webpackChunkName: "demo" */ '../views/Document/DocumentForm.vue')
       },
       {

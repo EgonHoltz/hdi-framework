@@ -19,19 +19,19 @@
                                 </el-col>
                                 <el-col :span="12">
                                 <el-form-item label="Short Detail" class="row-with-space">
-                                    <el-input v-model="document.documentShortDetail" :disabled="isReadOnly"></el-input>
+                                    <el-input v-model="document.documentShortDetail"></el-input>
                                 </el-form-item>
                                 </el-col>
                             </el-row>
                             <el-row>
                                 <el-col :span="12">
                                 <el-form-item label="Owner" class="row-with-space">
-                                    <el-input v-model="document.owner" :disabled="isReadOnly"></el-input>
+                                    <el-input v-model="document.owner"></el-input>
                                 </el-form-item>
                                 </el-col>
                                 <el-col :span="12">
                                 <el-form-item label="Approved By" class="row-with-space">
-                                    <el-input v-model="document.approvedBy" :disabled="isReadOnly"></el-input>
+                                    <el-input v-model="document.approvedBy" ></el-input>
                                 </el-form-item>
                                 </el-col>
                             </el-row>
@@ -65,7 +65,7 @@
 
   </template>
 <script>
-    import {FETCH_DOCUMENT, ADD_DOCUMENT, EDIT_DOCUMENT} from '@/store/application/application.constants';
+    import {FETCH_DOCUMENT, ADD_DOCUMENT, EDIT_DOCUMENT} from '@/store/document/document.constants';
     import { Button, FormItem, Dialog, Form, Checkbox, Alert, Col, Row, Input} from 'element-ui';
 
     export default {
@@ -83,6 +83,7 @@
         data() {
             return {
                 mode: "create", // Default to "create" mode
+                isReadOnly: false,
                 document: {
                     id: null,
                     documentName: "",
@@ -98,18 +99,20 @@
         created() {
             const id = this.$route.params.id;
             if (id){
+                this.isReadOnly=true;
+                this.mode="edit";
                 // Make an API request to fetch the document data by 'id'
-                this.$store.dispatch(`document/${FETCH_DOCUMENT}`,this.$route.params).then( 
-                    () => {
-                        documents = this.$store.getters['document/getDocument'];
-                        this.id = documents.id;
-                        this.documentName = documents.documentName;
-                        this.documentShortDetail = documents.documentShortDetail;
-                        this.owner = documents.owner;
-                        this.containsSensitiveData = documents.containsSensitiveData;
-                        this.dataToHold = documents.dataToHold;
-                        this.approvedBy = documents.approvedBy;
-                        this.observation = documents.observation;
+                this.$store.dispatch(`document/${FETCH_DOCUMENT}`,id).then( 
+                    (res) => {
+                        let documents = this.$store.getters['document/getDocument'];
+                        this.document.id = documents.id;
+                        this.document.documentName = documents.documentName;
+                        this.document.documentShortDetail = documents.documentShortDetail;
+                        this.document.owner = documents.owner;
+                        this.document.containsSensitiveData = documents.containsSensitiveData;
+                        this.document.dataToHold = documents.dataToHold;
+                        this.document.approvedBy = documents.approvedBy;
+                        this.document.observation = documents.observation;
                     
                     }, err => {
                         this.alertTitle = "Error while fetch"
@@ -133,18 +136,19 @@
             submitForm() {
                 // Handle form submission, e.g., update the document data
                 const formData = {
-                    id: this.id,
-                    documentName: this.documentName,
-                    documentShortDetail: this.documentShortDetail,
-                    owner: this.owner,
-                    containsSensitiveData: this.containsSensitiveData,
-                    dataToHold: this.dataToHold,
-                    approvedBy: this.approvedBy,
-                    observation: this.observation,
+                    id: this.document.id,
+                    documentName: this.document.documentName,
+                    documentShortDetail: this.document.documentShortDetail,
+                    owner: this.document.owner,
+                    containsSensitiveData: this.document.containsSensitiveData,
+                    dataToHold: this.document.dataToHold,
+                    approvedBy: this.document.approvedBy,
+                    observation: this.document.observation,
                 };
                 // Make an API request to update the document data
                 if (this.mode == "create"){
-                    this.$store.dispatch(`document/${ADD_DOCUMENT}`,this.editForm).then( 
+                    console.log("calling page create");
+                    this.$store.dispatch(`document/${ADD_DOCUMENT}`,formData).then( 
                     () => {
                         this.editDialogVisible = false;
                         this.alertTitle = "Document created with success!"                   
@@ -156,11 +160,10 @@
                         this.showErrorAlert();
                     });
                 } else {
-                    this.$store.dispatch(`document/${EDIT_DOCUMENT}`,this.editForm).then( 
+                    this.$store.dispatch(`document/${EDIT_DOCUMENT}`,formData).then( 
                     () => {
                         this.editDialogVisible = false;
                         this.alertTitle = "Document changed with success!"
-                        this.fetchApplications();
                         this.$router.go(-1); // Go back one step in the browser history
                     }, err => {
                         this.editDialogVisible = false;
