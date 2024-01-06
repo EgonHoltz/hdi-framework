@@ -51,7 +51,11 @@
 		</dependency>
 
 	<!-- To threat gRPC -->
-
+		<dependency>
+			<groupId>io.grpc</groupId>
+			<artifactId>grpc-core</artifactId>
+			<version>${grpc.version}</version>
+		</dependency>
 	    <dependency>
 	      <groupId>io.grpc</groupId>                         <!--1-->
 	      <artifactId>grpc-stub</artifactId>
@@ -85,18 +89,35 @@
 
 
 	<build>
-<!-- 			<plugin>
+	<sourceDirectory>src/main/java</sourceDirectory>
+	<resources>
+        <resource>
+            <directory>src/main/proto</directory>
+            <targetPath>${project.build.directory}/classes</targetPath>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </resource>
+    </resources>
+
+		<plugins>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin> -->
-<!-- 		  <extensions>
-		    <extension>
-		      <groupId>kr.motd.maven</groupId>
-		      <artifactId>os-maven-plugin</artifactId>
-		      <version>1.4.1.Final</version>
-		    </extension>
-		  </extensions> -->
-		  <plugins>
+        	</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<resources>
+						<resource>
+							<directory>src/main/resources</directory>
+							<filtering>true</filtering>
+						</resource>
+					</resources>
+				</configuration>
+        	</plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -110,12 +131,14 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${basedir}/target/generated-sources</source>
+                                <source>${basedir}/target/generated-sources/protobuf</source>
                             </sources>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+		
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
@@ -124,6 +147,10 @@
                     <protocArtifact>com.google.protobuf:protoc:3.11.0:exe:${os.detected.classifier}</protocArtifact>
                     <pluginId>grpc-java</pluginId>
                     <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.27.2:exe:${os.detected.classifier}</pluginArtifact>
+					<clearOutputDirectory>true</clearOutputDirectory>
+					<excludes>
+						<exclude>grpc-java/</exclude>
+					</excludes>
                 </configuration>
                 <executions>
                     <execution>
@@ -136,5 +163,7 @@
             </plugin>
 		  </plugins>
 	</build>
+
+	
 
 </project>

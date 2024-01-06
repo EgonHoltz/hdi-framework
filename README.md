@@ -70,6 +70,12 @@ This service is started on the port 8002
 ## Vue application interface
 Project declared on UIDataCentralizator folder
 
+Install the npm application
+Install the vue client:
+```sh
+npm install -g @vue/cli 
+```
+
 The web application runs by port 8080
 Can be started by the command:
 npm run dev
