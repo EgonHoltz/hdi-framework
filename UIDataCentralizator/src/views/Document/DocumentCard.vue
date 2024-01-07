@@ -51,31 +51,6 @@
           documentEntities: [
             {
               id: "aa6s571657a6767",
-              documentName: "Clients",
-              documentShortDetail: "Threat clients records"
-            },
-            {
-              id: "aa6s571657a6767",
-              documentName: "Accounts",
-              documentShortDetail: "Threat Accounts records"
-            },
-            {
-              id: "aa6s571657a6767",
-              documentName: "Accounts",
-              documentShortDetail: "Threat Accounts records"
-            },
-            {
-              id: "aa6s571657a6767",
-              documentName: "Accounts",
-              documentShortDetail: "Threat Accounts records"
-            },
-            {
-              id: "aa6s571657a6767",
-              documentName: "Accounts",
-              documentShortDetail: "Threat Accounts records"
-            },
-            {
-              id: "aa6s571657a6767",
               documentName: "Accounts",
               documentShortDetail: "Threat Accounts records"
             }

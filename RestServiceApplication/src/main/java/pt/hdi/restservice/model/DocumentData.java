@@ -1,12 +1,16 @@
 package pt.hdi.restservice.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-
-public class Document{
+@Document
+public class DocumentData{
     String id;
     String documentName;
     String documentShortDetail;
@@ -22,10 +26,12 @@ public class Document{
 	@CreatedDate
 	private Date createDate;
 
-    public Document() {
+    private List<Structure> structures;
+
+    public DocumentData() {
     }
 
-    public Document(Document doc) {
+    public DocumentData(DocumentData doc) {
         this.documentName = doc.getDocumentName();
         this.documentShortDetail = doc.getDocumentShortDetail();
         this.owner = doc.getOwner();
@@ -33,6 +39,7 @@ public class Document{
         this.dataToHold = doc.getDataToHold();
         this.approvedBy = doc.getApprovedBy();
         this.observation = doc.getObservation();
+        this.structures = doc.getStructures();
     }
 
     public String getId() {
@@ -114,6 +121,25 @@ public class Document{
         this.createDate = createDate;
     }
 
+    public List<Structure> getStructures() {
+        return structures;
+    }
+
+    public void setStructures(List<Structure> structures) {
+        this.structures = structures;
+    }
+
+    public void addStructure(Structure structure){
+        if (this.structures == null){
+            this.structures = new ArrayList<>();
+        }
+        this.structures.add(structure);
+    }
+
+    public void removeStructureById(int id){
+        this.structures.remove(id);
+    }
+
     @Override
     public String toString() {
         return "Document [id=" + id + ", documentName=" + documentName + ", documentShortDetail="+ documentShortDetail + ", owner=" + owner 
@@ -143,7 +169,7 @@ public class Document{
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Document other = (Document) obj;
+        DocumentData other = (DocumentData) obj;
         if (documentName == null) {
             if (other.documentName != null)
                 return false;
@@ -181,6 +207,6 @@ public class Document{
             return false;
         return true;
     }
-    
+   
 
 }
