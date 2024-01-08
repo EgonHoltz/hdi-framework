@@ -38,6 +38,11 @@ const routes = [
         component: () => import(/* webpackChunkName: "demo" */ '../views/Document/DocumentForm.vue')
       },
       {
+        path: '/associate-applications/:id',
+        name: 'documentAssociation',
+        component: () => import(/* webpackChunkName: "demo" */ '../views/DocumentApplication/DocumentApplicationAssociation.vue')
+      },
+      {
         path: '/icons',
         name: 'icons',
         component: () => import(/* webpackChunkName: "demo" */ '../views/Icons.vue')

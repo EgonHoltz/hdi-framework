@@ -82,7 +82,7 @@
           this.$router.push({ name: 'documentModification', params: { id: id } });
         },
         redirectToAssociate(id) {
-          this.$router.push({ name: '/associate-applications', params: { id: id } });
+          this.$router.push({ name: 'documentAssociation', params: { id: id } });
         },
         requestDataDeletion(id) {
           this.$router.push({ name: '/request-data-deletion', params: { id: id } });
