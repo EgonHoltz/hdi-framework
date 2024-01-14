@@ -6,32 +6,39 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
 public class Configuration {
 	
+	@Id
 	private String id;
 
-	@LastModifiedDate
-	private Date lastModificationDate;
-	
-	@CreatedDate
-	private Date createDate;
+	@DBRef
+	private DocumentData documentData;
+
+	@DBRef
+	private Application application;
+
 	private String documentName;
 	private List<MQConfig> mqConfig;
 	private List<SFTPConfig> sftpConfig;
 	
-	
+	@LastModifiedDate
+	private Date lastModificationDate;	
+	@CreatedDate
+	private Date createDate;
 	
 	public Configuration() {
 		super();
 	}
-	public Configuration(String documentName, List<MQConfig> mqConfig) {
+	public Configuration(DocumentData documentData, Application application) {
 		super();
-		this.documentName = documentName;
-		this.mqConfig = mqConfig;
+		this.documentData = documentData;
+		this.application = application;
 	}
 	public String getId() {
 		return id;
@@ -53,10 +60,7 @@ public class Configuration {
 		this.createDate = createDate;
 	}
 	public String getDocumentName() {
-		return documentName;
-	}
-	public void setDocumentName(String documentName) {
-		this.documentName = documentName;
+		return documentData.getDocumentName();
 	}
 	
 	public List<SFTPConfig> getSftpConfig() {
@@ -92,6 +96,18 @@ public class Configuration {
 	}
 	public Optional<SFTPConfig> getFirstReceiveSftpConfig() {
 		return this.sftpConfig.stream().filter(s -> s.getDirection().equals("recv")).findFirst();
+	}
+	public DocumentData getDocumentData() {
+		return documentData;
+	}
+	public void setDocumentData(DocumentData documentData) {
+		this.documentData = documentData;
+	}
+	public Application getApplication() {
+		return application;
+	}
+	public void setApplication(Application application) {
+		this.application = application;
 	}
 	@Override
 	public String toString() {

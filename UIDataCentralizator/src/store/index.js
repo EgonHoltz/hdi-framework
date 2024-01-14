@@ -3,6 +3,7 @@ import Vuex from "vuex";
 import moduleBase from "./module";
 import moduleApplication from "./application/application.module";
 import moduleDocument from "./document/document.module"
+import moduleDocumentApplication from "./document-application/document-application.module"
 
 Vue.use(Vuex);
 
@@ -14,5 +15,6 @@ export default new Vuex.Store({
     modules: {
       application: moduleApplication,
       document: moduleDocument,
+      documentApplication: moduleDocumentApplication,
     },
   });

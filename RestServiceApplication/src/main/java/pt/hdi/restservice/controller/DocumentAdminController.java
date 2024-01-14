@@ -16,10 +16,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import pt.hdi.restservice.Utils.ObjectHelper;
+import pt.hdi.restservice.model.Application;
+import pt.hdi.restservice.model.Configuration;
 import pt.hdi.restservice.model.DocumentData;
 import pt.hdi.restservice.model.Structure;
+import pt.hdi.restservice.repository.ApplicationRepository;
+import pt.hdi.restservice.repository.ConfigurationRepository;
 import pt.hdi.restservice.repository.DocumentRepository;
+import pt.hdi.restservice.service.ConfigurationService;
 import pt.hdi.restservice.service.DocumentService;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/document")
@@ -30,6 +37,22 @@ public class DocumentAdminController {
 
     @Autowired
     private DocumentService docSvc;
+
+    @Autowired
+    private ApplicationRepository appRep;
+
+    @Autowired
+    private ConfigurationService confSvc;
+
+    /**
+     * Document - Work on its name, who is responsible, parameters and observations
+     * 
+     * URLs:
+     * GET  /document/
+     * GET  /document/{documentId}
+     * POST /document/
+     * PUT  /document/{documentId}
+     */
 
     @GetMapping("/")
     public List<DocumentData> getAllDocuments(){
@@ -85,7 +108,16 @@ public class DocumentAdminController {
         return new ResponseEntity<>(doc, HttpStatus.OK);
     }
 
-    
+    /**
+     * Structure of document - Work on field , field type and configuration that the
+     * document could have
+     * 
+     * URLs:
+     * GET  /document/structure/{documentId}
+     * POST /document/structure/{documentId}
+     * PUT  /document/structure/{documentId}
+     * 
+     */
     @GetMapping("/structure/{id}")
     public ResponseEntity getDocumentStructureById(@PathVariable String id){
         System.out.println("Called getDocumentStructureById");
@@ -130,5 +162,40 @@ public class DocumentAdminController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
     }
+
+
+    /**
+     * Document Application association - Create technology behind the document, which allows the communication
+     * between other applications
+     * 
+     * URLs:
+     * GET  /document/{documentId}/application/{applicationId}
+     * POST /document/{documentId}/application/{applicationId}
+     * PUT  /document/{documentId}/application/{applicationId}
+     * 
+     */
+
+     @GetMapping("/document/{documentId}/application/{applicationId}")     
+     public ResponseEntity getAllApplicationsAssociatedWithDocument(@PathVariable String documentId, @PathVariable String applicationId){
+        System.out.println("Called getAllApplicationsAssociatedWithDocument " + documentId + ", " + applicationId);
+
+        Optional<Application> app = appRep.findById(applicationId);
+        Optional<DocumentData> doc = docRep.findById(documentId);
+
+        if (!app.isPresent() && !doc.isPresent()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        
+        Configuration conf = confSvc.getConfigurationByDocApp(doc.get(),app.get());
+
+        if (conf != null){
+            return new ResponseEntity<>(conf,HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+     }
+
+
+
 
 }

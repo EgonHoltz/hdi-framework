@@ -11,7 +11,7 @@
             <ApplicationTableSimple @application="handleAppFromTable"></ApplicationTableSimple>
           </b-col>
           <b-col xl="6" class="mb-6 mb-xl-0">
-            <AssociateTechnology></AssociateTechnology>
+            <AssociateTechnology :selectedApplication="selectedApplication"></AssociateTechnology>
           </b-col>
         </b-row>
         <!--End tables-->
@@ -37,9 +37,15 @@
             ApplicationTableSimple,
             AssociateTechnology
         },
+        data() {
+          return {
+            selectedApplication: null,
+          };
+        },
         methods: {
             handleAppFromTable(app){
                 console.log("Selected app: "+app);
+                this.selectedApplication = app;
             }
         },
     };

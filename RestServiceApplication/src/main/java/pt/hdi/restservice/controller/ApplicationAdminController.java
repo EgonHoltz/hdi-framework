@@ -25,7 +25,7 @@ import pt.hdi.restservice.repository.ApplicationRepository;
 public class ApplicationAdminController {
 
     @Autowired
-    ApplicationRepository appRep;
+    private ApplicationRepository appRep;
 
     @GetMapping("/")
     public List<Application> getAllApplications(){
