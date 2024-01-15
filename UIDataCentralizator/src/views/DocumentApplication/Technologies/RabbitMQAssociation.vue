@@ -118,8 +118,14 @@
                 this.fetchTechnologies();
             },
             fetchTechnologies(){
+                const documentId = this.$route.params.id;
                 console.log("selectedApplication: " + this.applicationId);
-                this.$store.dispatch(`documentApplication/${FETCH_DOCUMENT_APPLICATION}`, this.applicationId).then( 
+                console.log("on the document: " + documentId);
+                let payloadIds = {
+                    applicationId: this.applicationId,
+                    documentId: documentId
+                }
+                this.$store.dispatch(`documentApplication/${FETCH_DOCUMENT_APPLICATION}`, payloadIds).then( 
                 () => {
                     this.applications = this.$store.getters['documentApplication/getDocumentApplication'];
                     this.tableData = [];

@@ -4,7 +4,7 @@ export const docAppService = {
   // TODO: add token as receiving data on method
   async getOneDocumentApplication(/*token,*/ payload) {
     console.log("calling getOneDocumentApplication " + payload);
-    let response = await fetch(`${API_URL}/document/${payload}/application`, {
+    let response = await fetch(`${API_URL}/document/${payload.documentId}/application/${payload.documentId}`, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json',
@@ -22,7 +22,7 @@ export const docAppService = {
     const id = payload.id;
     delete payload.id;
     console.log("calling creation on " +id);
-    const response = await fetch(`${API_URL}/document/${id}/application`, {
+    const response = await fetch(`${API_URL}/document/${id.documentId}/application/${id.documentId}`, {
       method: "POST",
       headers: {
         'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ export const docAppService = {
     const id = payload.id;
     delete payload.id;
     console.log("calling edit on " +id);
-    const response = await fetch(`${API_URL}/document/${id}`, {
+    const response = await fetch(`${API_URL}/document/${payload.documentId}/application/${id.documentId}`, {
       method: "PUT",
       headers: {
         'Content-Type': 'application/json',

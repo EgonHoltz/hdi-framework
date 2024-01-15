@@ -6,11 +6,13 @@ import java.util.Date;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import pt.hdi.restservice.Utils.ApplicationEnums.FLOW_DIRECTION;
+
 public class MQConfig {
-	String mqName;
-	String direction;
-	Boolean hasAck;
-	Boolean started;
+	private String mqName;
+	private FLOW_DIRECTION direction;
+	private Boolean hasAck;
+	private Boolean started;
 	@LastModifiedDate
 	private Date lastModificationDate;
 	@CreatedDate
@@ -20,7 +22,7 @@ public class MQConfig {
 		super();
 	}
 
-	public MQConfig(String mqName, String direction) {
+	public MQConfig(String mqName, FLOW_DIRECTION direction) {
 		super();
 		this.mqName = mqName;
 		this.direction = direction;
@@ -32,10 +34,10 @@ public class MQConfig {
 	public void setMqName(String mqName) {
 		this.mqName = mqName;
 	}
-	public String getDirection() {
+	public FLOW_DIRECTION getDirection() {
 		return direction;
 	}
-	public void setDirection(String direction) {
+	public void FLOW_DIRECTION(FLOW_DIRECTION direction) {
 		this.direction = direction;
 	}
 	public Boolean getHasAck() {

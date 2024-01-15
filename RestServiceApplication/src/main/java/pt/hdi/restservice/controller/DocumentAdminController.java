@@ -19,6 +19,7 @@ import pt.hdi.restservice.Utils.ObjectHelper;
 import pt.hdi.restservice.model.Application;
 import pt.hdi.restservice.model.Configuration;
 import pt.hdi.restservice.model.DocumentData;
+import pt.hdi.restservice.model.MQConfig;
 import pt.hdi.restservice.model.Structure;
 import pt.hdi.restservice.repository.ApplicationRepository;
 import pt.hdi.restservice.repository.ConfigurationRepository;
@@ -43,6 +44,9 @@ public class DocumentAdminController {
 
     @Autowired
     private ConfigurationService confSvc;
+
+    @Autowired
+    private ConfigurationRepository confRep;
 
     /**
      * Document - Work on its name, who is responsible, parameters and observations
@@ -170,12 +174,10 @@ public class DocumentAdminController {
      * 
      * URLs:
      * GET  /document/{documentId}/application/{applicationId}
-     * POST /document/{documentId}/application/{applicationId}
-     * PUT  /document/{documentId}/application/{applicationId}
      * 
      */
 
-     @GetMapping("/document/{documentId}/application/{applicationId}")     
+     @GetMapping("/{documentId}/application/{applicationId}")     
      public ResponseEntity getAllApplicationsAssociatedWithDocument(@PathVariable String documentId, @PathVariable String applicationId){
         System.out.println("Called getAllApplicationsAssociatedWithDocument " + documentId + ", " + applicationId);
 
@@ -196,6 +198,104 @@ public class DocumentAdminController {
      }
 
 
+    /**
+     * Document Application association - Create technology behind the document, which allows the communication
+     * between other applications
+     * 
+     * URLs:
+     * GET  /document/{documentId}/application/{applicationId}/mqqueue
+     * POST /document/{documentId}/application/{applicationId}/mqqueue
+     * PUT  /document/{documentId}/application/{applicationId}/mqqueue
+     * 
+     */
 
+     @GetMapping("/{documentId}/application/{applicationId}/mqqueue")     
+     public ResponseEntity getAssociationMQConfiguration(@PathVariable String documentId, @PathVariable String applicationId){
+        System.out.println("Called getAllApplicationsAssociatedWithDocument " + documentId + ", " + applicationId);
+
+        Optional<Application> app = appRep.findById(applicationId);
+        Optional<DocumentData> doc = docRep.findById(documentId);
+
+        if (!app.isPresent() && !doc.isPresent()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        
+        Configuration conf = confSvc.getConfigurationByDocApp(doc.get(),app.get());
+
+        if (conf != null){
+            return new ResponseEntity<>(conf.getMqConfig(),HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+     }
+
+     @PostMapping("/{documentId}/application/{applicationId}/mqqueue")     
+     public ResponseEntity createAssociationMQConfiguration(@PathVariable String documentId, 
+        @PathVariable String applicationId, @RequestBody MQConfig mqConfig){
+        System.out.println("Called getAllApplicationsAssociatedWithDocument " + documentId + ", " + applicationId);
+
+        Optional<Application> app = appRep.findById(applicationId);
+        Optional<DocumentData> doc = docRep.findById(documentId);
+
+        if (!app.isPresent() && !doc.isPresent() ){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (mqConfig == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        
+        Configuration conf = confSvc.getConfigurationByDocApp(doc.get(),app.get());
+
+        if (conf.getMqConfig().isEmpty()){
+            conf.addMqConfig(mqConfig);
+        } else {
+            boolean hasConfig = conf.getMqConfig().stream().anyMatch(c -> c.getDirection().equals(mqConfig.getDirection()));
+            if (hasConfig){
+                return new ResponseEntity<>(HttpStatus.CONFLICT);
+            } else {
+                conf.addMqConfig(mqConfig);
+            }
+        }
+
+        confRep.save(conf);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+     }
+
+     @PutMapping("/{documentId}/application/{applicationId}/mqqueue")     
+     public ResponseEntity changeAssociationMQConfiguration(@PathVariable String documentId, 
+        @PathVariable String applicationId, @RequestBody MQConfig mqConfig){
+        System.out.println("Called getAllApplicationsAssociatedWithDocument " + documentId + ", " + applicationId);
+
+        Optional<Application> app = appRep.findById(applicationId);
+        Optional<DocumentData> doc = docRep.findById(documentId);
+
+        if (!app.isPresent() && !doc.isPresent() ){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (mqConfig == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        
+        Configuration conf = confSvc.getConfigurationByDocApp(doc.get(),app.get());
+
+        if (conf.getMqConfig().isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            List<MQConfig> mqConfigsOld = conf.getMqConfig();
+            boolean hasConfig = mqConfigsOld.stream().anyMatch(c -> c.getDirection().equals(mqConfig.getDirection()));
+            if (hasConfig){
+                Optional<MQConfig> mqConfigOld = mqConfigsOld.stream().filter(c -> c.getDirection().equals(mqConfig.getDirection())).findFirst();
+                BeanUtils.copyProperties(mqConfig, mqConfigOld.get(), ObjectHelper.getNullPropertyNames(mqConfigOld.get()));
+                conf.addMqConfig(mqConfig);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        }
+
+        confRep.save(conf);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+     }
 
 }

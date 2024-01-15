@@ -43,7 +43,7 @@ public class ConfigurationController {
 	@PostMapping("/config/sftp/{configId}")
 	public ResponseEntity<Void> createSftpConfiguration(@PathVariable String configId, @RequestBody SFTPConfig sftpConfig){
 		try {
-			Configuration config = cnfgSrvc.getByDocumentName(configId);
+			Configuration config = cnfgSrvc.getByDocumentConfiguration(configId);
 			config.addMqConfig(sftpConfig);
 			boolean createdOk = cnfgSrvc.saveConfiguration(config);
 			if (createdOk) {
@@ -60,7 +60,7 @@ public class ConfigurationController {
 	@DeleteMapping("/config/sftp/{configId}")
 	public ResponseEntity<Void> removeSftpConfiguration(@PathVariable String configId, @RequestBody SFTPConfig sftpConfig){
 		try {
-			Configuration config = cnfgSrvc.getByDocumentName(configId);
+			Configuration config = cnfgSrvc.getByDocumentConfiguration(configId);
 			boolean removedOk = config.removeSftpConfig(sftpConfig);
 			removedOk &= cnfgSrvc.saveConfiguration(config);
 			if (removedOk) {
