@@ -4,7 +4,7 @@ export const docAppService = {
   // TODO: add token as receiving data on method
   async getOneDocumentApplication(/*token,*/ payload) {
     console.log("calling getOneDocumentApplication " + payload);
-    let response = await fetch(`${API_URL}/document/${payload.documentId}/application/${payload.documentId}`, {
+    let response = await fetch(`${API_URL}/document/${payload.documentId}/application/${payload.applicationId}`, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json',
@@ -18,12 +18,13 @@ export const docAppService = {
       throw Error(handleResponses(response.status));
     }
   },
-  async addDocumentApplication(/*token,*/ payload) {
+  async upsertRabbitMq(/*token,*/ payload) {
+    console.log("calling upsertRabbitMq " + payload);
     const id = payload.id;
     delete payload.id;
-    console.log("calling creation on " +id);
-    const response = await fetch(`${API_URL}/document/${id.documentId}/application/${id.documentId}`, {
-      method: "POST",
+    console.log("calling creation with doc " +id.documentId + " and app " + id.applicationId);
+    const response = await fetch(`${API_URL}/document/${id.documentId}/application/${id.applicationId}/mqqueue`, {
+      method: "PUT",
       headers: {
         'Content-Type': 'application/json',
         //'Authorization': token
@@ -37,24 +38,6 @@ export const docAppService = {
       } catch (error){
         throw new Error("Invalid JSON response from the server");
       }
-    } else {
-      throw Error(handleResponses(response.status));
-    }
-  },
-  async editDocumentApplication(/*token,*/ payload) {
-    const id = payload.id;
-    delete payload.id;
-    console.log("calling edit on " +id);
-    const response = await fetch(`${API_URL}/document/${payload.documentId}/application/${id.documentId}`, {
-      method: "PUT",
-      headers: {
-        'Content-Type': 'application/json',
-        //'Authorization': token
-      },
-      body: JSON.stringify(payload)
-    });
-    if (response.ok) {
-      return await response.json();
     } else {
       throw Error(handleResponses(response.status));
     }

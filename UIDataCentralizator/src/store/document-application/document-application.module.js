@@ -2,8 +2,7 @@ import docAppService from "@/api/documentApplication.service";
 import moment from 'moment';
 import {
     FETCH_DOCUMENT_APPLICATION,
-    ADD_DOCUMENT_APPLICATION,
-    EDIT_DOCUMENT_APPLICATION,
+    UPSERT_RABBIT_MQ,
     //mutations
     SET_DOCUMENT_APPLICATION,
     SET_MESSAGE
@@ -34,29 +33,16 @@ const actions = {
               });
       })
   },
-  [ADD_DOCUMENT_APPLICATION]: ({ commit, rootState }, payload) => {
+  [UPSERT_RABBIT_MQ]: ({ commit, rootState }, payload) => {
     console.log("action called")
       return new Promise((resolve, reject) => {
-        docAppService.addDocumentApplication(/*rootState.auth.token,*/ payload)
+        docAppService.upsertRabbitMq(/*rootState.auth.token,*/ payload)
           .then(
             res => {
               commit(SET_MESSAGE, `Document added with success!`);
               resolve(res)
             }, err => {
               commit(SET_MESSAGE, err.message)
-              reject(err)
-            });
-      });
-  },
-  [EDIT_DOCUMENT_APPLICATION]: ({ commit, rootState }, payload) => {
-      return new Promise((resolve, reject) => {
-        docAppService.editDocumentApplication(/*rootState.auth.token,*/ payload)
-          .then(
-            res => {
-              commit(SET_MESSAGE, `Document updated with success`);
-              resolve(res)
-            }, err => {
-              commit(SET_MESSAGE, err)
               reject(err)
             });
       });

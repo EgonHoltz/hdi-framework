@@ -13,6 +13,7 @@ public class MQConfig {
 	private FLOW_DIRECTION direction;
 	private Boolean hasAck;
 	private Boolean started;
+	private Boolean active;
 	@LastModifiedDate
 	private Date lastModificationDate;
 	@CreatedDate
@@ -37,9 +38,10 @@ public class MQConfig {
 	public FLOW_DIRECTION getDirection() {
 		return direction;
 	}
-	public void FLOW_DIRECTION(FLOW_DIRECTION direction) {
+	public void setDirection(FLOW_DIRECTION direction) {
 		this.direction = direction;
 	}
+
 	public Boolean getHasAck() {
 		return hasAck;
 	}
@@ -49,6 +51,10 @@ public class MQConfig {
 	public Boolean hasStarted() {
 		return this.started == null ? false : this.started;
 	}
+	public Boolean getStarted() {
+		return started;
+	}
+
 	public void setStarted(Boolean started) {
 		this.started = started;
 	}
@@ -64,6 +70,15 @@ public class MQConfig {
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
 	}
+	
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+
 	@Override
 	public String toString() {
 		return "MQConfig [mqName=" + mqName + ", direction=" + direction + ", hasAck=" + hasAck + ", started=" + started

@@ -1,7 +1,6 @@
 // Actions
 export const FETCH_DOCUMENT_APPLICATION = "fetchDocumentApplication";
-export const ADD_DOCUMENT_APPLICATION = "addDocumentApplication";
-export const EDIT_DOCUMENT_APPLICATION = "editDocumentApplication";
+export const UPSERT_RABBIT_MQ = "upsertRabbitMq";
 
 // Mutations
 export const SET_DOCUMENT_APPLICATION = "setDocument";

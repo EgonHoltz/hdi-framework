@@ -1,5 +1,6 @@
 package pt.hdi.restservice.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -216,7 +217,7 @@ public class DocumentAdminController {
         Optional<Application> app = appRep.findById(applicationId);
         Optional<DocumentData> doc = docRep.findById(documentId);
 
-        if (!app.isPresent() && !doc.isPresent()){
+        if (!app.isPresent() || !doc.isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         
@@ -224,53 +225,21 @@ public class DocumentAdminController {
 
         if (conf != null){
             return new ResponseEntity<>(conf.getMqConfig(),HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-     }
-
-     @PostMapping("/{documentId}/application/{applicationId}/mqqueue")     
-     public ResponseEntity createAssociationMQConfiguration(@PathVariable String documentId, 
-        @PathVariable String applicationId, @RequestBody MQConfig mqConfig){
-        System.out.println("Called getAllApplicationsAssociatedWithDocument " + documentId + ", " + applicationId);
-
-        Optional<Application> app = appRep.findById(applicationId);
-        Optional<DocumentData> doc = docRep.findById(documentId);
-
-        if (!app.isPresent() && !doc.isPresent() ){
+        } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        if (mqConfig == null){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        
-        Configuration conf = confSvc.getConfigurationByDocApp(doc.get(),app.get());
 
-        if (conf.getMqConfig().isEmpty()){
-            conf.addMqConfig(mqConfig);
-        } else {
-            boolean hasConfig = conf.getMqConfig().stream().anyMatch(c -> c.getDirection().equals(mqConfig.getDirection()));
-            if (hasConfig){
-                return new ResponseEntity<>(HttpStatus.CONFLICT);
-            } else {
-                conf.addMqConfig(mqConfig);
-            }
-        }
-
-        confRep.save(conf);
-
-        return new ResponseEntity<>(HttpStatus.CREATED);
      }
 
      @PutMapping("/{documentId}/application/{applicationId}/mqqueue")     
      public ResponseEntity changeAssociationMQConfiguration(@PathVariable String documentId, 
-        @PathVariable String applicationId, @RequestBody MQConfig mqConfig){
+        @PathVariable String applicationId, @RequestBody List<MQConfig> mqConfig){
         System.out.println("Called getAllApplicationsAssociatedWithDocument " + documentId + ", " + applicationId);
 
         Optional<Application> app = appRep.findById(applicationId);
         Optional<DocumentData> doc = docRep.findById(documentId);
 
-        if (!app.isPresent() && !doc.isPresent() ){
+        if (!app.isPresent() || !doc.isPresent() ){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         if (mqConfig == null){
@@ -278,24 +247,38 @@ public class DocumentAdminController {
         }
         
         Configuration conf = confSvc.getConfigurationByDocApp(doc.get(),app.get());
+        if (conf == null) {
+            conf = new Configuration(doc.get(),app.get());
+            confRep.save(conf);
+        }
+        HttpStatus rtnHttp = HttpStatus.BAD_REQUEST;
+        for (MQConfig mc : mqConfig) {
+            
+            List<MQConfig> currMqConfig = null;
 
-        if (conf.getMqConfig().isEmpty()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            List<MQConfig> mqConfigsOld = conf.getMqConfig();
-            boolean hasConfig = mqConfigsOld.stream().anyMatch(c -> c.getDirection().equals(mqConfig.getDirection()));
-            if (hasConfig){
-                Optional<MQConfig> mqConfigOld = mqConfigsOld.stream().filter(c -> c.getDirection().equals(mqConfig.getDirection())).findFirst();
-                BeanUtils.copyProperties(mqConfig, mqConfigOld.get(), ObjectHelper.getNullPropertyNames(mqConfigOld.get()));
-                conf.addMqConfig(mqConfig);
+            if (conf.getMqConfig() == null){
+                currMqConfig = new ArrayList<>();
+                conf.setMqConfig(currMqConfig);
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                currMqConfig = conf.getMqConfig();
             }
+
+            boolean hasConfig = currMqConfig.stream().anyMatch(c -> c.getDirection().equals(mc.getDirection()));
+            if (hasConfig){
+                Optional<MQConfig> mqConfigOld = currMqConfig.stream().filter(c -> c.getDirection().equals(mc.getDirection())).findFirst();
+                BeanUtils.copyProperties(mc, mqConfigOld.get(), ObjectHelper.getNullPropertyNames(mqConfigOld.get()));
+                conf.addMqConfig(mc);
+                rtnHttp = HttpStatus.OK;
+            } else {
+                conf.addMqConfig(mc);
+                rtnHttp = HttpStatus.CREATED;
+            }
+            
         }
 
         confRep.save(conf);
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(rtnHttp);
      }
 
 }

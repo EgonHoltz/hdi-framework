@@ -109,6 +109,12 @@ public class Configuration {
 	public void setApplication(Application application) {
 		this.application = application;
 	}
+	public void setMqConfig(List<MQConfig> mqConfig) {
+		this.mqConfig = mqConfig;
+	}
+	public void setSftpConfig(List<SFTPConfig> sftpConfig) {
+		this.sftpConfig = sftpConfig;
+	}
 	@Override
 	public String toString() {
 		return "Configuration [id=" + id + ", lastModificationDate=" + lastModificationDate + ", createDate="

@@ -1,7 +1,7 @@
 <template>
     <b-card body-class="p-0" header-class="border-0">
         <template v-slot:header>
-            <RabbitMQAssociation :selectedApplication="selectedApplication"></RabbitMQAssociation>
+            <RabbitMQAssociation :selectedApplication="selectedApplication" :rabbitMQ="rabbitMQ"></RabbitMQAssociation>
         </template>
     </b-card>
 </template>
@@ -10,6 +10,7 @@
       import BaseProgress from '@/components/BaseProgress';
       import StatsCard from '@/components/Cards/StatsCard';
       import RabbitMQAssociation from './Technologies/RabbitMQAssociation.vue';
+      import {FETCH_DOCUMENT_APPLICATION} from '@/store/document-application/document-application.constants';
       export default {
         components: {
             BaseProgress,
@@ -25,6 +26,9 @@
         watch: {
             selectedApplication: {
                 handler(newValue) {
+                  this.applicationId = newValue.id;
+                    //load associated tech to forms
+                    this.afterRender();
                 },
                 deep: true,
             },
@@ -32,9 +36,31 @@
         data() {
           return {
             selectedApplication: null,
+            applicationId: null,
+            configurations: null,
+            rabbitMQ: null,
           }
         },
         methods: {
+          afterRender(){
+                this.fetchTechnologies();
+            },
+            fetchTechnologies(){
+                const documentId = this.$route.params.id;
+                console.log("selectedApplication: " + this.applicationId);
+                console.log("on the document: " + documentId);
+                let payloadIds = {
+                    applicationId: this.applicationId,
+                    documentId: documentId
+                }
+                this.$store.dispatch(`documentApplication/${FETCH_DOCUMENT_APPLICATION}`, payloadIds).then( 
+                () => {
+                    this.configurations = this.$store.getters['documentApplication/getDocumentApplication'];
+                    this.rabbitMQ = configurations.mqConfig
+                }, err => {
+                    this.alertTitle = "Error while fetch"
+                });
+            },
         }
       }
     </script>

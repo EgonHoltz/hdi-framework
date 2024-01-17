@@ -11,19 +11,19 @@
                 <b-button v-b-toggle.collapse-1 @click="doActivate" :variant="buttonProp.type">{{buttonProp.label}}</b-button>
             </div>
             <b-collapse id="collapse-1" class="mt-2">
-                <el-form label-width="120px" label-position="top">
+                <el-form :model="editForm" label-width="120px" label-position="top">
                 <el-row>
                     <el-col :span="14" class="p-2">
                         <el-form-item label="Input MQ Queue name" class="row-with-space">
-                            <el-input v-model="inputQueueName" :disabled="isActive"></el-input>
+                            <el-input v-model="editForm.inputQueueName" :disabled="isActive"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="4" class="p-2">
                         <el-form-item>
-                            <el-checkbox v-model="inputActive" :disabled="isActive">Active</el-checkbox>
+                            <el-checkbox v-model="editForm.inputActive" :disabled="isActive">Active</el-checkbox>
                         </el-form-item>
                         <el-form-item>
-                            <el-checkbox v-model="inputHasAcknowledge" :disabled="isActive">Has acknowledgment</el-checkbox>
+                            <el-checkbox v-model="editForm.inputHasAcknowledge" :disabled="isActive">Has acknowledgment</el-checkbox>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -31,15 +31,15 @@
                 <el-row>
                     <el-col :span="14" class="p-2">
                         <el-form-item label="Output MQ Queue name">
-                            <el-input v-model="outputQueueName" :disabled="isActive"></el-input>
+                            <el-input v-model="editForm.outputQueueName" :disabled="isActive"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="4" class="p-2">
                         <el-form-item >
-                            <el-checkbox v-model="outputActive" :disabled="isActive">Active</el-checkbox>
+                            <el-checkbox v-model="editForm.outputActive" :disabled="isActive">Active</el-checkbox>
                         </el-form-item>
                         <el-form-item>
-                            <el-checkbox v-model="outputHasAcknowledge" :disabled="isActive">Has acknowledgment</el-checkbox>
+                            <el-checkbox v-model="editForm.outputHasAcknowledge" :disabled="isActive">Has acknowledgment</el-checkbox>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -55,7 +55,7 @@
 <script>
       import { BaseProgress } from '@/components';
       import { mapGetters } from "vuex";
-      import {FETCH_DOCUMENT_APPLICATION, ADD_DOCUMENT_APPLICATION, EDIT_DOCUMENT_APPLICATION} from '@/store/document-application/document-application.constants';
+      import {UPSERT_RABBIT_MQ} from '@/store/document-application/document-application.constants';
       import { Table, TableColumn, Button, Form, FormItem, Col, Row, Input, Checkbox, Collapse, CollapseItem} from 'element-ui';
       export default {
         components: {
@@ -82,11 +82,18 @@
             selectedApplication: {
                 handler(newValue) {
                     this.applicationId = newValue.id;
+                    console.log("MQ to associate the app: " + this.applicationId);
                     //load associated tech to forms
                     this.afterRender();
                 },
                 deep: true,
             },
+            rabbitMQ: {
+                handler(newValue) {
+                    this.moveDataToForm();
+                },
+                deep: true,
+            }
         },
         data() {
           return {
@@ -105,8 +112,7 @@
                 type: "success",
                 label: "Active"
             },
-            tableData: [
-            ]
+            newRabbitMq: [],
           }
         },
         created() {
@@ -125,14 +131,24 @@
                     applicationId: this.applicationId,
                     documentId: documentId
                 }
-                this.$store.dispatch(`documentApplication/${FETCH_DOCUMENT_APPLICATION}`, payloadIds).then( 
-                () => {
-                    this.applications = this.$store.getters['documentApplication/getDocumentApplication'];
-                    this.tableData = [];
-                    this.tableData = this.applications;
-                }, err => {
-                    this.alertTitle = "Error while fetch"
-                });
+            },
+            moveDataToForm(){
+                if (rabbitMQ != null){
+                    this.editForm.isActive = true;
+                    const sendFields = rabbitMQ.find(item => item.direction === 'SEND');
+                    const receiveFields = rabbitMQ.find(item => item.direction === 'RECEIVE');
+
+                    if (sendFields != null){
+                        this.editForm.inputQueueName = sendFields.mqName;
+                        this.editForm.inputActive = sendFields.active;
+                        this.editForm.inputHasAcknowledge = sendFields.hasAck;
+                    }
+                    if (receiveFields != null){
+                        this.editForm.outputQueueName = sendFields.mqName;
+                        this.editForm.outputActive = sendFields.active;
+                        this.editForm.outputHasAcknowledge = sendFields.hasAck;
+                    }
+                }
             },
             doActivate(){
               if (this.buttonProp.type ==="success") {
@@ -144,6 +160,48 @@
                 this.buttonProp.label ="Active"
                 this.editForm.isActive = false;
               }
+            },
+            patchFieldsToObject(){
+                if (this.editForm.inputQueueName.trim() != ""){
+                    this.newRabbitMq.push({
+                        mqName: this.editForm.inputQueueName,
+                        active: this.editForm.inputActive,
+                        hasAck: this.editForm.inputHasAcknowledge,
+                        direction: 'RECEIVE'                        
+                    })
+                }
+                if (this.editForm.outputQueueName.trim() != ""){
+                    this.newRabbitMq.push({
+                        mqName: this.editForm.outputQueueName,
+                        active: this.editForm.outputActive,
+                        hasAck: this.editForm.outputHasAcknowledge,
+                        direction: 'SEND'                        
+                    })
+                }
+            },
+            submitForm(){
+                this.newRabbitMq = [];
+                this.patchFieldsToObject();
+                const documentId = this.$route.params.id;
+                //add the ids to payload
+                let id = {
+                    applicationId: this.applicationId,
+                    documentId: documentId
+                }
+                this.newRabbitMq.id = id;
+                console.log("Saving the MQ");
+                this.$store.dispatch(`documentApplication/${UPSERT_RABBIT_MQ}`,this.newRabbitMq).then( 
+                    () => {
+                        this.editDialogVisible = false;
+                        this.alertTitle = "Document created with success!"                   
+                        this.showSuccessAlert();
+                        this.$router.go(-1); // Go back one step in the browser history
+                    }, err => {
+                        this.editDialogVisible = false;
+                        this.alertTitle = "Error on creation. Please contact the IT team"
+                        this.showErrorAlert();
+                    });
+
             },
             handleAppFromTable(application){
                 console.log("received the row: " + application.documentName);

@@ -17,6 +17,6 @@ import java.util.List;
 @Repository
 public interface ConfigurationRepository extends MongoRepository<Configuration, String>{
 	@Query("{'documentData': ?0, 'application': ?1}")
-	Configuration findByDocumentApplication(DocumentData documentData, Application application);
+	Configuration findByDocumentApplication(String documentDataId, String applicationId);
 
 }

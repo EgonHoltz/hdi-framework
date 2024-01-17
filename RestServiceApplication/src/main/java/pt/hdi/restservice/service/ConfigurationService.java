@@ -21,7 +21,7 @@ public class ConfigurationService {
 	}
 
 	public Configuration getConfigurationByDocApp(DocumentData doc, Application app){
-		return confRep.findByDocumentApplication(doc, app);
+		return confRep.findByDocumentApplication(doc.getId(), app.getId());
 	}
 	
 	public Configuration getByDocumentConfiguration(String docId) {
