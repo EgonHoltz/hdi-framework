@@ -10,20 +10,21 @@
         </b-col> -->
       </b-row>
     </template>
-    <el-table
-      class="table-responsive table"
-      :data="tableData"
-      header-row-class-name="thead-light">
+      <el-table
+        class="table-responsive table"
+        :data="tableData"
+        highlight-current-row
+        header-row-class-name="thead-light"
+      >
       <el-table-column label="Application Name" min-width="50px" prop="appName">
-        <template v-slot="{row}">
-          <div class="font-weight-600">{{row.appName}}</div>
+        <template v-slot="{ row }">
+          <div :class="{ 'font-weight-600': row.isSelected }">{{ row.appName }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="App Trigram" min-width="110px" prop="appAbrv">
-      </el-table-column>
+      <el-table-column label="App Trigram" min-width="110px" prop="appAbrv"></el-table-column>
       <el-table-column label="Actions" width="150">
         <template slot-scope="scope">
-          <el-button @click="handleSelection(scope.row, true)" type="text">Select ></el-button>
+          <el-button @click="handleSelection(scope.row)" type="text">Select ></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -80,6 +81,10 @@
             });
         },
         handleSelection(row){
+          this.tableData.forEach((r) => {
+            this.$set(r, 'isSelected', false);
+          });
+          this.$set(row, 'isSelected', true);
           this.$emit('application',row);
         }
       }

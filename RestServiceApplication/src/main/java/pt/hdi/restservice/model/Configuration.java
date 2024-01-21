@@ -11,6 +11,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import pt.hdi.restservice.Utils.ApplicationEnums;
+
 @Document
 public class Configuration {
 	
@@ -92,10 +94,24 @@ public class Configuration {
 		return this.sftpConfig.removeIf(s -> s.getSftpFileName().equals(sftpConfig.getSftpFileName()));
 	}
 	public Optional<SFTPConfig> getFirstSendSftpConfig() {
-		return this.sftpConfig.stream().filter(s -> s.getDirection().equals("send")).findFirst();
+		if (this.sftpConfig != null) {
+			return this.sftpConfig.stream()
+				.filter(s -> ApplicationEnums.FLOW_DIRECTION.SEND.equals(s.getDirection()))
+				.findFirst();
+		} else {
+			// Return an empty Optional if sftpConfig is null
+			return Optional.empty();
+		}
 	}
 	public Optional<SFTPConfig> getFirstReceiveSftpConfig() {
-		return this.sftpConfig.stream().filter(s -> s.getDirection().equals("recv")).findFirst();
+		if (this.sftpConfig != null) {
+			return this.sftpConfig.stream()
+				.filter(s -> ApplicationEnums.FLOW_DIRECTION.RECEIVE.equals(s.getDirection()))
+				.findFirst();
+		} else {
+			// Return an empty Optional if sftpConfig is null
+			return Optional.empty();
+		}
 	}
 	public DocumentData getDocumentData() {
 		return documentData;

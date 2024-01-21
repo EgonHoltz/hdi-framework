@@ -1,7 +1,8 @@
 <template>
     <b-card body-class="p-0" header-class="border-0">
         <template v-slot:header>
-            <RabbitMQAssociation :selectedApplication="selectedApplication" :rabbitMQ="rabbitMQ"></RabbitMQAssociation>
+            <RabbitMQAssociation :selectedApplication="selectedApplication"></RabbitMQAssociation>
+            <SFTPAssociation :selectedApplication="selectedApplication"></SFTPAssociation>
         </template>
     </b-card>
 </template>
@@ -10,12 +11,14 @@
       import BaseProgress from '@/components/BaseProgress';
       import StatsCard from '@/components/Cards/StatsCard';
       import RabbitMQAssociation from './Technologies/RabbitMQAssociation.vue';
+      import SFTPAssociation from './Technologies/SFTPAssociation.vue';
       import {FETCH_DOCUMENT_APPLICATION} from '@/store/document-application/document-application.constants';
       export default {
         components: {
             BaseProgress,
             StatsCard,
-            RabbitMQAssociation
+            RabbitMQAssociation,
+            SFTPAssociation
         },
         props: {
             selectedApplication: {
@@ -56,7 +59,6 @@
                 this.$store.dispatch(`documentApplication/${FETCH_DOCUMENT_APPLICATION}`, payloadIds).then( 
                 () => {
                     this.configurations = this.$store.getters['documentApplication/getDocumentApplication'];
-                    this.rabbitMQ = configurations.mqConfig
                 }, err => {
                     this.alertTitle = "Error while fetch"
                 });

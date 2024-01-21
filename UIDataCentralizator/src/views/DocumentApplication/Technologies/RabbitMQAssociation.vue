@@ -10,20 +10,20 @@
                 <div class="card-title">MQ Queue configuration</div>
                 <b-button v-b-toggle.collapse-1 @click="doActivate" :variant="buttonProp.type">{{buttonProp.label}}</b-button>
             </div>
-            <b-collapse id="collapse-1" class="mt-2">
+            <b-collapse id="collapse-1" v-model="isActive" class="mt-2">
                 <el-form :model="editForm" label-width="120px" label-position="top">
                 <el-row>
                     <el-col :span="14" class="p-2">
                         <el-form-item label="Input MQ Queue name" class="row-with-space">
-                            <el-input v-model="editForm.inputQueueName" :disabled="isActive"></el-input>
+                            <el-input v-model="editForm.inputQueueName"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="4" class="p-2">
                         <el-form-item>
-                            <el-checkbox v-model="editForm.inputActive" :disabled="isActive">Active</el-checkbox>
+                            <el-checkbox v-model="editForm.inputActive">Active</el-checkbox>
                         </el-form-item>
                         <el-form-item>
-                            <el-checkbox v-model="editForm.inputHasAcknowledge" :disabled="isActive">Has acknowledgment</el-checkbox>
+                            <el-checkbox v-model="editForm.inputHasAcknowledge">Has acknowledgment</el-checkbox>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -31,21 +31,20 @@
                 <el-row>
                     <el-col :span="14" class="p-2">
                         <el-form-item label="Output MQ Queue name">
-                            <el-input v-model="editForm.outputQueueName" :disabled="isActive"></el-input>
+                            <el-input v-model="editForm.outputQueueName"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="4" class="p-2">
                         <el-form-item >
-                            <el-checkbox v-model="editForm.outputActive" :disabled="isActive">Active</el-checkbox>
+                            <el-checkbox v-model="editForm.outputActive">Active</el-checkbox>
                         </el-form-item>
                         <el-form-item>
-                            <el-checkbox v-model="editForm.outputHasAcknowledge" :disabled="isActive">Has acknowledgment</el-checkbox>
+                            <el-checkbox v-model="editForm.outputHasAcknowledge">Has acknowledgment</el-checkbox>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-form-item class="p-4">
                                 <el-button type="primary" @click="submitForm">Save</el-button>
-                                <el-button type="danger" @click="cancel">Cancel</el-button>
                 </el-form-item>
             </el-form>
         </b-collapse>
@@ -55,7 +54,7 @@
 <script>
       import { BaseProgress } from '@/components';
       import { mapGetters } from "vuex";
-      import {UPSERT_RABBIT_MQ} from '@/store/document-application/document-application.constants';
+      import {UPSERT_RABBIT_MQ, FETCH_RABBIT_MQ} from '@/store/document-application/document-application.constants';
       import { Table, TableColumn, Button, Form, FormItem, Col, Row, Input, Checkbox, Collapse, CollapseItem} from 'element-ui';
       export default {
         components: {
@@ -88,12 +87,6 @@
                 },
                 deep: true,
             },
-            rabbitMQ: {
-                handler(newValue) {
-                    this.moveDataToForm();
-                },
-                deep: true,
-            }
         },
         data() {
           return {
@@ -108,6 +101,7 @@
                 outputActive: false,
                 outputHasAcknowledge: false,
             },
+            isActive: false,
             buttonProp: {
                 type: "success",
                 label: "Active"
@@ -124,6 +118,7 @@
                 this.fetchTechnologies();
             },
             fetchTechnologies(){
+                this.refreshForm();
                 const documentId = this.$route.params.id;
                 console.log("selectedApplication: " + this.applicationId);
                 console.log("on the document: " + documentId);
@@ -131,34 +126,69 @@
                     applicationId: this.applicationId,
                     documentId: documentId
                 }
+                this.$store.dispatch(`documentApplication/${FETCH_RABBIT_MQ}`, payloadIds).then( 
+                    () => {
+                    let rabbitMq = this.$store.getters['documentApplication/getRabbitMq'];
+                    console.log("Formating rabbitMq " + rabbitMq);
+                    this.moveDataToForm(rabbitMq);
+                }, err => {
+                    this.alertTitle = "Error while fetch"
+                    this.setSectionInactive();
+                });
             },
-            moveDataToForm(){
+            refreshForm(){
+                this.editForm.inputQueueName = "";
+                this.editForm.inputActive = false;
+                this.editForm.inputHasAcknowledge = false;
+                this.editForm.outputQueueName = "";
+                this.editForm.outputActive = false;
+                this.editForm.outputHasAcknowledge = false;
+            },
+            moveDataToForm(rabbitMQ){
                 if (rabbitMQ != null){
                     this.editForm.isActive = true;
                     const sendFields = rabbitMQ.find(item => item.direction === 'SEND');
                     const receiveFields = rabbitMQ.find(item => item.direction === 'RECEIVE');
 
-                    if (sendFields != null){
-                        this.editForm.inputQueueName = sendFields.mqName;
-                        this.editForm.inputActive = sendFields.active;
-                        this.editForm.inputHasAcknowledge = sendFields.hasAck;
-                    }
                     if (receiveFields != null){
+                        this.editForm.inputQueueName = receiveFields.mqName;
+                        this.editForm.inputActive = receiveFields.active;
+                        this.editForm.inputHasAcknowledge = receiveFields.hasAck;
+                    }
+                    if (sendFields != null){
                         this.editForm.outputQueueName = sendFields.mqName;
                         this.editForm.outputActive = sendFields.active;
                         this.editForm.outputHasAcknowledge = sendFields.hasAck;
                     }
+                    this.setSectionActive();
+                } else {
+                    this.setSectionInactive();
                 }
+                this.$forceUpdate();
+            },
+            setSectionActive(){
+                this.buttonProp.type = "danger";
+                this.buttonProp.label ="Inactive"
+                this.editForm.isActive = true;
+                this.isActive = true;
+            },
+            setSectionInactive(){
+                this.buttonProp.type = "success";
+                this.buttonProp.label ="Active"
+                this.editForm.isActive = false;
+                this.isActive = false;
             },
             doActivate(){
               if (this.buttonProp.type ==="success") {
                 this.buttonProp.type = "danger";
                 this.buttonProp.label ="Inactive"
                 this.editForm.isActive = true;
+                this.isActive = true;
               } else {
                 this.buttonProp.type = "success";
                 this.buttonProp.label ="Active"
                 this.editForm.isActive = false;
+                this.isActive = false;
               }
             },
             patchFieldsToObject(){

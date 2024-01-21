@@ -21,6 +21,7 @@ import pt.hdi.restservice.model.Application;
 import pt.hdi.restservice.model.Configuration;
 import pt.hdi.restservice.model.DocumentData;
 import pt.hdi.restservice.model.MQConfig;
+import pt.hdi.restservice.model.SFTPConfig;
 import pt.hdi.restservice.model.Structure;
 import pt.hdi.restservice.repository.ApplicationRepository;
 import pt.hdi.restservice.repository.ConfigurationRepository;
@@ -205,14 +206,13 @@ public class DocumentAdminController {
      * 
      * URLs:
      * GET  /document/{documentId}/application/{applicationId}/mqqueue
-     * POST /document/{documentId}/application/{applicationId}/mqqueue
      * PUT  /document/{documentId}/application/{applicationId}/mqqueue
      * 
      */
 
      @GetMapping("/{documentId}/application/{applicationId}/mqqueue")     
      public ResponseEntity getAssociationMQConfiguration(@PathVariable String documentId, @PathVariable String applicationId){
-        System.out.println("Called getAllApplicationsAssociatedWithDocument " + documentId + ", " + applicationId);
+        System.out.println("Called getAssociationMQConfiguration " + documentId + ", " + applicationId);
 
         Optional<Application> app = appRep.findById(applicationId);
         Optional<DocumentData> doc = docRep.findById(documentId);
@@ -266,6 +266,86 @@ public class DocumentAdminController {
             boolean hasConfig = currMqConfig.stream().anyMatch(c -> c.getDirection().equals(mc.getDirection()));
             if (hasConfig){
                 Optional<MQConfig> mqConfigOld = currMqConfig.stream().filter(c -> c.getDirection().equals(mc.getDirection())).findFirst();
+                BeanUtils.copyProperties(mc, mqConfigOld.get(), ObjectHelper.getNullPropertyNames(mqConfigOld.get()));
+                conf.addMqConfig(mc);
+                rtnHttp = HttpStatus.OK;
+            } else {
+                conf.addMqConfig(mc);
+                rtnHttp = HttpStatus.CREATED;
+            }
+            
+        }
+
+        confRep.save(conf);
+
+        return new ResponseEntity<>(rtnHttp);
+     }
+         /**
+     * Document Application association - Create technology behind the document, which allows the communication
+     * between other applications
+     * 
+     * URLs:
+     * GET  /document/{documentId}/application/{applicationId}/sftp
+     * PUT  /document/{documentId}/application/{applicationId}/sftp
+     * 
+     */
+
+     @GetMapping("/{documentId}/application/{applicationId}/sftp")     
+     public ResponseEntity getAssociationSFTPConfiguration(@PathVariable String documentId, @PathVariable String applicationId){
+        System.out.println("Called getAssociationMQConfiguration " + documentId + ", " + applicationId);
+
+        Optional<Application> app = appRep.findById(applicationId);
+        Optional<DocumentData> doc = docRep.findById(documentId);
+
+        if (!app.isPresent() || !doc.isPresent()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        
+        Configuration conf = confSvc.getConfigurationByDocApp(doc.get(),app.get());
+
+        if (conf != null){
+            return new ResponseEntity<>(conf.getSftpConfig(),HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+     }
+
+     @PutMapping("/{documentId}/application/{applicationId}/sftp")     
+     public ResponseEntity changeAssociationSFTPConfiguration(@PathVariable String documentId, 
+        @PathVariable String applicationId, @RequestBody List<SFTPConfig> mqConfig){
+        System.out.println("Called getAllApplicationsAssociatedWithDocument " + documentId + ", " + applicationId);
+
+        Optional<Application> app = appRep.findById(applicationId);
+        Optional<DocumentData> doc = docRep.findById(documentId);
+
+        if (!app.isPresent() || !doc.isPresent() ){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (mqConfig == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        
+        Configuration conf = confSvc.getConfigurationByDocApp(doc.get(),app.get());
+        if (conf == null) {
+            conf = new Configuration(doc.get(),app.get());
+            confRep.save(conf);
+        }
+        HttpStatus rtnHttp = HttpStatus.BAD_REQUEST;
+        for (SFTPConfig mc : mqConfig) {
+            
+            List<SFTPConfig> currMqConfig = null;
+
+            if (conf.getMqConfig() == null){
+                currMqConfig = new ArrayList<>();
+                conf.setSftpConfig(mqConfig);
+            } else {
+                currMqConfig = conf.getSftpConfig();
+            }
+
+            boolean hasConfig = currMqConfig.stream().anyMatch(c -> c.getDirection().equals(mc.getDirection()));
+            if (hasConfig){
+                Optional<SFTPConfig> mqConfigOld = currMqConfig.stream().filter(c -> c.getDirection().equals(mc.getDirection())).findFirst();
                 BeanUtils.copyProperties(mc, mqConfigOld.get(), ObjectHelper.getNullPropertyNames(mqConfigOld.get()));
                 conf.addMqConfig(mc);
                 rtnHttp = HttpStatus.OK;

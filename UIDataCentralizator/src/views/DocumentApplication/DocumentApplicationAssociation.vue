@@ -11,7 +11,7 @@
             <ApplicationTableSimple @application="handleAppFromTable"></ApplicationTableSimple>
           </b-col>
           <b-col xl="6" class="mb-6 mb-xl-0">
-            <AssociateTechnology :selectedApplication="selectedApplication"></AssociateTechnology>
+            <AssociateTechnology v-if="selectedApplication != null" :selectedApplication="selectedApplication"></AssociateTechnology>
           </b-col>
         </b-row>
         <!--End tables-->
