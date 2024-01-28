@@ -11,7 +11,7 @@ import pt.hdi.restservice.Utils.ApplicationEnums.FLOW_DIRECTION;
 public class SFTPConfig {
 	
 	private String host;
-	private int port;
+	private Integer port;
 	private String user;
 	private String password;
 	private FLOW_DIRECTION direction;
@@ -36,11 +36,11 @@ public class SFTPConfig {
 		this.host = host;
 	}
 
-	public int getPort() {
+	public Integer getPort() {
 		return port;
 	}
 
-	public void setPort(int port) {
+	public void setPort(Integer port) {
 		this.port = port;
 	}
 

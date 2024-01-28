@@ -23,6 +23,7 @@
         props: {
             selectedApplication: {
                 type: Object,
+                default: null,
                 required: true,
             }
         },
@@ -38,7 +39,6 @@
         },
         data() {
           return {
-            selectedApplication: null,
             applicationId: null,
             configurations: null,
             rabbitMQ: null,

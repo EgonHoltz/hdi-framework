@@ -72,7 +72,7 @@ const actions = {
       });
   },
   [FETCH_SFTP]: ({ commit, rootState }, payload) => {
-    console.log("action FETCH_RABBIT_MQ")
+    console.log("action FETCH_SFTP")
       return new Promise((resolve, reject) => {
         docAppService.getSftpFromConfiguration(/*rootState.auth.token,*/ payload)
           .then(
@@ -87,7 +87,7 @@ const actions = {
       });
   },
   [UPSERT_SFTP]: ({ commit, rootState }, payload) => {
-    console.log("action called")
+    console.log("action UPSERT_SFTP")
       return new Promise((resolve, reject) => {
         docAppService.upsertSftp(/*rootState.auth.token,*/ payload)
           .then(

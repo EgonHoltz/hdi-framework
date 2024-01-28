@@ -66,12 +66,12 @@ public class Configuration {
 	}
 	
 	public List<SFTPConfig> getSftpConfig() {
-		return sftpConfig;
+		return this.sftpConfig;
 	}
 	public void removeAllSftpConfig() {
 		this.sftpConfig.clear();
 	}
-	public void addMqConfig(SFTPConfig sftpConfig) {
+	public void addSftpConfig(SFTPConfig sftpConfig) {
 		if (this.sftpConfig == null) {
 			this.sftpConfig = new ArrayList<SFTPConfig>();
 		}

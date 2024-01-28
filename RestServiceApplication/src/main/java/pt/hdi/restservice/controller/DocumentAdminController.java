@@ -313,8 +313,8 @@ public class DocumentAdminController {
 
      @PutMapping("/{documentId}/application/{applicationId}/sftp")     
      public ResponseEntity changeAssociationSFTPConfiguration(@PathVariable String documentId, 
-        @PathVariable String applicationId, @RequestBody List<SFTPConfig> mqConfig){
-        System.out.println("Called getAllApplicationsAssociatedWithDocument " + documentId + ", " + applicationId);
+        @PathVariable String applicationId, @RequestBody List<SFTPConfig> sftpConfig){
+        System.out.println("Called changeAssociationSFTPConfiguration " + documentId + ", " + applicationId);
 
         Optional<Application> app = appRep.findById(applicationId);
         Optional<DocumentData> doc = docRep.findById(documentId);
@@ -322,7 +322,7 @@ public class DocumentAdminController {
         if (!app.isPresent() || !doc.isPresent() ){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        if (mqConfig == null){
+        if (sftpConfig == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         
@@ -332,25 +332,25 @@ public class DocumentAdminController {
             confRep.save(conf);
         }
         HttpStatus rtnHttp = HttpStatus.BAD_REQUEST;
-        for (SFTPConfig mc : mqConfig) {
+        for (SFTPConfig sftp : sftpConfig) {
             
-            List<SFTPConfig> currMqConfig = null;
+            List<SFTPConfig> currSftpConfig = null;
 
-            if (conf.getMqConfig() == null){
-                currMqConfig = new ArrayList<>();
-                conf.setSftpConfig(mqConfig);
+            if (conf.getSftpConfig() == null){
+                currSftpConfig = new ArrayList<>();
+                //conf.setSftpConfig(mqConfig);
             } else {
-                currMqConfig = conf.getSftpConfig();
+                currSftpConfig = conf.getSftpConfig();
             }
 
-            boolean hasConfig = currMqConfig.stream().anyMatch(c -> c.getDirection().equals(mc.getDirection()));
+            boolean hasConfig = currSftpConfig.stream().anyMatch(c -> c.getDirection().equals(sftp.getDirection()));
             if (hasConfig){
-                Optional<SFTPConfig> mqConfigOld = currMqConfig.stream().filter(c -> c.getDirection().equals(mc.getDirection())).findFirst();
-                BeanUtils.copyProperties(mc, mqConfigOld.get(), ObjectHelper.getNullPropertyNames(mqConfigOld.get()));
-                conf.addMqConfig(mc);
+                Optional<SFTPConfig> mqConfigOld = currSftpConfig.stream().filter(c -> c.getDirection().equals(sftp.getDirection())).findFirst();
+                BeanUtils.copyProperties(sftp, mqConfigOld.get(), ObjectHelper.getNullPropertyNames(mqConfigOld.get()));
+                conf.addSftpConfig(sftp);
                 rtnHttp = HttpStatus.OK;
             } else {
-                conf.addMqConfig(mc);
+                conf.addSftpConfig(sftp);
                 rtnHttp = HttpStatus.CREATED;
             }
             

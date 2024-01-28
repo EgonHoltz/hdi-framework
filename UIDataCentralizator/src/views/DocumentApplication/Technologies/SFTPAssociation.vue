@@ -10,7 +10,7 @@
                 <div class="card-title">SFTP configuration</div>
                 <b-button v-b-toggle.collapse-2 @click="doSFTPActivate" :variant="buttonSFTPProp.type">{{buttonSFTPProp.label}}</b-button>
             </div>
-            <b-collapse id="collapse-2" v-model="isSFTPActive" class="mt-2">
+            <b-collapse  v-model="isSFTPActive" class="mt-2">
                 <el-form :model="editForm" label-width="120px" label-position="top">
                 <el-row><h3>SFTP Send information</h3></el-row>
                 <el-row>
@@ -21,7 +21,7 @@
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="14" class="p-2">
+                    <el-col :span="18" class="p-2">
                         <el-form-item label="Host" class="row-with-space">
                             <el-input v-model="editForm.host"></el-input>
                         </el-form-item>
@@ -33,24 +33,24 @@
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="5" class="p-2">
+                    <el-col :span="11" class="p-2">
                         <el-form-item label="User" class="row-with-space">
                             <el-input v-model="editForm.sendUser"></el-input>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="5" class="p-2">
+                    <el-col :span="11" class="p-2">
                         <el-form-item label="Password" class="row-with-space">
                             <el-input v-model="editForm.sendPassword"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="5" class="p-2">
+                    <el-col :span="12" class="p-2">
                         <el-form-item label="Destination path" class="row-with-space">
                             <el-input v-model="editForm.destinationPath"></el-input>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="5" class="p-2">
+                    <el-col :span="10" class="p-2">
                         <el-form-item label="Filename" class="row-with-space">
                             <el-input v-model="editForm.sendFileName"></el-input>
                         </el-form-item>
@@ -66,19 +66,19 @@
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="5" class="p-2">
+                    <el-col :span="11" class="p-2">
                         <el-form-item label="User" class="row-with-space">
                             <el-input v-model="editForm.recvUser"></el-input>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="5" class="p-2">
+                    <el-col :span="11" class="p-2">
                         <el-form-item label="Password" class="row-with-space">
                             <el-input v-model="editForm.recvPassword"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="5" class="p-2">
+                    <el-col :span="22" class="p-2">
                         <el-form-item label="Filename" class="row-with-space">
                             <el-input v-model="editForm.recvFileName"></el-input>
                         </el-form-item>
@@ -201,19 +201,19 @@
                     const receiveFields = sftpConf.find(item => item.direction === 'RECEIVE');
                     
                     if (receiveFields != null){
-                        this.editForm.recvActive = false;
-                        this.editForm.recvUser = "";
-                        this.editForm.recvPassword = "";
-                        this.editForm.recvFileName = "";
+                        this.editForm.recvActive = receiveFields.active;
+                        this.editForm.recvUser = receiveFields.user;
+                        this.editForm.recvPassword = receiveFields.password;
+                        this.editForm.recvFileName = receiveFields.sftpFileName;
                     }
                     if (sendFields != null){
-                        this.editForm.sendActive = false;
-                        this.editForm.host = "";
-                        this.editForm.port = null;
-                        this.editForm.sendUser = "";
-                        this.editForm.sendPassword = "";
-                        this.editForm.destinationPath = "";
-                        this.editForm.sendFileName = "";
+                        this.editForm.sendActive = sendFields.active;
+                        this.editForm.host = sendFields.host;
+                        this.editForm.port = sendFields.port;
+                        this.editForm.sendUser = sendFields.user;
+                        this.editForm.sendPassword = sendFields.password;
+                        this.editForm.destinationPath = sendFields.destinationPath;
+                        this.editForm.sendFileName = sendFields.sftpFileName;
                     }
                     this.setSectionActive();
                 } else {
@@ -247,28 +247,24 @@
               }
             },
             patchFieldsToObject(){
-                this.editForm.recvActive = false;
-                this.editForm.recvUser = "";
-                this.editForm.recvPassword = "";
-                this.editForm.recvFileName = "";
                 if (this.editForm.sendFileName.trim() != ""){
                     this.newSftpConfig.push({
-                        sendActive: this.editForm.sendActive,
+                        active: this.editForm.sendActive,
                         host: this.editForm.host,
                         port: this.editForm.port,
-                        sendUser: this.editForm.sendUser,
-                        sendPassword: this.editForm.sendPassword,
+                        user: this.editForm.sendUser,
+                        password: this.editForm.sendPassword,
                         destinationPath: this.editForm.destinationPath,
-                        sendFileName: this.editForm.sendFileName,
+                        sftpFileName: this.editForm.sendFileName,
                         direction: 'SEND'
                     })
                 }
                 if (this.editForm.recvFileName.trim() != ""){
                     this.newSftpConfig.push({
-                        recvActive: this.editForm.recvActive,
-                        recvUser: this.editForm.recvUser,
-                        recvPassword: this.editForm.recvPassword,
-                        recvFileName: this.editForm.recvFileName,
+                        active: this.editForm.recvActive,
+                        user: this.editForm.recvUser,
+                        password: this.editForm.recvPassword,
+                        sftpFileName: this.editForm.recvFileName,
                         direction: 'RECEIVE'
                     })
                 }
