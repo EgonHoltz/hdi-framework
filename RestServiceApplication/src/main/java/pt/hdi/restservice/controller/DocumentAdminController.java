@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import pt.hdi.restservice.Utils.ApplicationEnums.DOCUMENT_STATUS;
 import pt.hdi.restservice.Utils.ObjectHelper;
 import pt.hdi.restservice.model.Application;
 import pt.hdi.restservice.model.Configuration;
@@ -41,15 +42,6 @@ public class DocumentAdminController {
     @Autowired
     private DocumentService docSvc;
 
-    @Autowired
-    private ApplicationRepository appRep;
-
-    @Autowired
-    private ConfigurationService confSvc;
-
-    @Autowired
-    private ConfigurationRepository confRep;
-
     /**
      * Document - Work on its name, who is responsible, parameters and observations
      * 
@@ -58,6 +50,8 @@ public class DocumentAdminController {
      * GET  /document/{documentId}
      * POST /document/
      * PUT  /document/{documentId}
+     * GET  /document/{documentId}/dbStatus
+     * POST /document/{documentId}/dbStatus
      */
 
     @GetMapping("/")
@@ -78,7 +72,7 @@ public class DocumentAdminController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(docFound.get(), HttpStatus.OK);
-}
+    }
 
 
     @PostMapping("/")
@@ -112,6 +106,41 @@ public class DocumentAdminController {
         docRep.save(doc);
 
         return new ResponseEntity<>(doc, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/dbStatus")
+    public ResponseEntity getDocumentDbStatus(@PathVariable String id){
+        System.out.println("Called getDocumentDbStatus");
+        if (id == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Optional<DocumentData> docFound = docRep.findById(id);
+        
+        if (!docFound.isPresent() ){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        DOCUMENT_STATUS status = docSvc.getDocumentStatusOnDb(docFound.get());
+        return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/dbStatus")
+    public ResponseEntity pushDocumentUpdateToDb(@PathVariable String id){
+        System.out.println("Called pushDocumentUpdateToDb " + id);
+        if (id == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Optional<DocumentData> docFound = docRep.findById(id);
+        
+        if (!docFound.isPresent() ){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        boolean status = docSvc.generateDocumentOnDb(docFound.get());
+
+        if(status){
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -170,195 +199,5 @@ public class DocumentAdminController {
     }
 
 
-    /**
-     * Document Application association - Create technology behind the document, which allows the communication
-     * between other applications
-     * 
-     * URLs:
-     * GET  /document/{documentId}/application/{applicationId}
-     * 
-     */
-
-     @GetMapping("/{documentId}/application/{applicationId}")     
-     public ResponseEntity getAllApplicationsAssociatedWithDocument(@PathVariable String documentId, @PathVariable String applicationId){
-        System.out.println("Called getAllApplicationsAssociatedWithDocument " + documentId + ", " + applicationId);
-
-        Optional<Application> app = appRep.findById(applicationId);
-        Optional<DocumentData> doc = docRep.findById(documentId);
-
-        if (!app.isPresent() && !doc.isPresent()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        
-        Configuration conf = confSvc.getConfigurationByDocApp(doc.get(),app.get());
-
-        if (conf != null){
-            return new ResponseEntity<>(conf,HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-     }
-
-
-    /**
-     * Document Application association - Create technology behind the document, which allows the communication
-     * between other applications
-     * 
-     * URLs:
-     * GET  /document/{documentId}/application/{applicationId}/mqqueue
-     * PUT  /document/{documentId}/application/{applicationId}/mqqueue
-     * 
-     */
-
-     @GetMapping("/{documentId}/application/{applicationId}/mqqueue")     
-     public ResponseEntity getAssociationMQConfiguration(@PathVariable String documentId, @PathVariable String applicationId){
-        System.out.println("Called getAssociationMQConfiguration " + documentId + ", " + applicationId);
-
-        Optional<Application> app = appRep.findById(applicationId);
-        Optional<DocumentData> doc = docRep.findById(documentId);
-
-        if (!app.isPresent() || !doc.isPresent()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        
-        Configuration conf = confSvc.getConfigurationByDocApp(doc.get(),app.get());
-
-        if (conf != null){
-            return new ResponseEntity<>(conf.getMqConfig(),HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-     }
-
-     @PutMapping("/{documentId}/application/{applicationId}/mqqueue")     
-     public ResponseEntity changeAssociationMQConfiguration(@PathVariable String documentId, 
-        @PathVariable String applicationId, @RequestBody List<MQConfig> mqConfig){
-        System.out.println("Called getAllApplicationsAssociatedWithDocument " + documentId + ", " + applicationId);
-
-        Optional<Application> app = appRep.findById(applicationId);
-        Optional<DocumentData> doc = docRep.findById(documentId);
-
-        if (!app.isPresent() || !doc.isPresent() ){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        if (mqConfig == null){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        
-        Configuration conf = confSvc.getConfigurationByDocApp(doc.get(),app.get());
-        if (conf == null) {
-            conf = new Configuration(doc.get(),app.get());
-            confRep.save(conf);
-        }
-        HttpStatus rtnHttp = HttpStatus.BAD_REQUEST;
-        for (MQConfig mc : mqConfig) {
-            
-            List<MQConfig> currMqConfig = null;
-
-            if (conf.getMqConfig() == null){
-                currMqConfig = new ArrayList<>();
-                conf.setMqConfig(currMqConfig);
-            } else {
-                currMqConfig = conf.getMqConfig();
-            }
-
-            boolean hasConfig = currMqConfig.stream().anyMatch(c -> c.getDirection().equals(mc.getDirection()));
-            if (hasConfig){
-                Optional<MQConfig> mqConfigOld = currMqConfig.stream().filter(c -> c.getDirection().equals(mc.getDirection())).findFirst();
-                BeanUtils.copyProperties(mc, mqConfigOld.get(), ObjectHelper.getNullPropertyNames(mqConfigOld.get()));
-                conf.addMqConfig(mc);
-                rtnHttp = HttpStatus.OK;
-            } else {
-                conf.addMqConfig(mc);
-                rtnHttp = HttpStatus.CREATED;
-            }
-            
-        }
-
-        confRep.save(conf);
-
-        return new ResponseEntity<>(rtnHttp);
-     }
-         /**
-     * Document Application association - Create technology behind the document, which allows the communication
-     * between other applications
-     * 
-     * URLs:
-     * GET  /document/{documentId}/application/{applicationId}/sftp
-     * PUT  /document/{documentId}/application/{applicationId}/sftp
-     * 
-     */
-
-     @GetMapping("/{documentId}/application/{applicationId}/sftp")     
-     public ResponseEntity getAssociationSFTPConfiguration(@PathVariable String documentId, @PathVariable String applicationId){
-        System.out.println("Called getAssociationMQConfiguration " + documentId + ", " + applicationId);
-
-        Optional<Application> app = appRep.findById(applicationId);
-        Optional<DocumentData> doc = docRep.findById(documentId);
-
-        if (!app.isPresent() || !doc.isPresent()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        
-        Configuration conf = confSvc.getConfigurationByDocApp(doc.get(),app.get());
-
-        if (conf != null){
-            return new ResponseEntity<>(conf.getSftpConfig(),HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-     }
-
-     @PutMapping("/{documentId}/application/{applicationId}/sftp")     
-     public ResponseEntity changeAssociationSFTPConfiguration(@PathVariable String documentId, 
-        @PathVariable String applicationId, @RequestBody List<SFTPConfig> sftpConfig){
-        System.out.println("Called changeAssociationSFTPConfiguration " + documentId + ", " + applicationId);
-
-        Optional<Application> app = appRep.findById(applicationId);
-        Optional<DocumentData> doc = docRep.findById(documentId);
-
-        if (!app.isPresent() || !doc.isPresent() ){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        if (sftpConfig == null){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        
-        Configuration conf = confSvc.getConfigurationByDocApp(doc.get(),app.get());
-        if (conf == null) {
-            conf = new Configuration(doc.get(),app.get());
-            confRep.save(conf);
-        }
-        HttpStatus rtnHttp = HttpStatus.BAD_REQUEST;
-        for (SFTPConfig sftp : sftpConfig) {
-            
-            List<SFTPConfig> currSftpConfig = null;
-
-            if (conf.getSftpConfig() == null){
-                currSftpConfig = new ArrayList<>();
-                //conf.setSftpConfig(mqConfig);
-            } else {
-                currSftpConfig = conf.getSftpConfig();
-            }
-
-            boolean hasConfig = currSftpConfig.stream().anyMatch(c -> c.getDirection().equals(sftp.getDirection()));
-            if (hasConfig){
-                Optional<SFTPConfig> mqConfigOld = currSftpConfig.stream().filter(c -> c.getDirection().equals(sftp.getDirection())).findFirst();
-                BeanUtils.copyProperties(sftp, mqConfigOld.get(), ObjectHelper.getNullPropertyNames(mqConfigOld.get()));
-                conf.addSftpConfig(sftp);
-                rtnHttp = HttpStatus.OK;
-            } else {
-                conf.addSftpConfig(sftp);
-                rtnHttp = HttpStatus.CREATED;
-            }
-            
-        }
-
-        confRep.save(conf);
-
-        return new ResponseEntity<>(rtnHttp);
-     }
 
 }

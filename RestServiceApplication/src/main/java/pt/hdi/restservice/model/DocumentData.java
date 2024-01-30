@@ -11,15 +11,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
 public class DocumentData{
-    String id;
-    String documentName;
-    String documentShortDetail;
-    String owner;
-    Boolean containsSensitiveData;
-    Boolean dataToHold;
-    String approvedBy;
-    String observation;
-
+    private String id;
+    private String documentName;
+    private String documentShortDetail;
+    private String owner;
+    private Boolean containsSensitiveData;
+    private Boolean dataToHold;
+    private String approvedBy;
+    private String observation;
+    
+    private String modelKey;
     @LastModifiedDate
 	private Date lastModificationDate;
 	
@@ -27,6 +28,7 @@ public class DocumentData{
 	private Date createDate;
 
     private List<Structure> structures;
+
 
     public DocumentData() {
     }
@@ -147,6 +149,14 @@ public class DocumentData{
                 + ", Observation=" + observation + ", lastModificationDate=" + lastModificationDate + ", createDate=" + createDate + "]";
     }
 
+    public String getModelKey() {
+        return modelKey;
+    }
+
+    public void setModelKey(String modelKey) {
+        this.modelKey = modelKey;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -206,7 +216,6 @@ public class DocumentData{
         } else if (!observation.equals(other.observation))
             return false;
         return true;
-    }
-   
+    }   
 
 }

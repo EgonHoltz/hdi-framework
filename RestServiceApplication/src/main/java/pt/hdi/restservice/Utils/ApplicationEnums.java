@@ -23,4 +23,19 @@ public class ApplicationEnums {
         }
     }
 
+    public enum DOCUMENT_STATUS{
+        INEXISTS("inexists"),
+        FIELDS_OUTDATED("field outdated"),
+        ALL_UPDATED("all updated");
+
+        private final String label;
+
+        DOCUMENT_STATUS(String label){
+            this.label = label;
+        }
+        public String getLabel() {
+            return label;
+        }
+    }
+
 }

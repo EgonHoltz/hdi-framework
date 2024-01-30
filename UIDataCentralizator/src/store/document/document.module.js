@@ -8,22 +8,27 @@ import {
     FETCH_DOCUMENT_STRUCTURE,
     EDIT_DOCUMENT_STRUCTURE,
     ADD_DOCUMENT_STRUCTURE,
+    GET_STATUS,
+    PUSH_DB_CHANGES,
     //mutations
     SET_DOCUMENT,
     SET_DOCUMENTS,
     SET_DOCUMENT_STRUCTURE,
+    SET_DOCUMENT_STATUS,
     SET_MESSAGE
 } from "./document.constants";
 
 const state = {
     docs: [],
     doc: {},
-    docStructure: []
+    docStructure: [],
+    docStatus: {}
 };
 
 const getters = {
     getDocuments: state => state.docs,
     getDocument: state => state.doc,
+    getDocumentStatus: state => state.docStatus,
     getDocumentStructure: state => state.docStructure
 };
 
@@ -128,6 +133,34 @@ const actions = {
           });
     });
   },
+  [GET_STATUS]: ({commit, rootState}, payload) => {
+    return new Promise((resolve, reject) => {
+        documentService.getDocumentStatus(/*rootState.auth.token,*/payload)
+          .then(
+            res => {
+              console.log("on response module " + res)
+              commit(SET_DOCUMENT_STATUS, res);
+              resolve(res)
+            },
+            err => {
+              commit(SET_MESSAGE, err.message)
+              reject(err)
+            });
+    })
+  },
+  [PUSH_DB_CHANGES]: ({ commit, rootState }, payload) => {
+    return new Promise((resolve, reject) => {
+        documentService.pushDocumentUpdateToDb(/*rootState.auth.token,*/ payload)
+        .then(
+          res => {
+            commit(SET_MESSAGE, `Document updated with success`);
+            resolve(res)
+          }, err => {
+            commit(SET_MESSAGE, err)
+            reject(err)
+          });
+    });
+},
 };
 
 export const mutations = {
@@ -142,7 +175,10 @@ export const mutations = {
     },
     [SET_DOCUMENT_STRUCTURE]: (state, docStructure) => {
       state.docStructure = docStructure;
-    }
+    },
+    [SET_DOCUMENT_STATUS]: (state, docStatus) => {
+      state.docStatus = docStatus;
+    },
   };
   
   export default {

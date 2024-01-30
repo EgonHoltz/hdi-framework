@@ -124,7 +124,39 @@ export const docService = {
     } else {
       throw Error(handleResponses(response.status));
     }
-  }, 
+  },
+  async getDocumentStatus (/*token,*/ payload) {
+    const id = payload;
+    const response = await fetch(`${API_URL}/document/${id}/dbStatus`, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        //'Authorization': token
+      }
+    });
+    if (response.ok) {
+      console.log("Service called: " + response)
+      return await response.json();
+    } else {
+      throw Error(handleResponses(response.status));
+    }
+  },
+  async pushDocumentUpdateToDb(/*token,*/ payload) {
+    const id = payload.id;
+    delete payload.id;
+    const response = await fetch(`${API_URL}/document/${id}/dbStatus`, {
+      method: "PUT",
+      headers: {
+        'Content-Type': 'application/json',
+        //'Authorization': token
+      }
+    });
+    if (response.ok) {
+      return await response.json();
+    } else {
+      throw Error(handleResponses(response.status));
+    }
+  },
 };
 
 function handleResponses(code) {

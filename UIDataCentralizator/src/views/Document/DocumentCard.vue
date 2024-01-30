@@ -49,12 +49,6 @@
       data() {
         return {
           documentEntities: [
-            {
-              id: "aa6s571657a6767",
-              documentName: "Accounts",
-              documentShortDetail: "Threat Accounts records"
-            }
-
           ], // Initialize as an empty array
         };
       },

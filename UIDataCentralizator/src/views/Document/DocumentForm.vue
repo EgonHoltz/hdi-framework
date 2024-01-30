@@ -1,12 +1,12 @@
 <template>
     <div>
-        <el-alert
+        <!-- <el-alert
             v-if="visibleAlert !== null"
             :title="alertTitle"
             :type=visibleAlert
             @close="visibleAlert = null"
         >
-        </el-alert>
+        </el-alert> -->
         <base-header class="pb-6 pb-8 pt-5 pt-md-8 bg-gradient-success">
         </base-header>
         <b-container fluid class="mt--7">
@@ -60,6 +60,7 @@
                             <Document-structure @structure="handleDataFromChild" :documentId="documentId"></Document-structure>
                             <el-form-item class="p-4">
                                 <el-button type="primary" @click="submitForm">{{ mode === "edit" ? "Save" : "Create" }}</el-button>
+                                <el-button type="success" @click="sendUpdate" v-if="needUpdate">Update fields to DB</el-button>
                                 <el-button type="danger" @click="cancel">Cancel</el-button>
                             </el-form-item>
                         </el-form>
@@ -74,7 +75,7 @@
 
   </template>
 <script>
-    import {FETCH_DOCUMENT, ADD_DOCUMENT, EDIT_DOCUMENT} from '@/store/document/document.constants';
+    import {FETCH_DOCUMENT, ADD_DOCUMENT, EDIT_DOCUMENT, GET_STATUS, PUSH_DB_CHANGES} from '@/store/document/document.constants';
     import { Button, FormItem, Dialog, Form, Checkbox, Alert, Col, Row, Input} from 'element-ui';
     
     // Table
@@ -82,17 +83,17 @@
 
     export default {
         components: {
-    [Input.name]: Input,
-    [Col.name]: Col,
-    [Row.name]: Row,
-    [Alert.name]: Alert,
-    [Checkbox.name]: Checkbox,
-    [Form.name]: Form,
-    [Dialog.name]: Dialog,
-    [FormItem.name]: FormItem,
-    [Button.name]: Button,
-    DocumentStructure,
-},
+            [Input.name]: Input,
+            [Col.name]: Col,
+            [Row.name]: Row,
+            [Alert.name]: Alert,
+            [Checkbox.name]: Checkbox,
+            [Form.name]: Form,
+            [Dialog.name]: Dialog,
+            [FormItem.name]: FormItem,
+            [Button.name]: Button,
+            DocumentStructure,
+        },
         data() {
             return {
                 mode: "create", // Default to "create" mode
@@ -107,6 +108,7 @@
                     approvedBy: "",
                     observation: "",
                 },
+                needUpdate: false,
                 documentId: this.$route.params.id
             };
         },
@@ -127,7 +129,7 @@
                         this.document.dataToHold = documents.dataToHold;
                         this.document.approvedBy = documents.approvedBy;
                         this.document.observation = documents.observation;
-                    
+                        this.verifyDocumentStatusOnDb();
                     }, err => {
                         this.alertTitle = "Error while fetch"
                 });
@@ -188,6 +190,39 @@
                     });
                 }
 
+            },
+            verifyDocumentStatusOnDb(){
+                if (this.mode != "create"){
+                    const id = this.$route.params.id;
+                    this.$store.dispatch(`document/${GET_STATUS}`,id).then( 
+                    (res) => {
+                        let docStatus = this.$store.getters['document/getDocumentStatus'];
+                        console.log("all_updated")
+                        if (docStatus != "ALL_UPDATED"){
+                            this.needUpdate = true;
+                        } else {
+                            this.needUpdate = false;
+                        }
+                    }, err => {
+                        this.alertTitle = "Error while fetch"
+                    });
+                }
+            },
+            sendUpdate(){
+                const formData = {
+                    id: this.document.id,
+                };
+                this.$store.dispatch(`document/${PUSH_DB_CHANGES}`,formData).then( 
+                    () => {
+                        this.editDialogVisible = false;
+                        this.verifyDocumentStatusOnDb()
+                        this.alertTitle = "Document updated on DB with success!"
+                        this.$router.go(-1); // Go back one step in the browser history
+                    }, err => {
+                        this.editDialogVisible = false;
+                        this.alertTitle = "Error on change. Please contact the IT team"
+                        this.showErrorAlert();
+                    });
             },
             handleDataFromChild(structure){
                 console.log("received the row: " + structure);
