@@ -109,7 +109,8 @@
                     observation: "",
                 },
                 needUpdate: false,
-                documentId: this.$route.params.id
+                documentId: this.$route.params.id,
+                alertTitle: ""
             };
         },
         created() {
@@ -195,16 +196,16 @@
                 if (this.mode != "create"){
                     const id = this.$route.params.id;
                     this.$store.dispatch(`document/${GET_STATUS}`,id).then( 
-                    (res) => {
-                        let docStatus = this.$store.getters['document/getDocumentStatus'];
-                        console.log("all_updated")
-                        if (docStatus != "ALL_UPDATED"){
-                            this.needUpdate = true;
-                        } else {
-                            this.needUpdate = false;
-                        }
-                    }, err => {
-                        this.alertTitle = "Error while fetch"
+                        (res) => {
+                            let docStatus = this.$store.getters['document/getDocumentStatus'];
+                            console.log("all_updated")
+                            if (docStatus != "ALL_UPDATED"){
+                                this.needUpdate = true;
+                            } else {
+                                this.needUpdate = false;
+                            }
+                        }, err => {
+                            this.alertTitle = "Error while fetch"
                     });
                 }
             },
@@ -216,6 +217,7 @@
                     () => {
                         this.editDialogVisible = false;
                         this.verifyDocumentStatusOnDb()
+                        this.$router.go(-1); // Go back one step in the browser history
                         this.alertTitle = "Document updated on DB with success!"
                         this.$router.go(-1); // Go back one step in the browser history
                     }, err => {

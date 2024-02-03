@@ -8,6 +8,7 @@ import java.util.Set;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -29,11 +30,9 @@ public class DocumentService {
     @Autowired
     private DocumentRepository docRep;
 
-    private final MongoTemplate mongoTemplate;
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
-    public DocumentService(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
-    }
 
     private List<String> getCollectionFields(String collectionName, String modelKey) {
         MongoCollection<Document> document =  mongoTemplate.getCollection(collectionName);
