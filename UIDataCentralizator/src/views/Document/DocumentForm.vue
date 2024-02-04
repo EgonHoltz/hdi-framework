@@ -215,12 +215,11 @@
                 };
                 this.$store.dispatch(`document/${PUSH_DB_CHANGES}`,formData).then( 
                     () => {
+                        window.location.reload();
                         this.editDialogVisible = false;
-                        this.verifyDocumentStatusOnDb()
-                        this.$router.go(-1); // Go back one step in the browser history
                         this.alertTitle = "Document updated on DB with success!"
-                        this.$router.go(-1); // Go back one step in the browser history
                     }, err => {
+                        window.location.reload();
                         this.editDialogVisible = false;
                         this.alertTitle = "Error on change. Please contact the IT team"
                         this.showErrorAlert();

@@ -152,7 +152,7 @@ export const docService = {
       }
     });
     if (response.ok) {
-      return await response.json();
+      return await response;
     } else {
       throw Error(handleResponses(response.status));
     }
