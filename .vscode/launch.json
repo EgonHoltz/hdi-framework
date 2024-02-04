@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "java",
+            "name": "DatamanagementApplication",
+            "request": "launch",
+            "mainClass": "pt.hdi.datamanagement.DatamanagementApplication",
+            "projectName": ""
+        },
+        {
             "name": "Launch Chrome",
             "request": "launch",
             "type": "chrome",
@@ -61,6 +68,16 @@
             "cwd": "${workspaceFolder}",
             "mainClass": "pt.hdi.restservice.RestServiceApplication",
             "projectName": "RestServiceApplication",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-DatamanagementApplication<DatamanagementApplication>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "pt.hdi.datamanagement.DatamanagementApplication",
+            "projectName": "DatamanagementApplication",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }
