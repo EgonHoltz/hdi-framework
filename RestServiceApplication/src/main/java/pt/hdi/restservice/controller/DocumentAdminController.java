@@ -120,8 +120,7 @@ public class DocumentAdminController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        DOCUMENT_STATUS status = docSvc.getDocumentStatusOnDb(docFound.get());
-        return new ResponseEntity<>(status, HttpStatus.OK);
+        return docSvc.getDocumentStatusOnDb(docFound.get());
     }
 
     @PutMapping("/{id}/dbStatus")
@@ -135,12 +134,7 @@ public class DocumentAdminController {
         if (!docFound.isPresent() ){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        boolean status = docSvc.generateDocumentOnDb(docFound.get());
-
-        if(status){
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return docSvc.generateDocumentOnDb(docFound.get());
     }
 
     /**

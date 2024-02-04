@@ -67,6 +67,12 @@ Project declared on RestServiceApplication folder
 Rest application to feed the UIDataCentralizator interface.
 
 This service is started on the port 8002
+
+## DataManagement
+This service handle data of document types.
+
+This service is started on the port 8004
+
 ## Vue application interface
 Project declared on UIDataCentralizator folder
 

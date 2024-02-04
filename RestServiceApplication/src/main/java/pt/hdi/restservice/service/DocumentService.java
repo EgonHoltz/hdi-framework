@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -31,27 +33,8 @@ public class DocumentService {
     private DocumentRepository docRep;
 
     @Autowired
-    private MongoTemplate mongoTemplate;
+    private DataManagementService dtMgtSvc;
 
-
-    private List<String> getCollectionFields(String collectionName, String modelKey) {
-        MongoCollection<Document> document =  mongoTemplate.getCollection(collectionName);
-        Query q = new Query();
-        q.limit(1);
-        Document doc = mongoTemplate.findOne(q, org.bson.Document.class, collectionName);
-        // Get distinct field values from the collection
-        List<String> fieldNames = new ArrayList<>();
-        // Add field names to the set
-        if (document != null) {
-            for (String key : doc.keySet()) {
-                if (key.equals("_id")){
-                    continue;
-                }
-                fieldNames.add(key);
-            }
-        }
-        return fieldNames;
-    }
 
     private boolean hasRecordedStructureAgainstDb(List<Structure> structure, List<String> dbFields){
 
@@ -66,22 +49,37 @@ public class DocumentService {
         return true;
     }
 
-    public DOCUMENT_STATUS getDocumentStatusOnDb(DocumentData documentData){
+    public ResponseEntity getDocumentStatusOnDb(DocumentData documentData){
         
         String collectionName = documentData.getDocumentName().replaceAll("\\s", "").toLowerCase();
         String modelKey = documentData.getModelKey();
-        if (!mongoTemplate.getCollectionNames().contains((collectionName))){
-            return DOCUMENT_STATUS.INEXISTS;
+        
+        //Verify if Collection exists
+        ResponseEntity resCollExists = dtMgtSvc.getCollectionExists(collectionName);
+        if (resCollExists.getStatusCode().equals(HttpStatus.NOT_FOUND)){
+            return new ResponseEntity(DOCUMENT_STATUS.INEXISTS,HttpStatus.OK);
+        } else if (resCollExists.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
+        //Get collection structure and verify if match with configured structure
+        List<String> collStt = new ArrayList<>();
+        ResponseEntity resCollStt = dtMgtSvc.getCollectionFields(collectionName, modelKey);
+        if (!resCollStt.getStatusCode().equals(HttpStatus.OK)){
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        } else {
+            collStt = (List)resCollStt.getBody();
         }
         
         if(!hasRecordedStructureAgainstDb(documentData.getStructures(),
-            getCollectionFields(collectionName, modelKey))){
-            return DOCUMENT_STATUS.FIELDS_OUTDATED;
+        collStt)){
+            return new ResponseEntity(DOCUMENT_STATUS.FIELDS_OUTDATED,HttpStatus.OK);
         }
-        
-        return DOCUMENT_STATUS.ALL_UPDATED;
-    }
 
+        // No need to have changes. All updated        
+        return new ResponseEntity(DOCUMENT_STATUS.ALL_UPDATED,HttpStatus.OK);
+    }
+    
     public boolean editStructureField(String documentId, Structure updatedStructure) {
         DocumentData document = docRep.findById(documentId).orElse(null);
         String fieldName = updatedStructure.getFieldName();
@@ -112,68 +110,59 @@ public class DocumentService {
         }
         return false;
     }
-
-
-
-    public boolean generateDocumentOnDb(DocumentData documentData) {
-        Document document = new Document();
+    
+    public ResponseEntity generateDocumentOnDb(DocumentData documentData) {        
         // to receive the ENUM to know what needs to be done
-        DOCUMENT_STATUS docStts = getDocumentStatusOnDb(documentData);
+        ResponseEntity resDocStts = getDocumentStatusOnDb(documentData);
+        if (!resDocStts.getStatusCode().equals(HttpStatus.OK)){
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+        DOCUMENT_STATUS docStts = (DOCUMENT_STATUS) resDocStts.getBody();
         String collectionName = documentData.getDocumentName().replaceAll("\\s", "").toLowerCase(); // Remove spaces for collection name
         switch (docStts) {
             case INEXISTS:
-                for (Structure structure : documentData.getStructures()) {
-                    String fieldName = ObjectHelper.getCamelFieldName(structure.getFieldName());
-                    String type = structure.getType();
-                    document.append(fieldName, getValueForType(type)); // You may need to convert types or handle differently
-                }
-        
-                // Generate collection name based on documentName
-                mongoTemplate.createCollection(collectionName);
-                InsertOneResult docInsert = mongoTemplate.getCollection(collectionName).insertOne(document);
-                if (docInsert.getInsertedId() != null){
-                    String generatedId = docInsert.getInsertedId().asObjectId().getValue().toHexString();
+                ResponseEntity resCreateDoc = dtMgtSvc.createCollection(documentData);
+                if (!resCreateDoc.getStatusCode().equals(HttpStatus.OK)){
+                    return new ResponseEntity(HttpStatus.BAD_REQUEST);
+                } else {
+                    String generatedId = (String) resCreateDoc.getBody();
                     documentData.setModelKey(generatedId);
                     docRep.save(documentData);
-                    return true;
-                } else {
-                    return false;
-                }        
+                    return new ResponseEntity(HttpStatus.OK);
+                }
             case FIELDS_OUTDATED:
-                List<String> dbFields = getCollectionFields(collectionName, documentData.getModelKey());
+                List<String> dbFields = new ArrayList<>();
+                ResponseEntity resCollStt = dtMgtSvc.getCollectionFields(collectionName, documentData.getModelKey());
+                if (!resCollStt.getStatusCode().equals(HttpStatus.OK)){
+                    return new ResponseEntity(DOCUMENT_STATUS.INEXISTS,HttpStatus.BAD_REQUEST);
+                } else {
+                    dbFields = (List)resCollStt.getBody();
+                }
                 List<Structure> structures = documentData.getStructures();
+                boolean result = true;
                 for (Structure s : structures) {
                     String fieldName = ObjectHelper.getCamelFieldName(s.getFieldName());
                     if (dbFields.contains(fieldName)) {
-                    continue;
+                        continue;
                     } else {
-                        addDummyAttribute(documentData, s);
+                        ResponseEntity resEditDoc = dtMgtSvc.editCollection(collectionName, documentData.getModelKey(), s);
+                        if (!resEditDoc.getStatusCode().equals(HttpStatus.OK)){
+                            result &= false;
+                        }
                     }
                 }
-                return true;
-
+                if (result){
+                    return new ResponseEntity(HttpStatus.OK);
+                } else {
+                    return new ResponseEntity(HttpStatus.BAD_REQUEST);
+                }
+                
             case ALL_UPDATED:
-                return true;
-            default:
-                return false;
+                return new ResponseEntity(HttpStatus.OK);
+                default:
+                return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 
-    }
-
-    public <T> void addDummyAttribute(DocumentData docData, Structure structure) {
-        String collectionName = docData.getDocumentName().replaceAll("\\s", "").toLowerCase();
-        // Find the object by ID
-        T object = mongoTemplate.findById(new ObjectId(docData.getModelKey()), (Class<T>) Object.class, collectionName);
-        
-        if (object != null) {
-            String fieldName = ObjectHelper.getCamelFieldName(structure.getFieldName());
-            String type = structure.getType();
-            mongoTemplate.getCollection(collectionName).updateOne(new Document("_id", new ObjectId(docData.getModelKey())),
-                    new Document("$set", new Document(fieldName, getValueForType(type))));
-        } else {
-            // Handle if the object is not found
-            System.out.println("Object with ID " + docData.getModelKey() + " not found in collection " + collectionName);
-        }
     }
 
     // Implement this method to map Structure.type to appropriate Java type
