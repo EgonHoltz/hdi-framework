@@ -23,7 +23,7 @@ After server starts, perform the configuration:
 ```sh
 rabbitmqctl add_user quser qpass
 rabbitmqctl set_permissions -p / quser ".*" ".*" ".*"
-abbitmq-plugins enable rabbitmq_management
+rabbitmq-plugins enable rabbitmq_management
 ```
 It creates a generic user, set all permissions to it and enable the UI user management
 
@@ -36,10 +36,14 @@ To test SFTP, a server was created:
 docker run -p 8022:22 -v /home/egonh/projects/docker/sftp:/home/client/recv -d --name sftp_test_svr -e SFTP_USERS="client:clientPass:1001:100:recv" atmoz/sftp
 ```
 
+docker run -p 6789:6789 --name mage_testing -v /home/egonh/projects/docker/mageai:/home/src/default_repo mageai/mageai:latest
 
 
 ## GrpcService
 Project declared on GrpcServiceApplication folder
+
+gRPC application to receive data from source and 
+
 ### Installation and build
 
 After the push of project, please build the maven using the "package" target
@@ -66,12 +70,10 @@ Project declared on RestServiceApplication folder
 
 Rest application to feed the UIDataCentralizator interface.
 
-This service is started on the port 8002
 
 ## DataManagement
 This service handle data of document types.
 
-This service is started on the port 8004
 
 ## Vue application interface
 Project declared on UIDataCentralizator folder
