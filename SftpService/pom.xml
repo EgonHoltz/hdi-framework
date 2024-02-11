@@ -11,7 +11,7 @@
 	<groupId>pt.hdi</groupId>
 	<artifactId>sftpservice</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>sftpservice</name>
+	<name>SftpService</name>
 	<description>This project will be able to receive and deliver data by SFTP as a service</description>
 	<properties>
 		<java.version>11</java.version>
