@@ -6,32 +6,41 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import pt.hdi.restservice.Utils.ApplicationEnums;
 
 @Document
 public class Configuration {
 	
+	@Id
 	private String id;
 
-	@LastModifiedDate
-	private Date lastModificationDate;
-	
-	@CreatedDate
-	private Date createDate;
+	@DBRef
+	private DocumentData documentData;
+
+	@DBRef
+	private Application application;
+
 	private String documentName;
 	private List<MQConfig> mqConfig;
 	private List<SFTPConfig> sftpConfig;
 	
-	
+	@LastModifiedDate
+	private Date lastModificationDate;	
+	@CreatedDate
+	private Date createDate;
 	
 	public Configuration() {
 		super();
 	}
-	public Configuration(String documentName, List<MQConfig> mqConfig) {
+	public Configuration(DocumentData documentData, Application application) {
 		super();
-		this.documentName = documentName;
-		this.mqConfig = mqConfig;
+		this.documentData = documentData;
+		this.application = application;
 	}
 	public String getId() {
 		return id;
@@ -53,19 +62,16 @@ public class Configuration {
 		this.createDate = createDate;
 	}
 	public String getDocumentName() {
-		return documentName;
-	}
-	public void setDocumentName(String documentName) {
-		this.documentName = documentName;
+		return documentData.getDocumentName();
 	}
 	
 	public List<SFTPConfig> getSftpConfig() {
-		return sftpConfig;
+		return this.sftpConfig;
 	}
 	public void removeAllSftpConfig() {
 		this.sftpConfig.clear();
 	}
-	public void addMqConfig(SFTPConfig sftpConfig) {
+	public void addSftpConfig(SFTPConfig sftpConfig) {
 		if (this.sftpConfig == null) {
 			this.sftpConfig = new ArrayList<SFTPConfig>();
 		}
@@ -88,10 +94,42 @@ public class Configuration {
 		return this.sftpConfig.removeIf(s -> s.getSftpFileName().equals(sftpConfig.getSftpFileName()));
 	}
 	public Optional<SFTPConfig> getFirstSendSftpConfig() {
-		return this.sftpConfig.stream().filter(s -> s.getDirection().equals("send")).findFirst();
+		if (this.sftpConfig != null) {
+			return this.sftpConfig.stream()
+				.filter(s -> ApplicationEnums.FLOW_DIRECTION.SEND.equals(s.getDirection()))
+				.findFirst();
+		} else {
+			// Return an empty Optional if sftpConfig is null
+			return Optional.empty();
+		}
 	}
 	public Optional<SFTPConfig> getFirstReceiveSftpConfig() {
-		return this.sftpConfig.stream().filter(s -> s.getDirection().equals("recv")).findFirst();
+		if (this.sftpConfig != null) {
+			return this.sftpConfig.stream()
+				.filter(s -> ApplicationEnums.FLOW_DIRECTION.RECEIVE.equals(s.getDirection()))
+				.findFirst();
+		} else {
+			// Return an empty Optional if sftpConfig is null
+			return Optional.empty();
+		}
+	}
+	public DocumentData getDocumentData() {
+		return documentData;
+	}
+	public void setDocumentData(DocumentData documentData) {
+		this.documentData = documentData;
+	}
+	public Application getApplication() {
+		return application;
+	}
+	public void setApplication(Application application) {
+		this.application = application;
+	}
+	public void setMqConfig(List<MQConfig> mqConfig) {
+		this.mqConfig = mqConfig;
+	}
+	public void setSftpConfig(List<SFTPConfig> sftpConfig) {
+		this.sftpConfig = sftpConfig;
 	}
 	@Override
 	public String toString() {

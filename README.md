@@ -64,4 +64,25 @@ Right click on the folder > Buildpath > User as source folder
 ## Rest Service
 Project declared on RestServiceApplication folder
 
+Rest application to feed the UIDataCentralizator interface.
+
+This service is started on the port 8002
+
+## DataManagement
+This service handle data of document types.
+
+This service is started on the port 8004
+
+## Vue application interface
+Project declared on UIDataCentralizator folder
+
+Install the npm application
+Install the vue client:
+```sh
+npm install -g @vue/cli 
+```
+
+The web application runs by port 8080
+Can be started by the command:
+npm run dev
 

@@ -6,15 +6,19 @@ import java.util.Date;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import pt.hdi.restservice.Utils.ApplicationEnums.FLOW_DIRECTION;
+
 public class SFTPConfig {
 	
 	private String host;
-	private int port;
+	private Integer port;
 	private String user;
 	private String password;
-	private String direction;
+	private FLOW_DIRECTION direction;
 	private String sftpFileName;
 	private String destinationPath;
+	private Boolean active;
+
 	@LastModifiedDate
 	private Date lastModificationDate;
 	@CreatedDate
@@ -32,11 +36,11 @@ public class SFTPConfig {
 		this.host = host;
 	}
 
-	public int getPort() {
+	public Integer getPort() {
 		return port;
 	}
 
-	public void setPort(int port) {
+	public void setPort(Integer port) {
 		this.port = port;
 	}
 
@@ -55,15 +59,13 @@ public class SFTPConfig {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
-	public String getDirection() {
+	public FLOW_DIRECTION getDirection() {
 		return direction;
 	}
 
-	public void setDirection(String direction) {
+	public void setDirection(FLOW_DIRECTION direction) {
 		this.direction = direction;
 	}
-
 	public String getSftpFileName() {
 		return sftpFileName;
 	}
@@ -101,6 +103,14 @@ public class SFTPConfig {
 		return "SFTPConfig [host=" + host + ", port=" + port + ", user=" + user + ", password=" + password
 				+ ", direction=" + direction + ", sftpFileName=" + sftpFileName + ", destinationPath=" + destinationPath
 				+ ", lastModificationDate=" + lastModificationDate + ", createDate=" + createDate + "]";
+	}
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
 	}
 
 }
