@@ -27,26 +27,11 @@ public class ConfigurationService {
 		return confRep.findByMqConfigMqName(rqName);
 	}
 	
-	public boolean createNewConfiguration(Configuration config) {
-		if (getByDocumentName(config.getDocumentName()) == null) {
-			confRep.insert(config);
-			return true;
-		}
-		return false;
-	}
 	public List<Configuration> getAllConfigurationWithMQAndNotStarted(){
 		List<Configuration> configs = new ArrayList<Configuration>();
 		configs.addAll(confRep.findConfigurationByMqConfigStarted(Boolean.FALSE));
 		configs.addAll(confRep.findConfigurationByMqConfigStarted(null));
 		return configs;
-	}
-	
-	public boolean saveConfiguration(Configuration conf) {
-		Configuration savedConf = confRep.save(conf);
-		if (savedConf != null) {
-			return true;
-		}
-		return false;
 	}
 	
 }

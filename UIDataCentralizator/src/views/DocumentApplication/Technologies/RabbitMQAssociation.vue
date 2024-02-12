@@ -27,6 +27,18 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
+                <el-row>
+                    <el-col :span="11" class="p-2">
+                        <el-form-item label="User" class="row-with-space">
+                            <el-input v-model="editForm.inputUser"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="11" class="p-2">
+                        <el-form-item label="Password" class="row-with-space">
+                            <el-input v-model="editForm.inputPassword"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
                 <hr>
                 <el-row>
                     <el-col :span="14" class="p-2">
@@ -40,6 +52,18 @@
                         </el-form-item>
                         <el-form-item>
                             <el-checkbox v-model="editForm.outputHasAcknowledge">Has acknowledgment</el-checkbox>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="11" class="p-2">
+                        <el-form-item label="User" class="row-with-space">
+                            <el-input v-model="editForm.outputUser"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="11" class="p-2">
+                        <el-form-item label="Password" class="row-with-space">
+                            <el-input v-model="editForm.outputPassword"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -97,9 +121,13 @@
                 inputQueueName: '',
                 inputActive: false,
                 inputHasAcknowledge: false,
+                inputUser: '',
+                inputPassword: '',
                 outputQueueName: '',
                 outputActive: false,
                 outputHasAcknowledge: false,
+                outputUser: '',
+                outputPassword: ''
             },
             isActive: false,
             buttonProp: {
@@ -140,9 +168,13 @@
                 this.editForm.inputQueueName = "";
                 this.editForm.inputActive = false;
                 this.editForm.inputHasAcknowledge = false;
+                this.editForm.inputUser = "";
+                this.editForm.inputPassword = "";
                 this.editForm.outputQueueName = "";
                 this.editForm.outputActive = false;
                 this.editForm.outputHasAcknowledge = false;
+                this.editForm.outputUser = "";
+                this.editForm.outputPassword = "";
             },
             moveDataToForm(rabbitMQ){
                 if (rabbitMQ != null){
@@ -152,11 +184,15 @@
 
                     if (receiveFields != null){
                         this.editForm.inputQueueName = receiveFields.mqName;
+                        this.editForm.inputUser = receiveFields.user;
+                        this.editForm.inputPassword = receiveFields.password;
                         this.editForm.inputActive = receiveFields.active;
                         this.editForm.inputHasAcknowledge = receiveFields.hasAck;
                     }
                     if (sendFields != null){
                         this.editForm.outputQueueName = sendFields.mqName;
+                        this.editForm.outputUser = sendFields.user;
+                        this.editForm.outputPassword = sendFields.password;
                         this.editForm.outputActive = sendFields.active;
                         this.editForm.outputHasAcknowledge = sendFields.hasAck;
                     }
@@ -195,6 +231,8 @@
                 if (this.editForm.inputQueueName.trim() != ""){
                     this.newRabbitMq.push({
                         mqName: this.editForm.inputQueueName,
+                        user: this.editForm.inputUser,
+                        password: this.editForm.inputPassword,
                         active: this.editForm.inputActive,
                         hasAck: this.editForm.inputHasAcknowledge,
                         direction: 'RECEIVE'                        
@@ -203,6 +241,8 @@
                 if (this.editForm.outputQueueName.trim() != ""){
                     this.newRabbitMq.push({
                         mqName: this.editForm.outputQueueName,
+                        user: this.editForm.outputUser,
+                        password: this.editForm.outputPassword,
                         active: this.editForm.outputActive,
                         hasAck: this.editForm.outputHasAcknowledge,
                         direction: 'SEND'                        

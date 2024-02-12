@@ -1,28 +1,25 @@
-package pt.hdi.mqservice.model;
+package pt.hdi.restservice.bean;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import pt.hdi.restservice.model.Configuration;
+import pt.hdi.restservice.model.MQConfig;
 
-import pt.hdi.mqservice.Utils.ApplicationEnums;
-
-
-public class Configuration {
-	
+public class ConfigurationMQBean {
 	private String id;
 	private String documentDataId;
 	private String applicationId;
 
 	private List<MQConfig> mqConfig;
 		
-	public Configuration() {
+	public ConfigurationMQBean() {
 		super();
+	}
+	public ConfigurationMQBean(Configuration config) {
+		this.id = config.getId();
+		this.documentDataId = config.getDocumentData().getId();
+		this.applicationId = config.getApplication().getId();
+		this.mqConfig = config.getMqConfig();
 	}
 	public String getId() {
 		return id;
@@ -55,5 +52,4 @@ public class Configuration {
 		return "ConfigurationMQBean [id=" + id + ", documentDataId=" + documentDataId + ", applicationId="
 				+ applicationId + ", mqConfig=" + mqConfig + "]";
 	}
-
 }

@@ -1,4 +1,4 @@
-package pt.hdi.restservice.model;
+package pt.hdi.mqservice.model;
 
 import java.util.ArrayList;
 import java.util.Date;

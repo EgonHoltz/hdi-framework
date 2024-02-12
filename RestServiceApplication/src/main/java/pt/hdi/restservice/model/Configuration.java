@@ -25,7 +25,6 @@ public class Configuration {
 	@DBRef
 	private Application application;
 
-	private String documentName;
 	private List<MQConfig> mqConfig;
 	private List<SFTPConfig> sftpConfig;
 	
@@ -61,10 +60,7 @@ public class Configuration {
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
 	}
-	public String getDocumentName() {
-		return documentData.getDocumentName();
-	}
-	
+
 	public List<SFTPConfig> getSftpConfig() {
 		return this.sftpConfig;
 	}
@@ -79,7 +75,7 @@ public class Configuration {
 	}
 
 	public List<MQConfig> getMqConfig() {
-		return mqConfig;
+		return this.mqConfig;
 	}
 	public void removeAllMqConfig() {
 		this.mqConfig.clear();
@@ -134,7 +130,7 @@ public class Configuration {
 	@Override
 	public String toString() {
 		return "Configuration [id=" + id + ", lastModificationDate=" + lastModificationDate + ", createDate="
-				+ createDate + ", documentName=" + documentName + ", mqConfig=" + mqConfig + ", sftpConfig="
+				+ createDate + ", mqConfig=" + mqConfig + ", sftpConfig="
 				+ sftpConfig + "]";
 	}
 

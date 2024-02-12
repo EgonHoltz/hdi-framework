@@ -18,5 +18,7 @@ import java.util.List;
 public interface ConfigurationRepository extends MongoRepository<Configuration, String>{
 	@Query("{'documentData': ?0, 'application': ?1}")
 	Configuration findByDocumentApplication(String documentDataId, String applicationId);
+	List<Configuration> findConfigurationByMqConfigStarted(Boolean started);
+	Configuration findByMqConfigMqName(String rqName);
 
 }

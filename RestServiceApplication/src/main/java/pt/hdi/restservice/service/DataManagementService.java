@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,11 +25,11 @@ import pt.hdi.restservice.model.Structure;
 @Service
 public class DataManagementService {
     
-    
     @Autowired
+    @Qualifier("restTemplateSimple")
     private RestTemplate restTemplate;
     
-    private final String baseUrl = "http://localhost:8012/collection"; // URL of the other service
+    private final String baseUrl = "http://localhost:8012/collection";
     public ResponseEntity getCollectionFields(String collectionName,String modelKey) {
         String otherServiceUrl = baseUrl + "/structure";
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(otherServiceUrl)
@@ -100,10 +102,10 @@ public class DataManagementService {
             .queryParam("modelKey", modelKey)
             .toUriString();
 
-            try {
-                return restTemplate.exchange(urlBuilder,HttpMethod.PUT ,requestBody, Void.class);
-            } catch (Exception e) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
+        try {
+            return restTemplate.exchange(urlBuilder,HttpMethod.PUT ,requestBody, Void.class);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }

@@ -1,16 +1,20 @@
 package pt.hdi.mqservice.model;
 
-
 import java.util.Date;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import pt.hdi.mqservice.Utils.ApplicationEnums.FLOW_DIRECTION;
+
 public class MQConfig {
-	String mqName;
-	String direction;
-	Boolean hasAck;
-	Boolean started;
+	private String mqName;
+	private FLOW_DIRECTION direction;
+	private Boolean hasAck;
+	private Boolean started;
+	private String user;
+	private String password;
+	private Boolean active;
 	@LastModifiedDate
 	private Date lastModificationDate;
 	@CreatedDate
@@ -20,7 +24,7 @@ public class MQConfig {
 		super();
 	}
 
-	public MQConfig(String mqName, String direction) {
+	public MQConfig(String mqName, FLOW_DIRECTION direction) {
 		super();
 		this.mqName = mqName;
 		this.direction = direction;
@@ -32,12 +36,13 @@ public class MQConfig {
 	public void setMqName(String mqName) {
 		this.mqName = mqName;
 	}
-	public String getDirection() {
+	public FLOW_DIRECTION getDirection() {
 		return direction;
 	}
-	public void setDirection(String direction) {
+	public void setDirection(FLOW_DIRECTION direction) {
 		this.direction = direction;
 	}
+
 	public Boolean getHasAck() {
 		return hasAck;
 	}
@@ -47,6 +52,10 @@ public class MQConfig {
 	public Boolean hasStarted() {
 		return this.started == null ? false : this.started;
 	}
+	public Boolean getStarted() {
+		return started;
+	}
+
 	public void setStarted(Boolean started) {
 		this.started = started;
 	}
@@ -62,6 +71,31 @@ public class MQConfig {
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
 	}
+	
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
 	@Override
 	public String toString() {
 		return "MQConfig [mqName=" + mqName + ", direction=" + direction + ", hasAck=" + hasAck + ", started=" + started

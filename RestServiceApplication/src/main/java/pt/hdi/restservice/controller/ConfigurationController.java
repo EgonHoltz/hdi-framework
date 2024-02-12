@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 
 import pt.hdi.restservice.Utils.ObjectHelper;
 import pt.hdi.restservice.model.Application;
@@ -28,6 +29,7 @@ import pt.hdi.restservice.repository.ConfigurationRepository;
 import pt.hdi.restservice.repository.DocumentRepository;
 import pt.hdi.restservice.service.ConfigurationService;
 import pt.hdi.restservice.service.DocumentService;
+import pt.hdi.restservice.service.RabbitMQService;
 
 
 @RestController
@@ -44,56 +46,50 @@ public class ConfigurationController {
 
     @Autowired
     private ConfigurationRepository confRep;
+
+    @Autowired
+    private RabbitMQService rabbitSvc;
 	
-	@GetMapping("admin/config")
-	public List<Configuration> getAllConfiguration(){
-		return confSvc.getAllConfigs();
+    /**
+     * Configuration - Get all configurations
+     * 
+     * URLs:
+     * GET  /configuration
+     * GET  /configuration/mqqueue
+     * GET  /configuration/mqqueue/{mqName}
+     * POST /configuration/mqqueue/{mqName}
+     * 
+     */
+
+	@GetMapping("configuration/mqqueue")
+	public ResponseEntity getAllConfiguration(){
+        System.out.println("Called getAllConfiguration ");
+		return new ResponseEntity<>(confSvc.getAllConfigs(),HttpStatus.OK);
 	}
 	
-	@PostMapping("admin/config")
-	public ResponseEntity<Void> createNewConfiguration(@RequestBody Configuration config){
-		boolean createdOk = false;
-		createdOk = confSvc.createNewConfiguration(config);
-		if (createdOk) {
-			return new ResponseEntity<>(HttpStatus.CREATED);
-		}
-		return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+	@GetMapping("configuration/mqqueue/notstarted")
+	public ResponseEntity getMqConfigurationNotStarted(){
+        System.out.println("Called getMqConfigurationNotStarted ");
+		return new ResponseEntity<>(confSvc.getAllConfigurationWithMQAndNotStarted(),HttpStatus.OK);
 	}
-	
-	@PostMapping("admin/config/sftp/{configId}")
-	public ResponseEntity<Void> createSftpConfiguration(@PathVariable String configId, @RequestBody SFTPConfig sftpConfig){
-		try {
-			Configuration config = confSvc.getByDocumentConfiguration(configId);
-			config.addSftpConfig(sftpConfig);
-			boolean createdOk = confSvc.saveConfiguration(config);
-			if (createdOk) {
-				return new ResponseEntity<Void>(HttpStatus.CREATED);
-			}		
-		} catch (Exception e) {
-			System.err.println("Error: "+e.getStackTrace());
-			e.printStackTrace();
-			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
-		}
-		return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+
+	@GetMapping("configuration/mqqueue/{mqName}")
+	public ResponseEntity getMqConfigurationByMqName(@PathVariable String mqName){
+        System.out.println("Called getMqConfigurationNotStarted " + mqName);
+		return new ResponseEntity<>(confSvc.getByRqName(mqName),HttpStatus.OK);
 	}
-	
-	@DeleteMapping("admin/config/sftp/{configId}")
-	public ResponseEntity<Void> removeSftpConfiguration(@PathVariable String configId, @RequestBody SFTPConfig sftpConfig){
-		try {
-			Configuration config = confSvc.getByDocumentConfiguration(configId);
-			boolean removedOk = config.removeSftpConfig(sftpConfig);
-			removedOk &= confSvc.saveConfiguration(config);
-			if (removedOk) {
-				return new ResponseEntity<Void>(HttpStatus.OK);
-			}		
-		} catch (Exception e) {
-			System.err.println("Error: "+e.getStackTrace());
-			e.printStackTrace();
-			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
-		}
-		return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
-	}
-	
+
+    @PutMapping("configuration/mqqueue/{mqName}")
+    public ResponseEntity putMethodName(@PathVariable String mqName, @RequestBody String entity) {
+        System.out.println("Called getMqConfigurationNotStarted " + mqName);
+        try{
+            confSvc.setMqQueueStarted(mqName);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
     /**
      * Document Application association - Create technology behind the document, which allows the communication
@@ -191,16 +187,39 @@ public class ConfigurationController {
             boolean hasConfig = currMqConfig.stream().anyMatch(c -> c.getDirection().equals(mc.getDirection()));
             if (hasConfig){
                 Optional<MQConfig> mqConfigOld = currMqConfig.stream().filter(c -> c.getDirection().equals(mc.getDirection())).findFirst();
+                if (!mqConfigOld.get().getUser().equals(mc.getUser())){
+                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
                 BeanUtils.copyProperties(mc, mqConfigOld.get(), ObjectHelper.getNullPropertyNames(mqConfigOld.get()));
+                // Also changes the password on the MQ server
+                if (!mqConfigOld.get().getPassword().equals(mc.getPassword())){
+                    rtnHttp = rabbitSvc.createUser(mc.getUser(), mc.getPassword()).getStatusCode();
+                }
+                if (!HttpStatus.OK.equals(rtnHttp) && !HttpStatus.CREATED.equals(rtnHttp)){
+                    throw new HttpClientErrorException(rtnHttp);
+                }
                 conf.addMqConfig(mc);
+
                 rtnHttp = HttpStatus.OK;
             } else {
+                rtnHttp = rabbitSvc.createUser(mc.getUser(), mc.getPassword()).getStatusCode();
+                if (!HttpStatus.OK.equals(rtnHttp) && !HttpStatus.CREATED.equals(rtnHttp)){
+                    throw new HttpClientErrorException(rtnHttp);
+                }
+                rtnHttp = rabbitSvc.createQueue(mc.getMqName()).getStatusCode();
+                if (!HttpStatus.OK.equals(rtnHttp) && !HttpStatus.CREATED.equals(rtnHttp)){
+                    throw new HttpClientErrorException(rtnHttp);
+                }
+                rtnHttp = rabbitSvc.addPermission(mc.getUser(), mc.getMqName()).getStatusCode();
+                if (!HttpStatus.OK.equals(rtnHttp) && !HttpStatus.CREATED.equals(rtnHttp)){
+                    throw new HttpClientErrorException(rtnHttp);
+                }
                 conf.addMqConfig(mc);
                 rtnHttp = HttpStatus.CREATED;
             }
             
         }
-
+        
         confRep.save(conf);
 
         return new ResponseEntity<>(rtnHttp);

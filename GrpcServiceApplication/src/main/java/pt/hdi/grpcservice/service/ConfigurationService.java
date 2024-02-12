@@ -23,14 +23,6 @@ public class ConfigurationService {
 		return confRep.findByDocumentName(docName);
 	}
 	
-	public boolean createNewConfiguration(Configuration config) {
-		if (getByDocumentName(config.getDocumentName()) == null) {
-			confRep.insert(config);
-			return true;
-		}
-		return false;
-	}
-	
 	public boolean saveConfiguration(Configuration conf) {
 		Configuration savedConf = confRep.save(conf);
 		if (savedConf != null) {
