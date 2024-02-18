@@ -45,8 +45,9 @@ public class ConfigurationService {
 		}
 	}
 
-	public Configuration getByRqName(String mqName) {
-		return confRep.findByMqConfigMqName(mqName);
+	public ConfigurationMQBean getByRqName(String mqName) {
+		Configuration conf = confRep.findByMqConfigMqName(mqName);
+		return new ConfigurationMQBean(conf);
 	}
 
 	public void setMqQueueStarted(String mqName){

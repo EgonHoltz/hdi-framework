@@ -48,6 +48,7 @@ public class ReadMQMessage implements Runnable{
 	    	if (qName == null) {
 	    		return;
 	    	}
+			System.out.println("Created new Thread!! " + qName);
 			SimpleMessageListenerContainer smlc = new SimpleMessageListenerContainer(connectionFactory());
 			smlc.setConnectionFactory(connectionFactory());
 			smlc.setQueueNames(qName);
@@ -55,6 +56,7 @@ public class ReadMQMessage implements Runnable{
 			smlc.start();
 			
 		} catch (Exception e) {
+			System.out.println("I finished the thread with exception:");
 			e.printStackTrace();
 			Executor exec = Executors.newFixedThreadPool(1);
 			exec.execute(new ReadMQMessage(qName, ctx));

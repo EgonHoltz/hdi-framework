@@ -23,8 +23,9 @@ async function listenForMessages(processMessageCallback) {
     channel.consume(queue, (msg) => {
         if (msg !== null) {
             console.log('Received a message from RabbitMQ:', msg.content.toString());
-            const message = JSON.parse(msg.content.toString());
-            processMessageCallback(message);
+            const headers = msg.properties.headers;
+            const message = msg;
+            processMessageCallback(message,headers["collection"]);
             channel.ack(msg); // Acknowledge message as processed
         }
     }, {

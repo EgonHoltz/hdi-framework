@@ -18,6 +18,7 @@ public class Configuration {
 	private String id;
 	private String documentDataId;
 	private String applicationId;
+	private String documentDataName; 
 
 	private List<MQConfig> mqConfig;
 		
@@ -50,10 +51,17 @@ public class Configuration {
 	public void setApplicationId(String applicationId) {
 		this.applicationId = applicationId;
 	}
+	public String getDocumentDataName() {
+		return documentDataName;
+	}
+	public void setDocumentDataName(String documentDataName) {
+		this.documentDataName = documentDataName;
+	}
 	@Override
 	public String toString() {
-		return "ConfigurationMQBean [id=" + id + ", documentDataId=" + documentDataId + ", applicationId="
-				+ applicationId + ", mqConfig=" + mqConfig + "]";
+		return "Configuration [id=" + id + ", documentDataId=" + documentDataId + ", applicationId=" + applicationId
+				+ ", documentDataName=" + documentDataName + ", mqConfig=" + mqConfig + "]";
 	}
+
 
 }

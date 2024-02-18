@@ -75,13 +75,13 @@ public class ConfigurationController {
 
 	@GetMapping("configuration/mqqueue/{mqName}")
 	public ResponseEntity getMqConfigurationByMqName(@PathVariable String mqName){
-        System.out.println("Called getMqConfigurationNotStarted " + mqName);
+        System.out.println("Called getMqConfigurationByMqName " + mqName);
 		return new ResponseEntity<>(confSvc.getByRqName(mqName),HttpStatus.OK);
 	}
 
     @PutMapping("configuration/mqqueue/{mqName}")
     public ResponseEntity putMethodName(@PathVariable String mqName, @RequestBody String entity) {
-        System.out.println("Called getMqConfigurationNotStarted " + mqName);
+        System.out.println("Called putMethodName " + mqName);
         try{
             confSvc.setMqQueueStarted(mqName);
             return new ResponseEntity<>(HttpStatus.OK);

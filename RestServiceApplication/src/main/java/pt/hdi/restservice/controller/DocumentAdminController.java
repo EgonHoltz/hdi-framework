@@ -52,6 +52,7 @@ public class DocumentAdminController {
      * PUT  /document/{documentId}
      * GET  /document/{documentId}/dbStatus
      * POST /document/{documentId}/dbStatus
+     * GET  /document/{documentId}/dbStatus/structure
      */
 
     @GetMapping("/")
@@ -108,7 +109,7 @@ public class DocumentAdminController {
         return new ResponseEntity<>(doc, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/dbStatus")
+    @GetMapping("/{id}/dbstatus")
     public ResponseEntity getDocumentDbStatus(@PathVariable String id){
         System.out.println("Called getDocumentDbStatus");
         if (id == null){
@@ -123,7 +124,7 @@ public class DocumentAdminController {
         return docSvc.getDocumentStatusOnDb(docFound.get());
     }
 
-    @PutMapping("/{id}/dbStatus")
+    @PutMapping("/{id}/dbstatus")
     public ResponseEntity pushDocumentUpdateToDb(@PathVariable String id){
         System.out.println("Called pushDocumentUpdateToDb " + id);
         if (id == null){
@@ -136,6 +137,22 @@ public class DocumentAdminController {
         }
         return docSvc.generateDocumentOnDb(docFound.get());
     }
+
+    @GetMapping("/{id}/dbstatus/structure")
+    public ResponseEntity getDocumentDbStatusStructure(@PathVariable String id){
+        System.out.println("Called getDocumentDbStatus");
+        if (id == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Optional<DocumentData> docFound = docRep.findById(id);
+        
+        if (!docFound.isPresent() ){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return docSvc.getDocumentStructureOnDb(docFound.get());
+    }
+
 
     /**
      * Structure of document - Work on field , field type and configuration that the

@@ -49,6 +49,38 @@ public class DocumentService {
         return true;
     }
 
+    public ResponseEntity getDocumentStructureOnDb(DocumentData documentData){
+        String collectionName = documentData.getDocumentName().replaceAll("\\s", "").toLowerCase();
+        String modelKey = documentData.getModelKey();
+
+       //Verify if Collection exists
+       ResponseEntity resCollExists = dtMgtSvc.getCollectionExists(collectionName);
+       if (!resCollExists.getStatusCode().equals(HttpStatus.OK)){
+           return new ResponseEntity(HttpStatus.BAD_REQUEST);
+       }
+
+       //Get collection structure and verify if match with configured structure
+       List<String> collStt = new ArrayList<>();
+       ResponseEntity resCollStt = dtMgtSvc.getCollectionFields(collectionName, modelKey);
+       if (!resCollStt.getStatusCode().equals(HttpStatus.OK)){
+           return new ResponseEntity(HttpStatus.BAD_REQUEST);
+       } 
+
+        collStt = (List)resCollStt.getBody();
+       
+       // melt what we have on db aginst declared to return only when in both
+       List<Structure> structureCompleteOnDb = new ArrayList<>();
+       for (Structure s : documentData.getStructures()) {
+        String fieldName = ObjectHelper.getCamelFieldName(s.getFieldName());
+        if (collStt.contains(fieldName)) {
+            structureCompleteOnDb.add(s);
+        }
+    }
+
+       // Return found structure
+       return new ResponseEntity(structureCompleteOnDb,HttpStatus.OK);
+    }
+
     public ResponseEntity getDocumentStatusOnDb(DocumentData documentData){
         
         String collectionName = documentData.getDocumentName().replaceAll("\\s", "").toLowerCase();

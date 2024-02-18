@@ -3,26 +3,45 @@ package pt.hdi.mqservice.Utils;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class JsonFieldValidator {
-        private static final ObjectMapper objectMapper = new ObjectMapper();
+import pt.hdi.mqservice.model.Structure;
 
-    public static boolean validateFields(String jsonMessage, List<String> expectedFields) {
-        Set<String> fieldsSet = new HashSet<>(expectedFields);
+public class JsonFieldValidator {
+   private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    public static boolean validate(String json, List<Structure> structures) {
         try {
-            JsonNode rootNode = objectMapper.readTree(jsonMessage);
-            if (rootNode.isObject()) {
-                rootNode.fieldNames().forEachRemaining(fieldName -> fieldsSet.remove(fieldName));
-                // If fieldsSet is empty, all expected fields were in the JSON
-                return fieldsSet.isEmpty();
+            Map<String, Object> dataMap = objectMapper.readValue(json, Map.class);
+            for (Structure structure : structures) {
+                String fieldName = ObjectHelper.getCamelFieldName(structure.getFieldName());
+                Object value = dataMap.get(fieldName);
+
+                // Check if mandatory field is present
+                if (structure.isMandatory() && value == null) {
+                    System.out.println("Missing mandatory field: " + fieldName);
+                    return false;
+                }
+
+                // Check type
+                if (!"String".equals(structure.getType()) && !(value instanceof String)) {
+                    System.out.println("Invalid type for field: " + fieldName);
+                    return false;
+                }
+
+                // Check regular expression
+                if (!structure.getRegExp().isEmpty() && !Pattern.matches(structure.getRegExp(), (String) value)) {
+                    System.out.println("Field does not match the regular expression: " + fieldName);
+                    return false;
+                }
             }
-            return false;
-        } catch (IOException e) {
-            // Handle exception
+            return true;
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }

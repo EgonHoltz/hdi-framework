@@ -25,6 +25,15 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch centralizator",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/BdCentralizatorService/centralizator/server.js"
+        }
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Serve dev UI",
             "program": "${workspaceFolder}/UIDataCentralizator/node_modules/@vue/cli-service/bin/vue-cli-service.js",
             "args": [

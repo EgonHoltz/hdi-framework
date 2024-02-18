@@ -9,6 +9,7 @@ public class ConfigurationMQBean {
 	private String id;
 	private String documentDataId;
 	private String applicationId;
+	private String documentDataName; 
 
 	private List<MQConfig> mqConfig;
 		
@@ -20,6 +21,7 @@ public class ConfigurationMQBean {
 		this.documentDataId = config.getDocumentData().getId();
 		this.applicationId = config.getApplication().getId();
 		this.mqConfig = config.getMqConfig();
+		this.documentDataName = config.getDocumentData().getDocumentName();
 	}
 	public String getId() {
 		return id;
@@ -51,5 +53,8 @@ public class ConfigurationMQBean {
 	public String toString() {
 		return "ConfigurationMQBean [id=" + id + ", documentDataId=" + documentDataId + ", applicationId="
 				+ applicationId + ", mqConfig=" + mqConfig + "]";
+	}
+	public String getDocumentDataName() {
+		return documentDataName;
 	}
 }

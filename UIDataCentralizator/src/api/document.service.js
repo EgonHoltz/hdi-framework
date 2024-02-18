@@ -127,7 +127,7 @@ export const docService = {
   },
   async getDocumentStatus (/*token,*/ payload) {
     const id = payload;
-    const response = await fetch(`${API_URL}/document/${id}/dbStatus`, {
+    const response = await fetch(`${API_URL}/document/${id}/dbstatus`, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ export const docService = {
   async pushDocumentUpdateToDb(/*token,*/ payload) {
     const id = payload.id;
     delete payload.id;
-    const response = await fetch(`${API_URL}/document/${id}/dbStatus`, {
+    const response = await fetch(`${API_URL}/document/${id}/dbstatus`, {
       method: "PUT",
       headers: {
         'Content-Type': 'application/json',

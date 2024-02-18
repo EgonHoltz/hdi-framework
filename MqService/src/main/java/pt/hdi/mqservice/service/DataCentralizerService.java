@@ -52,9 +52,11 @@ public class DataCentralizerService {
         return ccf;
     }
 
-    public void sendMessage(String message) {
+    public void sendMessage(Configuration conf, String message) {
 		CachingConnectionFactory connection = null;
+        System.out.println("I will open the connection with centralizator");
         try {
+            String collectionName = conf.getDocumentDataName().replaceAll("\\s", "").toLowerCase();
 			String queueName = "centralizator";
 			connection = connectionFactory();
 			Channel channel = connection.createConnection().createChannel(false);
@@ -62,6 +64,7 @@ public class DataCentralizerService {
             // Add a header with the queue name
             Map<String, Object> headers = new HashMap<>();
             headers.put("queue-name", queueName);
+            headers.put("collection", collectionName);
 
             BasicProperties props = new BasicProperties.Builder()
                     .headers(headers)
@@ -69,7 +72,7 @@ public class DataCentralizerService {
 
             // Publish the message
             channel.basicPublish("", queueName, props, message.getBytes("UTF-8"));
-            System.out.println(" [x] Sent '" + message + "' to queue: " + queueName);
+            System.out.println(" [x] Sent '" + message + "' to queue: " + queueName +" with header: " + headers.toString());
 
             // Implement the ACK mechanism as needed.
             // This example does not cover consumer-side logic, including ACKs, as it focuses on message publishing.
@@ -79,6 +82,7 @@ public class DataCentralizerService {
             System.out.println("Error sending msg to queue");
         }
 		 finally {
+            System.out.println("Close connection with centralizator");
 			connection.resetConnection();
 		 }
     }

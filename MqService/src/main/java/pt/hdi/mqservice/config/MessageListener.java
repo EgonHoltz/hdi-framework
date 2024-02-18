@@ -28,18 +28,14 @@ public class MessageListener implements org.springframework.amqp.core.MessageLis
 
 	@Override
 	public void onMessage(Message message) {
+		System.out.println("Did I created a new thread before onMessage?");
         String body = new String(message.getBody());
         String rcvId= message.getMessageProperties().getConsumerQueue();
 		ResponseEntity resConf = confService.getByRqName(rcvId);
-		if (!resConf.getStatusCode().equals(HttpStatus.OK)){
-			throw new HttpClientErrorException(resConf.getStatusCode());
-		}
 		Configuration conf = (Configuration) resConf.getBody();
-        if (conf !=null && !body.isEmpty()) {
-        	System.out.println("getConsumerQueue "+rcvId);
-        	System.out.println("Received message: " + body);
-			dcService.sendMessage(body);
-        }
+		if (confService.isValidMessageAndQueue(conf, rcvId, body)){
+			dcService.sendMessage(conf, body);
+		}
 	}
 
 }

@@ -25,15 +25,14 @@ connectToRabbitMQ().then(() => {
 });
 
 // Process message from RabbitMQ
-async function processMessage(message) {
+async function processMessage(message,collection) {
   try {
     const messageObject = JSON.parse(message.content.toString());
-    const collectionName = messageObject.collectionName;
-    const jsonObject = messageObject.data;
+    const collectionName = collection;
 
     console.log(`Collection Name: ${collectionName}`);
-    console.log(`JSON Object:`, jsonObject);
-    await await checkDuplicationAndAmend(collectionName, data);
+    console.log(`JSON Object:`, messageObject);
+    await await checkDuplicationAndAmend(collectionName, messageObject);
   } catch (error) {
       console.error('Error processing message:', error);
   }
