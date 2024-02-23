@@ -16,30 +16,17 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
-import org.springframework.data.util.Optionals;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
-
-import pt.hdi.sftpservice.model.Configuration;
-import pt.hdi.sftpservice.service.ConfigurationService;
-import pt.hdi.sftpservice.service.DataCentralizerService;
 
 public class ReceiveDirMonitoring implements Runnable{
 
 	private ApplicationContext ctx;
-	
-	private ConfigurationService confService;
-	
-	private DataCentralizerService dcService;
-	
+		
 	private Environment env;
 	
 	public ReceiveDirMonitoring(ApplicationContext appCtx) {
 		this.ctx = appCtx;
 		env = ctx.getEnvironment();
-		confService = ctx.getBean(ConfigurationService.class);
-		dcService = ctx.getBean(DataCentralizerService.class);
 	}
 	
 	@Override
@@ -63,23 +50,8 @@ public class ReceiveDirMonitoring implements Runnable{
 						if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
 							Path fileP = fpath.resolve((Path) event.context());
 							System.out.println("new file found: " + fileP);
-							String fn = fileP.getFileName().toString();
-							String inferedDoc = fn.substring(fn.indexOf("N_") +2, fn.indexOf("_N"));
-							Configuration conf = confService.getByDocumentName(inferedDoc);
-							if (conf == null || conf.getSftpConfig() == null) {
-								System.out.println("No config found for this file");
-								if (Files.exists(fileP)) {
-									Files.delete(fileP);
-								}
-								continue;
-							}
-							if (Optionals.isAnyPresent(conf.getFirstReceiveSftpConfig())) {
-								ResponseEntity<String> res = dcService.sendReceivedFileToCentralizedServer(conf, fileP.toFile());
-								if(HttpStatus.ACCEPTED.equals(res.getStatusCode())) {
-									System.out.println("Accepted with success");
-								}
-							}
-
+							Thread thread = new Thread( new FileProcessor(fileP, ctx) );
+							thread.start();
 						}
 					}
 					wk.reset();

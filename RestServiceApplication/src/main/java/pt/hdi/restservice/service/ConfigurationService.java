@@ -7,10 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import pt.hdi.restservice.bean.ConfigurationMQBean;
+import pt.hdi.restservice.bean.ConfigurationSFTPBean;
 import pt.hdi.restservice.model.Application;
 import pt.hdi.restservice.model.Configuration;
 import pt.hdi.restservice.model.DocumentData;
@@ -23,12 +25,14 @@ public class ConfigurationService {
 	@Autowired
 	private ConfigurationRepository confRep;
 	
-	public List<ConfigurationMQBean> getAllConfigs(){
+	public List<ConfigurationMQBean> getAllMqConfigs(){
 		List<Configuration> allConfig = confRep.findAll();
 		List<ConfigurationMQBean> mqConfig = new ArrayList<>();
 		// What if there is no config?
 		for (Configuration cfg : allConfig) {
-			mqConfig.add(new ConfigurationMQBean(cfg));
+			if (cfg.getMqConfig() != null) {
+				mqConfig.add(new ConfigurationMQBean(cfg));
+			}
 		}
 		return mqConfig;
 	}
@@ -47,7 +51,10 @@ public class ConfigurationService {
 
 	public ConfigurationMQBean getByRqName(String mqName) {
 		Configuration conf = confRep.findByMqConfigMqName(mqName);
-		return new ConfigurationMQBean(conf);
+		if (conf != null) {
+			return new ConfigurationMQBean(conf);
+		}
+		return null;
 	}
 
 	public void setMqQueueStarted(String mqName){
@@ -71,10 +78,35 @@ public class ConfigurationService {
 		configs.addAll(confRep.findConfigurationByMqConfigStarted(null));
 		List<ConfigurationMQBean> mqConfig = new ArrayList<>();
 		// What if there is no config?
+		if (configs == null || CollectionUtils.isEmpty(configs)) {
+			return new ArrayList<>();
+		}
 		for (Configuration cfg : configs) {
-			mqConfig.add(new ConfigurationMQBean(cfg));
+			if (cfg.getMqConfig() != null){
+				mqConfig.add(new ConfigurationMQBean(cfg));
+			}
 		}
 		return mqConfig;
+	}
+
+    public ConfigurationSFTPBean getByFileName(String fileName) {
+		Configuration conf = confRep.findBySftpConfigSftpFileName(fileName);
+		if (conf != null) {
+			return new ConfigurationSFTPBean(conf);
+		}
+		return null;
+    }
+
+	public List<ConfigurationSFTPBean> getAllSftpConfigs() {
+		List<Configuration> allConfig = confRep.findAll();
+		List<ConfigurationSFTPBean> sftpConfig = new ArrayList<>();
+		// What if there is no config?
+		for (Configuration cfg : allConfig) {
+			if (cfg.getSftpConfig() != null){
+				sftpConfig.add(new ConfigurationSFTPBean(cfg));
+			}
+		}
+		return sftpConfig;
 	}
 	
 }

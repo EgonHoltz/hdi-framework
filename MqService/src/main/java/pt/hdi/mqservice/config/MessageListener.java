@@ -32,10 +32,14 @@ public class MessageListener implements org.springframework.amqp.core.MessageLis
         String body = new String(message.getBody());
         String rcvId= message.getMessageProperties().getConsumerQueue();
 		ResponseEntity resConf = confService.getByRqName(rcvId);
+		if (!resConf.getStatusCode().equals(HttpStatus.OK)){
+			System.out.println("Configuration not found for: " + rcvId);
+			throw new HttpClientErrorException(resConf.getStatusCode());
+		}
 		Configuration conf = (Configuration) resConf.getBody();
 		if (confService.isValidMessageAndQueue(conf, rcvId, body)){
 			dcService.sendMessage(conf, body);
-		}
+		} // What to do if is not valid?
 	}
 
 }

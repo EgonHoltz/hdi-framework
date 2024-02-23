@@ -58,13 +58,14 @@ public class ConfigurationController {
      * GET  /configuration/mqqueue
      * GET  /configuration/mqqueue/{mqName}
      * POST /configuration/mqqueue/{mqName}
+     * GET  /configuration/sftp/{mqName}
      * 
      */
 
 	@GetMapping("configuration/mqqueue")
-	public ResponseEntity getAllConfiguration(){
+	public ResponseEntity getAllMqConfiguration(){
         System.out.println("Called getAllConfiguration ");
-		return new ResponseEntity<>(confSvc.getAllConfigs(),HttpStatus.OK);
+		return new ResponseEntity<>(confSvc.getAllMqConfigs(),HttpStatus.OK);
 	}
 	
 	@GetMapping("configuration/mqqueue/notstarted")
@@ -89,6 +90,18 @@ public class ConfigurationController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+	@GetMapping("configuration/sftp")
+	public ResponseEntity getAllSftpConfiguration(){
+        System.out.println("Called getAllConfiguration ");
+		return new ResponseEntity<>(confSvc.getAllSftpConfigs(),HttpStatus.OK);
+	}
+
+	@GetMapping("configuration/sftp/{fileName}")
+	public ResponseEntity getSftpConfigurationByFileName(@PathVariable String fileName){
+        System.out.println("Called getSftpConfigurationByFileName " + fileName);
+		return new ResponseEntity<>(confSvc.getByFileName(fileName),HttpStatus.OK);
+	}
 
 
     /**

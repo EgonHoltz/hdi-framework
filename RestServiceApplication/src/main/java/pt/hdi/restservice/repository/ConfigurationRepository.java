@@ -20,5 +20,6 @@ public interface ConfigurationRepository extends MongoRepository<Configuration, 
 	Configuration findByDocumentApplication(String documentDataId, String applicationId);
 	List<Configuration> findConfigurationByMqConfigStarted(Boolean started);
 	Configuration findByMqConfigMqName(String rqName);
+	Configuration findBySftpConfigSftpFileName(String fileName);
 
 }

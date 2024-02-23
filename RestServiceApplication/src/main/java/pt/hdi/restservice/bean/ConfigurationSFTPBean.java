@@ -1,17 +1,12 @@
-package pt.hdi.sftpservice.model;
+package pt.hdi.restservice.bean;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.Document;
+import pt.hdi.restservice.model.Configuration;
+import pt.hdi.restservice.model.MQConfig;
+import pt.hdi.restservice.model.SFTPConfig;
 
-@Document
-public class Configuration {
-	
+public class ConfigurationSFTPBean {
 	private String id;
 	private String documentDataId;
 	private String applicationId;
@@ -19,8 +14,15 @@ public class Configuration {
 
 	private List<SFTPConfig> sftpConfig;
 		
-	public Configuration() {
+	public ConfigurationSFTPBean() {
 		super();
+	}
+	public ConfigurationSFTPBean(Configuration config) {
+		this.id = config.getId();
+		this.documentDataId = config.getDocumentData().getId();
+		this.applicationId = config.getApplication().getId();
+		this.sftpConfig = config.getSftpConfig();
+		this.documentDataName = config.getDocumentData().getDocumentName();
 	}
 	public String getId() {
 		return id;
@@ -29,10 +31,12 @@ public class Configuration {
 		this.id = id;
 	}
 	
+	public void setDocumentDataName(String documentDataName) {
+		this.documentDataName = documentDataName;
+	}
 	public List<SFTPConfig> getSftpConfig() {
 		return sftpConfig;
 	}
-
 	public void setSftpConfig(List<SFTPConfig> sftpConfig) {
 		this.sftpConfig = sftpConfig;
 	}
@@ -48,16 +52,14 @@ public class Configuration {
 	public void setApplicationId(String applicationId) {
 		this.applicationId = applicationId;
 	}
+
 	public String getDocumentDataName() {
 		return documentDataName;
 	}
-	public void setDocumentDataName(String documentDataName) {
-		this.documentDataName = documentDataName;
-	}
 	@Override
 	public String toString() {
-		return "Configuration [id=" + id + ", documentDataId=" + documentDataId + ", applicationId=" + applicationId
-				+ ", documentDataName=" + documentDataName + ", sftpConfig=" + sftpConfig + "]";
+		return "ConfigurationSFTPBean [id=" + id + ", documentDataId=" + documentDataId + ", applicationId="
+				+ applicationId + ", documentDataName=" + documentDataName + ", sftpConfig=" + sftpConfig + "]";
 	}
 
 }

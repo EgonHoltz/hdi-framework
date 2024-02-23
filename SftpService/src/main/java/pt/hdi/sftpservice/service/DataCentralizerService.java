@@ -1,91 +1,70 @@
 package pt.hdi.sftpservice.service;
 
-
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
 
+import com.rabbitmq.client.AMQP.BasicProperties;
+import com.rabbitmq.client.Channel;
+
+import pt.hdi.sftpservice.bean.MQConnectionBean;
 import pt.hdi.sftpservice.model.Configuration;
 
 @Service
 public class DataCentralizerService {
 
-	@Autowired
-	private RestTemplate rt;
+    @Autowired
+	private ApplicationContext ctx;
 
-	@Value("${spring.datacentral.url}")
-	String url;
-	
-	public DataCentralizerService(RestTemplateBuilder rtb) {
-		this.rt = rtb.build();
-	}
-	
-	public ResponseEntity<String> sendMessageToCentralizedServcer(Configuration conf, String body) {
-		String finalUrl = url + "/centralizeByMq";
-		ResponseEntity<String> res = null;
-		try{
-			HttpHeaders headers = new HttpHeaders();
-			Map<String, Object> requestBody = new HashMap<>();
-			requestBody.put("Configuration", conf.getId());
-			requestBody.put("json", body);
-			
-			HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
-			res = rt.exchange(finalUrl, HttpMethod.POST, requestEntity, String.class);
-			return res;
-		} catch (Exception e) {
-			System.out.println("Something went wrong on send");
-			e.getStackTrace();
-			return res;
-		}
-	}
-	
-	public ResponseEntity<String> sendReceivedFileToCentralizedServer(Configuration conf, File file) throws IOException, RestClientException {
-		MultipartFile mtpFile = convert(file);
-		String finalUrl = url + "/centralizeByFile";
-	    MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-	    body.add("file", new ByteArrayResource(mtpFile.getBytes()) {
-	        @Override
-	        public String getFilename() {
-	            return mtpFile.getOriginalFilename();
-	        }
-	    });
-	    
-	    body.add("configuration", conf.getId());
+    public CachingConnectionFactory connectionFactory() {
+    	Environment env = ctx.getEnvironment();
+    	MQConnectionBean conConfig = new MQConnectionBean(env);
+    	CachingConnectionFactory ccf = new CachingConnectionFactory();
+        ccf.setHost(conConfig.getHost());
+        ccf.setUsername(conConfig.getUsername());
+        ccf.setPassword(conConfig.getPassword());
+        return ccf;
+    }
 
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+    public void sendMessage(Configuration conf, String message) {
+		CachingConnectionFactory connection = null;
+        System.out.println("I will open the connection with centralizator");
+        try {
+            String collectionName = conf.getDocumentDataName().replaceAll("\\s", "").toLowerCase();
+			String queueName = "centralizator";
+			connection = connectionFactory();
+			Channel channel = connection.createConnection().createChannel(false);
 
-	    HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-	    ResponseEntity<String> res = rt.exchange(finalUrl, HttpMethod.POST, requestEntity, String.class);
-	    
-	    return res;
-	    		
-	}
-	
-    public MultipartFile convert(File file) throws IOException {
-        FileInputStream input = new FileInputStream(file);
-        MultipartFile multipartFile = new MockMultipartFile("file",
-                file.getName(), "text/plain", input);
-        return multipartFile;
+            // Add a header with the queue name
+            Map<String, Object> headers = new HashMap<>();
+            headers.put("queue-name", queueName);
+            headers.put("collection", collectionName);
+
+            BasicProperties props = new BasicProperties.Builder()
+                    .headers(headers)
+                    .build();
+
+            // Publish the message
+            channel.basicPublish("", queueName, props, message.getBytes("UTF-8"));
+            System.out.println(" [x] Sent '" + message + "' to queue: " + queueName +" with header: " + headers.toString());
+
+            // Implement the ACK mechanism as needed.
+            // This example does not cover consumer-side logic, including ACKs, as it focuses on message publishing.
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Error sending msg to queue");
+        }
+		 finally {
+            System.out.println("Close connection with centralizator");
+			connection.resetConnection();
+		 }
     }
 	
 }

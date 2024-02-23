@@ -29,6 +29,18 @@ It creates a generic user, set all permissions to it and enable the UI user mana
 
 Now, with user and pass "guest" it is possible to configure new MQ Queues by interface.
 
+Creating Minio1 server to store received files
+
+```sh
+docker pull minio/minio
+
+docker run -p 9000:9000 -p 9001:9001 --name minio \
+  -e "MINIO_ROOT_USER=yourAccessKey" \
+  -e "MINIO_ROOT_PASSWORD=yourSecretKey" \
+  -v /home/egonh/projects/docker/minio/data:/data \
+  minio/minio server /data --console-address ":9001"
+  ```
+
 ### Testing suite
 
 To test SFTP, a server was created:
