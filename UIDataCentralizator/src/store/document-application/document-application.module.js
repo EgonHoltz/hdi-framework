@@ -6,23 +6,28 @@ import {
     UPSERT_RABBIT_MQ,
     FETCH_SFTP,
     UPSERT_SFTP,
+    FETCH_GRPC,
+    UPSERT_GRPC,
     //mutations
     SET_DOCUMENT_APPLICATION,
     SET_MQ_RABBIT,
     SET_SFTP,
+    SET_GRPC,
     SET_MESSAGE
 } from "./document-application.constants";
 
 const state = {
     docApp: {},
     mqRabbit: [],
-    sftp: []
+    sftp: [],
+    grpc: []
 };
 
 const getters = {
     getDocumentApplication: state => state.docApp,
     getRabbitMq: state => state.mqRabbit,
-    getSftp: state => state.sftp
+    getSftp: state => state.sftp,
+    getGrpc: state => state.grpc
 };
 
 const actions = {
@@ -100,6 +105,35 @@ const actions = {
             });
       });
   },
+  [FETCH_GRPC]: ({ commit, rootState }, payload) => {
+    console.log("action FETCH_GRPC")
+      return new Promise((resolve, reject) => {
+        docAppService.getGrpcFromConfiguration(/*rootState.auth.token,*/ payload)
+          .then(
+            res => {
+              console.log("on response module " + res)
+              commit(SET_GRPC, res);
+              resolve(res)
+            }, err => {
+              commit(SET_MESSAGE, err.message)
+              reject(err)
+            });
+      });
+  },
+  [UPSERT_GRPC]: ({ commit, rootState }, payload) => {
+    console.log("action UPSERT_GRPC")
+      return new Promise((resolve, reject) => {
+        docAppService.upsertGrpc(/*rootState.auth.token,*/ payload)
+          .then(
+            res => {
+              commit(SET_MESSAGE, `Document added with success!`);
+              resolve(res)
+            }, err => {
+              commit(SET_MESSAGE, err.message)
+              reject(err)
+            });
+      });
+  },
 };
 
 export const mutations = {
@@ -111,6 +145,9 @@ export const mutations = {
     },
     [SET_SFTP]: (state, sftp) => {
       state.sftp = sftp;
+    },
+    [SET_GRPC]: (state, grpc) => {
+      state.grpc = grpc;
     },
     [SET_MESSAGE]: (state, message) => {
       state.message = message;

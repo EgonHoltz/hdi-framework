@@ -98,6 +98,46 @@ export const docAppService = {
       throw Error(handleResponses(response.status));
     }
   },
+  async getGrpcFromConfiguration(/*token,*/ payload) {
+    console.log("calling getGrpcFromConfiguration " + payload);
+    let response = await fetch(`${API_URL}/document/${payload.documentId}/application/${payload.applicationId}/grpc`, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        //'Authorization': token
+      }
+    });
+    if (response.ok) {
+      console.log("Service called: " + response)
+      return await response.json();
+    } else {
+      throw Error(handleResponses(response.status));
+    }
+  },
+  async upsertGrpc(/*token,*/ payload) {
+    console.log("calling upsertGrpc " + payload);
+    const id = payload.id;
+    delete payload.id;
+    console.log("calling creation with doc " +id.documentId + " and app " + id.applicationId);
+    const response = await fetch(`${API_URL}/document/${id.documentId}/application/${id.applicationId}/grpc`, {
+      method: "PUT",
+      headers: {
+        'Content-Type': 'application/json',
+        //'Authorization': token
+      },
+      body: JSON.stringify(payload)
+    })
+    if (response.ok) {
+      try {
+        const json = await response.json();
+        return json;
+      } catch (error){
+        throw new Error("Invalid JSON response from the server");
+      }
+    } else {
+      throw Error(handleResponses(response.status));
+    }
+  },
 };
 
 function handleResponses(code) {

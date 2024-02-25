@@ -3,6 +3,7 @@
         <template v-slot:header>
             <RabbitMQAssociation :selectedApplication="selectedApplication"></RabbitMQAssociation>
             <SFTPAssociation :selectedApplication="selectedApplication"></SFTPAssociation>
+            <GRPCAssociation :selectedApplication="selectedApplication"></GRPCAssociation>
         </template>
     </b-card>
 </template>
@@ -12,13 +13,15 @@
       import StatsCard from '@/components/Cards/StatsCard';
       import RabbitMQAssociation from './Technologies/RabbitMQAssociation.vue';
       import SFTPAssociation from './Technologies/SFTPAssociation.vue';
+      import GRPCAssociation from './Technologies/GRPCAssociation.vue'
       import {FETCH_DOCUMENT_APPLICATION} from '@/store/document-application/document-application.constants';
       export default {
         components: {
             BaseProgress,
             StatsCard,
             RabbitMQAssociation,
-            SFTPAssociation
+            SFTPAssociation,
+            GRPCAssociation
         },
         props: {
             selectedApplication: {
@@ -42,6 +45,8 @@
             applicationId: null,
             configurations: null,
             rabbitMQ: null,
+            sftp: null,
+            grpc: null,
           }
         },
         methods: {

@@ -27,6 +27,7 @@ public class Configuration {
 
 	private List<MQConfig> mqConfig;
 	private List<SFTPConfig> sftpConfig;
+	private List<GRPCConfig> grpcConfig;
 	
 	@LastModifiedDate
 	private Date lastModificationDate;	
@@ -64,8 +65,8 @@ public class Configuration {
 	public List<SFTPConfig> getSftpConfig() {
 		return this.sftpConfig;
 	}
-	public void removeAllSftpConfig() {
-		this.sftpConfig.clear();
+	public void setSftpConfig(List<SFTPConfig> sftpConfig) {
+		this.sftpConfig = sftpConfig;
 	}
 	public void addSftpConfig(SFTPConfig sftpConfig) {
 		if (this.sftpConfig == null) {
@@ -73,12 +74,11 @@ public class Configuration {
 		}
 		this.sftpConfig.add(sftpConfig);	
 	}
-
 	public List<MQConfig> getMqConfig() {
 		return this.mqConfig;
 	}
-	public void removeAllMqConfig() {
-		this.mqConfig.clear();
+	public void setMqConfig(List<MQConfig> mqConfig) {
+		this.mqConfig = mqConfig;
 	}
 	public void addMqConfig(MQConfig mqConfig) {
 		if (this.mqConfig == null) {
@@ -86,28 +86,17 @@ public class Configuration {
 		}
 		this.mqConfig.add(mqConfig);
 	}
-	public boolean removeSftpConfig(SFTPConfig sftpConfig) {
-		return this.sftpConfig.removeIf(s -> s.getSftpFileName().equals(sftpConfig.getSftpFileName()));
+	public List<GRPCConfig> getGrpcConfig() {
+		return grpcConfig;
 	}
-	public Optional<SFTPConfig> getFirstSendSftpConfig() {
-		if (this.sftpConfig != null) {
-			return this.sftpConfig.stream()
-				.filter(s -> ApplicationEnums.FLOW_DIRECTION.SEND.equals(s.getDirection()))
-				.findFirst();
-		} else {
-			// Return an empty Optional if sftpConfig is null
-			return Optional.empty();
-		}
+	public void setGrpcConfig(List<GRPCConfig> grpcConfig) {
+		this.grpcConfig = grpcConfig;
 	}
-	public Optional<SFTPConfig> getFirstReceiveSftpConfig() {
-		if (this.sftpConfig != null) {
-			return this.sftpConfig.stream()
-				.filter(s -> ApplicationEnums.FLOW_DIRECTION.RECEIVE.equals(s.getDirection()))
-				.findFirst();
-		} else {
-			// Return an empty Optional if sftpConfig is null
-			return Optional.empty();
+	public void addGrpcConfig(GRPCConfig grpcConfig){
+		if (this.grpcConfig == null) {
+			this.grpcConfig = new ArrayList<>();
 		}
+		this.grpcConfig.add(grpcConfig);
 	}
 	public DocumentData getDocumentData() {
 		return documentData;
@@ -120,12 +109,6 @@ public class Configuration {
 	}
 	public void setApplication(Application application) {
 		this.application = application;
-	}
-	public void setMqConfig(List<MQConfig> mqConfig) {
-		this.mqConfig = mqConfig;
-	}
-	public void setSftpConfig(List<SFTPConfig> sftpConfig) {
-		this.sftpConfig = sftpConfig;
 	}
 	@Override
 	public String toString() {
