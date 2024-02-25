@@ -11,6 +11,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import pt.hdi.restservice.bean.ConfigurationGrpcBean;
 import pt.hdi.restservice.bean.ConfigurationMQBean;
 import pt.hdi.restservice.bean.ConfigurationSFTPBean;
 import pt.hdi.restservice.model.Application;
@@ -109,4 +110,26 @@ public class ConfigurationService {
 		return sftpConfig;
 	}
 	
+
+    public ConfigurationGrpcBean getByGrpcClientId(String clientId) {
+		Configuration conf = confRep.findByGrpcConfigClientId(clientId);
+		if (conf != null) {
+			return new ConfigurationGrpcBean(conf);
+		}
+		return null;
+    }
+
+	public List<ConfigurationGrpcBean> getAllGrpcConfigs() {
+		List<Configuration> allConfig = confRep.findAll();
+		List<ConfigurationGrpcBean> grpcConfig = new ArrayList<>();
+		// What if there is no config?
+		for (Configuration cfg : allConfig) {
+			if (cfg.getGrpcConfig() != null){
+				grpcConfig.add(new ConfigurationGrpcBean(cfg));
+			}
+		}
+		return grpcConfig;
+	}
+
+
 }

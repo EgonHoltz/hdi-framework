@@ -1,29 +1,35 @@
-package pt.hdi.grpcservice.model;
+package pt.hdi.restservice.bean;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import pt.hdi.grpcservice.utils.ApplicationEnums;
+import pt.hdi.restservice.model.Configuration;
+import pt.hdi.restservice.model.GRPCConfig;
 
-
-public class Configuration {
+@Document
+public class ConfigurationGrpcBean {
 	
+	@Id
 	private String id;
+
 	private String documentDataId;
 	private String applicationId;
 	private String documentDataName; 
 
 	private List<GRPCConfig> grpcConfig;
-		
-	public Configuration() {
+	
+	public ConfigurationGrpcBean() {
 		super();
+	}
+	public ConfigurationGrpcBean(Configuration config) {
+		this.id = config.getId();
+		this.documentDataId = config.getDocumentData().getId();
+		this.applicationId = config.getApplication().getId();
+		this.grpcConfig = config.getGrpcConfig();
+		this.documentDataName = config.getDocumentData().getDocumentName();
 	}
 	public String getId() {
 		return id;
@@ -31,11 +37,18 @@ public class Configuration {
 	public void setId(String id) {
 		this.id = id;
 	}
+	
 	public List<GRPCConfig> getGrpcConfig() {
 		return grpcConfig;
 	}
 	public void setGrpcConfig(List<GRPCConfig> grpcConfig) {
 		this.grpcConfig = grpcConfig;
+	}
+	public void addGrpcConfig(GRPCConfig grpcConfig){
+		if (this.grpcConfig == null) {
+			this.grpcConfig = new ArrayList<>();
+		}
+		this.grpcConfig.add(grpcConfig);
 	}
 	public String getDocumentDataId() {
 		return documentDataId;
@@ -57,9 +70,8 @@ public class Configuration {
 	}
 	@Override
 	public String toString() {
-		return "Configuration [id=" + id + ", documentDataId=" + documentDataId + ", applicationId=" + applicationId
-				+ ", documentDataName=" + documentDataName + ", grpcConfig=" + grpcConfig + "]";
+		return "ConfigurationGrpcBean [id=" + id + ", documentDataId=" + documentDataId + ", applicationId="
+				+ applicationId + ", documentDataName=" + documentDataName + ", grpcConfig=" + grpcConfig + "]";
 	}
-
 
 }

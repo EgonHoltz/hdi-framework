@@ -57,6 +57,8 @@ public class ConfigurationController {
      * POST /configuration/mqqueue/{mqName}
      * GET  /configuration/sftp
      * GET  /configuration/sftp/{mqName}
+     * GET  /configuration/grpc
+     * GET  /configuration/grpc/{mqName}
      * 
      */
 
@@ -91,7 +93,7 @@ public class ConfigurationController {
 
 	@GetMapping("configuration/sftp")
 	public ResponseEntity getAllSftpConfiguration(){
-        System.out.println("Called getAllConfiguration ");
+        System.out.println("Called getAllSftpConfiguration ");
 		return new ResponseEntity<>(confSvc.getAllSftpConfigs(),HttpStatus.OK);
 	}
 
@@ -99,6 +101,18 @@ public class ConfigurationController {
 	public ResponseEntity getSftpConfigurationByFileName(@PathVariable String fileName){
         System.out.println("Called getSftpConfigurationByFileName " + fileName);
 		return new ResponseEntity<>(confSvc.getByFileName(fileName),HttpStatus.OK);
+	}
+
+    @GetMapping("configuration/grpc")
+	public ResponseEntity getAllGrpcConfiguration(){
+        System.out.println("Called getAllGrpcConfiguration ");
+		return new ResponseEntity<>(confSvc.getAllGrpcConfigs(),HttpStatus.OK);
+	}
+
+	@GetMapping("configuration/grpc/{cliendId}")
+	public ResponseEntity getGrpcConfigurationByFileName(@PathVariable String cliendId){
+        System.out.println("Called getGrpcConfigurationByFileName " + cliendId);
+		return new ResponseEntity<>(confSvc.getByGrpcClientId(cliendId),HttpStatus.OK);
 	}
 
 

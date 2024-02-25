@@ -3,6 +3,7 @@ package pt.hdi.grpcservice.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
@@ -35,17 +36,27 @@ public class MessageController extends ReceiveDataServiceImplBase {
 		System.out.println("clientId: " + clientId);
 		System.out.println("msg: " + msg);
 		
-		//Configuration clientDoc = confService.getByDocumentName(clientId);
+		ResponseEntity resConf = confService.getByClientId(clientId);
+		if (!resConf.getStatusCode().equals(HttpStatus.OK)){
+			System.out.println("Configuration not found for: " + clientId);
+			ServiceDataResponse response = ServiceDataResponse.newBuilder().setClientId(clientId).setJsonMsg("INVALID_CLIENTID").build();
+			responseObserver.onNext(response);
+			responseObserver.onCompleted();
+		}
+		Configuration conf = (Configuration) resConf.getBody();
+
+		if (confService.isValidMessageAndClientId(conf, clientId, msg)){
+			dcService.sendMessage(conf, msg);
+			ServiceDataResponse response = ServiceDataResponse.newBuilder().setClientId(clientId).setJsonMsg("OK").build();
+			responseObserver.onNext(response);
+			responseObserver.onCompleted();
+		} else {
+			ServiceDataResponse response = ServiceDataResponse.newBuilder().setClientId(clientId).setJsonMsg("INVALID_DATA").build();
+			responseObserver.onNext(response);
+			responseObserver.onCompleted();
+		}
+
 		
-		// if(clientDoc == null) {
-		// 	responseObserver.onError(Status.FAILED_PRECONDITION.withDescription("client not found").asRuntimeException());			
-		// }
-	
-		// ResponseEntity<String> res = dcService.sendMessageToCentralizedServcer(clientDoc, msg);
-		
-		ServiceDataResponse response = ServiceDataResponse.newBuilder().setClientId(clientId).setJsonMsg("OK").build();
-		responseObserver.onNext(response);
-		responseObserver.onCompleted();			
 		// if (HttpStatus.ACCEPTED.equals(res.getStatusCode())) {
 		// } else {
 		// 	responseObserver.onError(Status.ABORTED.withDescription(res.getBody() + " while tries to send msg to centralizator").asRuntimeException());						
