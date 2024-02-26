@@ -21,6 +21,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.InsertOneResult;
 
 import pt.hdi.restservice.Utils.ObjectHelper;
+import pt.hdi.restservice.bean.StructureWithCamel;
 import pt.hdi.restservice.Utils.ApplicationEnums.DOCUMENT_STATUS;
 import pt.hdi.restservice.model.DocumentData;
 import pt.hdi.restservice.model.Structure;
@@ -69,11 +70,11 @@ public class DocumentService {
         collStt = (List)resCollStt.getBody();
        
        // melt what we have on db aginst declared to return only when in both
-       List<Structure> structureCompleteOnDb = new ArrayList<>();
+       List<StructureWithCamel> structureCompleteOnDb = new ArrayList<>();
        for (Structure s : documentData.getStructures()) {
         String fieldName = ObjectHelper.getCamelFieldName(s.getFieldName());
         if (collStt.contains(fieldName)) {
-            structureCompleteOnDb.add(s);
+            structureCompleteOnDb.add(new StructureWithCamel(s));
         }
     }
 

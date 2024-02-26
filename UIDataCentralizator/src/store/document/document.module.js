@@ -10,11 +10,13 @@ import {
     ADD_DOCUMENT_STRUCTURE,
     GET_STATUS,
     PUSH_DB_CHANGES,
+    FETCH_COLUMNS,
     //mutations
     SET_DOCUMENT,
     SET_DOCUMENTS,
     SET_DOCUMENT_STRUCTURE,
     SET_DOCUMENT_STATUS,
+    SET_COLUMNS,
     SET_MESSAGE
 } from "./document.constants";
 
@@ -22,14 +24,16 @@ const state = {
     docs: [],
     doc: {},
     docStructure: [],
-    docStatus: {}
+    docStatus: {},
+    docColumns: []
 };
 
 const getters = {
     getDocuments: state => state.docs,
     getDocument: state => state.doc,
     getDocumentStatus: state => state.docStatus,
-    getDocumentStructure: state => state.docStructure
+    getDocumentStructure: state => state.docStructure,
+    getColumns: state => state.docColumns
 };
 
 const actions = {
@@ -160,7 +164,22 @@ const actions = {
             reject(err)
           });
     });
-},
+  },
+  [FETCH_COLUMNS]: ({commit, rootState}, payload) => {
+    return new Promise((resolve, reject) => {
+        documentService.getColumns(/*rootState.auth.token,*/payload)
+          .then(
+            res => {
+              console.log("on response module " + res)
+              commit(SET_COLUMNS, res);
+              resolve(res)
+            },
+            err => {
+              commit(SET_MESSAGE, err.message)
+              reject(err)
+            });
+    })
+  },
 };
 
 export const mutations = {
@@ -178,6 +197,9 @@ export const mutations = {
     },
     [SET_DOCUMENT_STATUS]: (state, docStatus) => {
       state.docStatus = docStatus;
+    },
+    [SET_COLUMNS]: (state, docColumns) => {
+      state.docColumns = docColumns;
     },
   };
   

@@ -1,14 +1,11 @@
 package pt.hdi.datamanagement.controller;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,7 +30,11 @@ public class DataStrucutreController {
      * Data - work on document structure to be used with received data
      * 
      * URLs:
-     * GET  /data/collection (string,string)
+     * GET  /collection (string)
+     * GET  /collection/structure (string,string)
+     * POST /collection/structure (string)
+     * PUT  /collection/structure (string,string)
+     * 
      */
     @GetMapping("/structure")
     public ResponseEntity getCollectionFields(@RequestParam String collectionName, @RequestParam String modelKey){

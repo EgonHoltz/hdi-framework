@@ -1,6 +1,5 @@
 package pt.hdi.restservice.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,20 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import pt.hdi.restservice.Utils.ApplicationEnums.DOCUMENT_STATUS;
 import pt.hdi.restservice.Utils.ObjectHelper;
-import pt.hdi.restservice.model.Application;
-import pt.hdi.restservice.model.Configuration;
 import pt.hdi.restservice.model.DocumentData;
-import pt.hdi.restservice.model.MQConfig;
-import pt.hdi.restservice.model.SFTPConfig;
 import pt.hdi.restservice.model.Structure;
-import pt.hdi.restservice.repository.ApplicationRepository;
-import pt.hdi.restservice.repository.ConfigurationRepository;
 import pt.hdi.restservice.repository.DocumentRepository;
-import pt.hdi.restservice.service.ConfigurationService;
 import pt.hdi.restservice.service.DocumentService;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController

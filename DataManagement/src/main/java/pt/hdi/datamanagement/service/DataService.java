@@ -6,7 +6,12 @@ import java.util.List;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +20,7 @@ import org.springframework.stereotype.Service;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.InsertOneResult;
 
+import pt.hdi.datamanagement.bean.DocumentFilterFields;
 import pt.hdi.datamanagement.model.Structure;
 import pt.hdi.datamanagement.utils.ObjectHelper;
 
@@ -103,5 +109,25 @@ public class DataService {
         } else {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
+    }
+
+    public Page<Document> getCollectionData(String collectionName, List<DocumentFilterFields> filters, int page, int size) {
+        Query q = new Query();
+
+        filters.forEach(filter -> {
+            if (filter.getValue() != null && !filter.getValue().isEmpty()) {
+                // Use regex for "like" functionality, case insensitive
+                q.addCriteria(Criteria.where(filter.getName()).regex(filter.getValue(), "i"));
+            }
+        });
+
+        long total = mongoTemplate.count(q, Document.class, collectionName);
+        Pageable pageable = PageRequest.of(page, size);
+        q.with(pageable); // Apply pagination to the query
+        // Execute the query against the collection
+        List<Document> data = mongoTemplate.find(q, Document.class, collectionName);
+        
+        // Return the data
+        return new PageImpl<>(data, pageable, total);
     }
 }

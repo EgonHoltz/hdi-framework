@@ -3,10 +3,13 @@ package pt.hdi.restservice.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -19,6 +22,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import pt.hdi.restservice.bean.DocumentFilterFields;
+import pt.hdi.restservice.bean.PaginationResponse;
 import pt.hdi.restservice.model.DocumentData;
 import pt.hdi.restservice.model.Structure;
 
@@ -29,9 +34,9 @@ public class DataManagementService {
     @Qualifier("restTemplateSimple")
     private RestTemplate restTemplate;
     
-    private final String baseUrl = "http://localhost:8012/collection";
+    private final String baseUrl = "http://localhost:8012/";
     public ResponseEntity getCollectionFields(String collectionName,String modelKey) {
-        String otherServiceUrl = baseUrl + "/structure";
+        String otherServiceUrl = baseUrl + "collection/structure";
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(otherServiceUrl)
                 .queryParam("collectionName", collectionName)
                 .queryParam("modelKey", modelKey);
@@ -47,7 +52,7 @@ public class DataManagementService {
 
     public ResponseEntity getCollectionExists(String collectionName) {
         try {
-            String otherServiceUrl = baseUrl + "/";
+            String otherServiceUrl = baseUrl + "collection/";
             String urlBuilder = UriComponentsBuilder.fromUriString(otherServiceUrl)
                     .queryParam("collectionName", collectionName).toUriString();
             return restTemplate.exchange(urlBuilder,HttpMethod.GET,null, Void.class);
@@ -68,7 +73,7 @@ public class DataManagementService {
     }
 
     public ResponseEntity createCollection(DocumentData doc){
-        String otherServiceUrl = baseUrl + "/structure";
+        String otherServiceUrl = baseUrl + "collection/structure";
         String collectionName = doc.getDocumentName().replaceAll("\\s", "").toLowerCase(); 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -90,7 +95,7 @@ public class DataManagementService {
     }
 
     public ResponseEntity editCollection(String documentName, String modelKey, Structure structure){
-        String otherServiceUrl = baseUrl + "/structure";
+        String otherServiceUrl = baseUrl + "collection/structure";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -105,6 +110,31 @@ public class DataManagementService {
         try {
             return restTemplate.exchange(urlBuilder,HttpMethod.PUT ,requestBody, Void.class);
         } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    public ResponseEntity<PaginationResponse<Document>> findDocumentDataWithFilters(DocumentData doc, List<DocumentFilterFields> filters, int page, int size) {
+        String otherServiceUrl = baseUrl + "search/query";
+        String collectionName = doc.getDocumentName().replaceAll("\\s", "").toLowerCase(); 
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<List<DocumentFilterFields>> requestBody = new HttpEntity<>(filters, headers);
+
+        String urlBuilder = UriComponentsBuilder.fromUriString(otherServiceUrl)
+            .queryParam("collectionName", collectionName)
+            .queryParam("page", page)
+            .queryParam("size", size)
+            .toUriString();
+
+        try {
+            ResponseEntity<PaginationResponse<Document>> response = restTemplate
+                .exchange(urlBuilder,HttpMethod.POST ,requestBody, new ParameterizedTypeReference<PaginationResponse<Document>>(){});
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }

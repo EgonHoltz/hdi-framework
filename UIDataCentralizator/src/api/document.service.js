@@ -157,6 +157,22 @@ export const docService = {
       throw Error(handleResponses(response.status));
     }
   },
+  async getColumns(/*token,*/ payload) {
+    console.log("calling getColumns");
+    let response = await fetch(`${API_URL}/document/${payload}/dbstatus/structure/`, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        //'Authorization': token
+      }
+    });
+    if (response.ok) {
+      console.log("Service called: " + response)
+      return await response.json();
+    } else {
+      throw Error(handleResponses(response.status));
+    }
+  },
 };
 
 function handleResponses(code) {
