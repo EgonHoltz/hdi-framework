@@ -26,6 +26,55 @@ export const docService = {
       throw Error(handleResponses(response.status));
     }
   },
+  async getPendingDeleteData(/*token,*/ payload) {
+    console.log("calling getPendingDeleteData");
+    let response = await fetch(`${API_URL}/document/db/${payload}/softdelete`, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        //'Authorization': token
+      }
+    });
+    if (response.ok) {
+      console.log("Service called: " + response)
+      return await response.json();
+    } else {
+      throw Error(handleResponses(response.status));
+    }
+  },
+  async addSoftDeleteData(/*token,*/ payload) {
+    const documentId = payload.documentId;
+    const dataId = payload.dataId;
+    const response = await fetch(`${API_URL}/document/db/${documentId}/softdelete/${dataId}`, {
+      method: "DELETE",
+      headers: {
+        'Content-Type': 'application/json',
+        //'Authorization': token
+      }
+    });
+    if (response.ok) {
+      return await response;
+    } else {
+      throw Error(handleResponses(response.status));
+    }
+  },
+  async finishDeleteData(/*token,*/ payload) {
+    const documentId = payload.documentId;
+    const dataId = payload.dataId;
+    const isDelete = payload.isDelete;
+    const response = await fetch(`${API_URL}/document/db/${documentId}/harddelete/${dataId}?isDelete=${isDelete}`, {
+      method: "DELETE",
+      headers: {
+        'Content-Type': 'application/json',
+        //'Authorization': token
+      }
+    });
+    if (response.ok) {
+      return await response;
+    } else {
+      throw Error(handleResponses(response.status));
+    }
+  },
 };
 
 function handleResponses(code) {

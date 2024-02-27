@@ -138,4 +138,24 @@ public class DataManagementService {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    public ResponseEntity deleteRecordOnCollection(DocumentData doc, String dataId){
+        String otherServiceUrl = baseUrl + "search/delete/"+dataId;
+        String collectionName = doc.getDocumentName().replaceAll("\\s", "").toLowerCase(); 
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<List<Structure>> requestBody = new HttpEntity<>(headers);
+
+
+        String urlBuilder = UriComponentsBuilder.fromUriString(otherServiceUrl)
+            .queryParam("collectionName", collectionName)
+            .toUriString();
+
+            try {
+                return restTemplate.exchange(urlBuilder,HttpMethod.DELETE ,requestBody, Void.class);
+            } catch (Exception e) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+    }
 }

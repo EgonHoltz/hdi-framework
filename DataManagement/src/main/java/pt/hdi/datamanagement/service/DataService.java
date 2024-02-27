@@ -130,4 +130,18 @@ public class DataService {
         // Return the data
         return new PageImpl<>(data, pageable, total);
     }
+
+    public ResponseEntity<Void> deleteDocumentById(String collectionName, String id) {
+        try {
+            ObjectId objectId = new ObjectId(id);
+
+            Query query = new Query(Criteria.where("_id").is(objectId));
+
+            mongoTemplate.remove(query, collectionName);
+
+            return new ResponseEntity<>(HttpStatus.OK); 
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 }

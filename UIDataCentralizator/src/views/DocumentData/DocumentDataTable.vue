@@ -30,13 +30,40 @@
             </b-card>
                 
             <b-row class="mt-6">
-                <el-table :data="tableData" style="width: 100%;" border stripe>
+                <el-table :data="tableData" style="width: 100%;" border stripe :row-class-name="getRowClassName">
                     <el-table-column
-                    v-for="column in columns"
-                    :key="column.prop"
-                    :prop="column.prop"
-                    :label="column.label"
-                    ></el-table-column>
+                        v-for="column in columns"
+                        :key="column.prop"
+                        :prop="column.prop"
+                        :label="column.label">
+                    </el-table-column>
+                    <el-table-column
+                        fixed="right"
+                        label="Operations"
+                        width="120">
+                        <template slot-scope="scope">
+                            <el-button
+                                v-if="!isPendingDeletion(scope.row)"
+                                @click="setDeleteRecord(scope.row)"
+                                type="text"
+                                size="small"
+                            >Delete record</el-button>
+                            <template v-else>
+                                <el-button
+                                    @click="confirmDeletion(scope.row, true)"
+                                    type="text"
+                                    size="small"
+                                    style="color: green;"
+                                >Confirm deletion</el-button>
+                                <el-button
+                                    @click="confirmDeletion(scope.row, false)"
+                                    type="text"
+                                    size="small"
+                                    style="color: red;"
+                                >Cancel deletion</el-button>
+                            </template>
+                        </template>
+                    </el-table-column>
                 </el-table>
             </b-row>
             <b-row class="mt-5">
@@ -57,7 +84,7 @@
   <script>
   import { Pagination, Table, TableColumn, Input, Form, FormItem, Button, Card} from 'element-ui'
   import {FETCH_COLUMNS} from '@/store/document/document.constants';
-  import {FETCH_DOCUMENT_DATA} from '@/store/document-data/document-data.constants';
+  import {FETCH_DOCUMENT_DATA, FETCH_PENDING_DELETE_DATA, SOFT_DELETE_DATA, FINISH_DELETE_DATA} from '@/store/document-data/document-data.constants';
   export default {
     components: {
         [Pagination.name]: Pagination,
@@ -78,6 +105,7 @@
         pageSize: 10,
         totalItems: 0,
         documentId: '',
+        pendingData: [],
       };
     },
     methods: {
@@ -89,7 +117,11 @@
 
         let payload = {};
         payload.docId = this.documentId;
-        payload.currentPage = this.currentPage -1;
+        if (this.currentPage > 0){
+            payload.currentPage = this.currentPage -1;
+        } else {
+            payload.currentPage = this.currentPage;
+        }
         payload.pageSize = this.pageSize;
         payload.filters = this.filters;
 
@@ -114,39 +146,70 @@
         this.currentPage = newPage;
         this.fetchData();
       },
-      mockApiCall() {
-        const allData = [
-            { name: "John Doe", age: 30 },
-            { name: "Jane Doe", age: 25 },
-            { name: "Joseph Rechards", age: 40 },
-            { name: "Alicia Keys", age: 30 },
-            { name: "Bruce Wayne", age: 31 },
-            { name: "Clark Kent", age: 32 },
-            { name: "Diana Prince", age: 33 },
-            { name: "Barry Allen", age: 34 },
-            { name: "Arthur Curry", age: 35 },
-            { name: "Victor Stone", age: 36 },
-            { name: "John Stewart", age: 37 },
-            { name: "Hal Jordan", age: 38 },
-        ];
-
-        const startIndex = (this.currentPage - 1) * this.pageSize;
-        const endIndex = startIndex + this.pageSize;
-        const paginatedData = allData.slice(startIndex, endIndex);
-
-        return {
-            total: allData.length, // Total number of items in all pages
-            data: paginatedData, // Data for the current page
-            columns: [
-            { field: "name", name: "Name" },
-            { field: "age", name: "Age" },
-            ],
-  };
-      },
       areFiltersApplied() {
         // Check if any filter has been applied
         return this.filters.some(filter => filter.value);
       },
+      setDeleteRecord(row){
+        let payload = {};
+        payload.documentId = this.documentId;
+        payload.dataId = row._id
+        this.$store.dispatch(`documentData/${SOFT_DELETE_DATA}`,payload).then( 
+            () => {
+                this.editDialogVisible = false;
+                this.alertTitle = "Marked as Delete!"
+                this.fetchPendingDelete();
+                this.fetchData();
+                //this.showSuccessAlert();
+            }, err => {
+                this.editDialogVisible = false;
+                this.alertTitle = "Error on creation. Please contact the IT team"
+                this.showErrorAlert();
+            });
+      },
+      confirmDeletion(row,isDelete){
+        let payload = {};
+        payload.documentId = this.documentId;
+        payload.dataId = row._id
+        payload.isDelete = isDelete;
+        this.$store.dispatch(`documentData/${FINISH_DELETE_DATA}`,payload).then( 
+            () => {
+                this.editDialogVisible = false;
+                this.alertTitle = "Finilized the Deletion!"
+                this.fetchPendingDelete();
+                this.fetchData();
+                //this.showSuccessAlert();
+            }, err => {
+                this.editDialogVisible = false;
+                this.alertTitle = "Error on creation. Please contact the IT team"
+                this.showErrorAlert();
+            });
+      },
+      getRowClassName({row}) {
+        if (this.pendingData.length > 0 
+            && this.pendingData.some(pd => pd.dataId === row._id)) {
+            return 'pending-deletion';
+        }
+        return '';
+      },
+      isPendingDeletion(row) {
+        if (this.pendingData.length > 0){
+            return this.pendingData.some(pd => pd.dataId === row._id);
+        }
+        return false;
+      },
+      fetchPendingDelete(){
+        this.$store.dispatch(`documentData/${FETCH_PENDING_DELETE_DATA}`, this.documentId).then( 
+        (res) => {
+            console.log("got pending " +res);
+            let docPendingData = this.$store.getters['documentData/getPendingDeleteData'];
+            if (docPendingData !== null && docPendingData !== undefined){
+                this.pendingData = docPendingData;
+            } 
+        }, err => {
+            this.alertTitle = "Error while fetch"
+        });
+      }
     },
     mounted() {
         this.documentId = this.$route.params.id;
@@ -166,6 +229,7 @@
         }, err => {
             this.alertTitle = "Error while fetch"
         });
+        this.fetchPendingDelete();
         // Initialize with default filter values or fetch structure
         this.fetchData();
     },
@@ -193,5 +257,8 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+}
+.pending-deletion {
+  color: #f8949d; /* Light red color */
 }
 </style>
