@@ -1,0 +1,105 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "DatamanagementApplication",
+            "request": "launch",
+            "mainClass": "pt.hdi.datamanagement.DatamanagementApplication",
+            "projectName": ""
+        },
+        {
+            "name": "Launch Chrome",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:8080",
+            "webRoot": "${workspaceFolder}/UIDataCentralizator",
+            "sourceMapPathOverrides": {
+                "webpack:///./src/*": "${webRoot}/*",
+                "webpack:///src/*": "${webRoot}/*"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch centralizator",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/BdCentralizatorService/centralizator/server.js"
+        }
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Serve dev UI",
+            "program": "${workspaceFolder}/UIDataCentralizator/node_modules/@vue/cli-service/bin/vue-cli-service.js",
+            "args": [
+                "serve"
+            ],
+            "cwd": "${workspaceFolder}/UIDataCentralizator"
+        },
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "GrpcServiceApplication",
+            "request": "launch",
+            "mainClass": "pt.hdi.grpcservice.GrpcServiceApplication",
+            "projectName": "GrpcServiceApplication"
+        },
+        {
+            "type": "java",
+            "name": "MqSftpServiceApplication",
+            "request": "launch",
+            "mainClass": "pt.hdi.mqsftp.MqSftpServiceApplication",
+            "projectName": "MqSftpService"
+        },
+        {
+            "type": "java",
+            "name": "RestServiceApplication",
+            "request": "attach",
+            "mainClass": "pt.hdi.restservice.RestServiceApplication",
+            "hostName": "localhost",
+            "port": 8002,
+            "projectName": "RestServiceApplication"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-RestServiceApplication<RestServiceApplication>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "pt.hdi.restservice.RestServiceApplication",
+            "projectName": "RestServiceApplication",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=35993 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=RestServiceApplication"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-DatamanagementApplication<DatamanagementApplication>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "pt.hdi.datamanagement.DatamanagementApplication",
+            "projectName": "DatamanagementApplication",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MqServiceApplication<mqservice>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "pt.hdi.mqservice.MqServiceApplication",
+            "projectName": "mqservice",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
