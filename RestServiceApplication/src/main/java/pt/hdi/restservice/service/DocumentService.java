@@ -21,10 +21,13 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.InsertOneResult;
 
 import pt.hdi.restservice.Utils.ObjectHelper;
+import pt.hdi.restservice.bean.StructureWithCamel;
 import pt.hdi.restservice.Utils.ApplicationEnums.DOCUMENT_STATUS;
 import pt.hdi.restservice.model.DocumentData;
+import pt.hdi.restservice.model.SoftDeleteTransition;
 import pt.hdi.restservice.model.Structure;
 import pt.hdi.restservice.repository.DocumentRepository;
+import pt.hdi.restservice.repository.SoftDeleteTransitionRepository;
 
 @Service
 public class DocumentService {
@@ -34,6 +37,9 @@ public class DocumentService {
 
     @Autowired
     private DataManagementService dtMgtSvc;
+
+    @Autowired
+    private SoftDeleteTransitionRepository sftDelTransRep;
 
 
     private boolean hasRecordedStructureAgainstDb(List<Structure> structure, List<String> dbFields){
@@ -47,6 +53,38 @@ public class DocumentService {
             }
         }
         return true;
+    }
+
+    public ResponseEntity getDocumentStructureOnDb(DocumentData documentData){
+        String collectionName = documentData.getDocumentName().replaceAll("\\s", "").toLowerCase();
+        String modelKey = documentData.getModelKey();
+
+       //Verify if Collection exists
+       ResponseEntity resCollExists = dtMgtSvc.getCollectionExists(collectionName);
+       if (!resCollExists.getStatusCode().equals(HttpStatus.OK)){
+           return new ResponseEntity(HttpStatus.BAD_REQUEST);
+       }
+
+       //Get collection structure and verify if match with configured structure
+       List<String> collStt = new ArrayList<>();
+       ResponseEntity resCollStt = dtMgtSvc.getCollectionFields(collectionName, modelKey);
+       if (!resCollStt.getStatusCode().equals(HttpStatus.OK)){
+           return new ResponseEntity(HttpStatus.BAD_REQUEST);
+       } 
+
+        collStt = (List)resCollStt.getBody();
+       
+       // melt what we have on db aginst declared to return only when in both
+       List<StructureWithCamel> structureCompleteOnDb = new ArrayList<>();
+       for (Structure s : documentData.getStructures()) {
+        String fieldName = ObjectHelper.getCamelFieldName(s.getFieldName());
+        if (collStt.contains(fieldName)) {
+            structureCompleteOnDb.add(new StructureWithCamel(s));
+        }
+    }
+
+       // Return found structure
+       return new ResponseEntity(structureCompleteOnDb,HttpStatus.OK);
     }
 
     public ResponseEntity getDocumentStatusOnDb(DocumentData documentData){
@@ -178,6 +216,44 @@ public class DocumentService {
         }
         // Add more type mappings as needed
         return null; // Default value
+    }
+
+    public ResponseEntity<Void> softDeleteDataById(DocumentData documentData, String dataId) {        
+        try{
+            SoftDeleteTransition dataToDelete = new SoftDeleteTransition();
+            dataToDelete.setCollectionId(documentData.getId());
+            dataToDelete.setDataId(dataId);
+            dataToDelete.setUser("Fulano");
+            sftDelTransRep.save(dataToDelete);
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        }catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    public ResponseEntity getPendingSoftDeleteByDocument(DocumentData documentData) {
+        return new ResponseEntity<>(sftDelTransRep.findByCollectionId(documentData.getId()),HttpStatus.OK);
+    }
+
+    public ResponseEntity hardDeleteDataById(DocumentData documentData, String dataId, boolean isDelete) {
+        SoftDeleteTransition dataToDelete = sftDelTransRep.findByCollectionIdAndDataId(documentData.getId(), dataId);
+        if (dataToDelete == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        try {
+            if (isDelete){
+                ResponseEntity resDelete = dtMgtSvc.deleteRecordOnCollection(documentData, dataId);
+                if (!resDelete.getStatusCode().equals(HttpStatus.OK)){
+                    return new ResponseEntity(HttpStatus.BAD_REQUEST);
+                }
+            } 
+            sftDelTransRep.delete(dataToDelete);
+            return new ResponseEntity<>(HttpStatus.OK);
+
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
     }
 
 }

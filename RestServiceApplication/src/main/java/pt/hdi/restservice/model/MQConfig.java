@@ -13,6 +13,8 @@ public class MQConfig {
 	private FLOW_DIRECTION direction;
 	private Boolean hasAck;
 	private Boolean started;
+	private String user;
+	private String password;
 	private Boolean active;
 	@LastModifiedDate
 	private Date lastModificationDate;
@@ -77,6 +79,22 @@ public class MQConfig {
 
 	public void setActive(Boolean active) {
 		this.active = active;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	@Override

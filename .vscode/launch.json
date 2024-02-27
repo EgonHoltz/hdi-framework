@@ -25,6 +25,15 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch centralizator",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/BdCentralizatorService/centralizator/server.js"
+        }
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Serve dev UI",
             "program": "${workspaceFolder}/UIDataCentralizator/node_modules/@vue/cli-service/bin/vue-cli-service.js",
             "args": [
@@ -69,7 +78,8 @@
             "mainClass": "pt.hdi.restservice.RestServiceApplication",
             "projectName": "RestServiceApplication",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=35993 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=RestServiceApplication"
         },
         {
             "type": "java",
@@ -78,6 +88,16 @@
             "cwd": "${workspaceFolder}",
             "mainClass": "pt.hdi.datamanagement.DatamanagementApplication",
             "projectName": "DatamanagementApplication",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MqServiceApplication<mqservice>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "pt.hdi.mqservice.MqServiceApplication",
+            "projectName": "mqservice",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }

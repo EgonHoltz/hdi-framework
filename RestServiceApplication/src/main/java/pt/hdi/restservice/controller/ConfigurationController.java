@@ -8,26 +8,25 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 
 import pt.hdi.restservice.Utils.ObjectHelper;
 import pt.hdi.restservice.model.Application;
 import pt.hdi.restservice.model.Configuration;
 import pt.hdi.restservice.model.DocumentData;
+import pt.hdi.restservice.model.GRPCConfig;
 import pt.hdi.restservice.model.MQConfig;
 import pt.hdi.restservice.model.SFTPConfig;
 import pt.hdi.restservice.repository.ApplicationRepository;
 import pt.hdi.restservice.repository.ConfigurationRepository;
 import pt.hdi.restservice.repository.DocumentRepository;
 import pt.hdi.restservice.service.ConfigurationService;
-import pt.hdi.restservice.service.DocumentService;
+import pt.hdi.restservice.service.RabbitMQService;
 
 
 @RestController
@@ -44,56 +43,78 @@ public class ConfigurationController {
 
     @Autowired
     private ConfigurationRepository confRep;
+
+    @Autowired
+    private RabbitMQService rabbitSvc;
 	
-	@GetMapping("admin/config")
-	public List<Configuration> getAllConfiguration(){
-		return confSvc.getAllConfigs();
+    /**
+     * Configuration - Get all configurations
+     * 
+     * URLs:
+     * GET  /configuration
+     * GET  /configuration/mqqueue
+     * GET  /configuration/mqqueue/{mqName}
+     * POST /configuration/mqqueue/{mqName}
+     * GET  /configuration/sftp
+     * GET  /configuration/sftp/{mqName}
+     * GET  /configuration/grpc
+     * GET  /configuration/grpc/{mqName}
+     * 
+     */
+
+	@GetMapping("configuration/mqqueue")
+	public ResponseEntity getAllMqConfiguration(){
+        System.out.println("Called getAllConfiguration ");
+		return new ResponseEntity<>(confSvc.getAllMqConfigs(),HttpStatus.OK);
 	}
 	
-	@PostMapping("admin/config")
-	public ResponseEntity<Void> createNewConfiguration(@RequestBody Configuration config){
-		boolean createdOk = false;
-		createdOk = confSvc.createNewConfiguration(config);
-		if (createdOk) {
-			return new ResponseEntity<>(HttpStatus.CREATED);
-		}
-		return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+	@GetMapping("configuration/mqqueue/notstarted")
+	public ResponseEntity getMqConfigurationNotStarted(){
+        System.out.println("Called getMqConfigurationNotStarted ");
+		return new ResponseEntity<>(confSvc.getAllConfigurationWithMQAndNotStarted(),HttpStatus.OK);
 	}
-	
-	@PostMapping("admin/config/sftp/{configId}")
-	public ResponseEntity<Void> createSftpConfiguration(@PathVariable String configId, @RequestBody SFTPConfig sftpConfig){
-		try {
-			Configuration config = confSvc.getByDocumentConfiguration(configId);
-			config.addSftpConfig(sftpConfig);
-			boolean createdOk = confSvc.saveConfiguration(config);
-			if (createdOk) {
-				return new ResponseEntity<Void>(HttpStatus.CREATED);
-			}		
-		} catch (Exception e) {
-			System.err.println("Error: "+e.getStackTrace());
-			e.printStackTrace();
-			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
-		}
-		return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+
+	@GetMapping("configuration/mqqueue/{mqName}")
+	public ResponseEntity getMqConfigurationByMqName(@PathVariable String mqName){
+        System.out.println("Called getMqConfigurationByMqName " + mqName);
+		return new ResponseEntity<>(confSvc.getByRqName(mqName),HttpStatus.OK);
 	}
-	
-	@DeleteMapping("admin/config/sftp/{configId}")
-	public ResponseEntity<Void> removeSftpConfiguration(@PathVariable String configId, @RequestBody SFTPConfig sftpConfig){
-		try {
-			Configuration config = confSvc.getByDocumentConfiguration(configId);
-			boolean removedOk = config.removeSftpConfig(sftpConfig);
-			removedOk &= confSvc.saveConfiguration(config);
-			if (removedOk) {
-				return new ResponseEntity<Void>(HttpStatus.OK);
-			}		
-		} catch (Exception e) {
-			System.err.println("Error: "+e.getStackTrace());
-			e.printStackTrace();
-			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
-		}
-		return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+
+    @PutMapping("configuration/mqqueue/{mqName}")
+    public ResponseEntity putMethodName(@PathVariable String mqName, @RequestBody String entity) {
+        System.out.println("Called putMethodName " + mqName);
+        try{
+            confSvc.setMqQueueStarted(mqName);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+	@GetMapping("configuration/sftp")
+	public ResponseEntity getAllSftpConfiguration(){
+        System.out.println("Called getAllSftpConfiguration ");
+		return new ResponseEntity<>(confSvc.getAllSftpConfigs(),HttpStatus.OK);
 	}
-	
+
+	@GetMapping("configuration/sftp/{fileName}")
+	public ResponseEntity getSftpConfigurationByFileName(@PathVariable String fileName){
+        System.out.println("Called getSftpConfigurationByFileName " + fileName);
+		return new ResponseEntity<>(confSvc.getByFileName(fileName),HttpStatus.OK);
+	}
+
+    @GetMapping("configuration/grpc")
+	public ResponseEntity getAllGrpcConfiguration(){
+        System.out.println("Called getAllGrpcConfiguration ");
+		return new ResponseEntity<>(confSvc.getAllGrpcConfigs(),HttpStatus.OK);
+	}
+
+	@GetMapping("configuration/grpc/{cliendId}")
+	public ResponseEntity getGrpcConfigurationByFileName(@PathVariable String cliendId){
+        System.out.println("Called getGrpcConfigurationByFileName " + cliendId);
+		return new ResponseEntity<>(confSvc.getByGrpcClientId(cliendId),HttpStatus.OK);
+	}
+
 
     /**
      * Document Application association - Create technology behind the document, which allows the communication
@@ -191,21 +212,44 @@ public class ConfigurationController {
             boolean hasConfig = currMqConfig.stream().anyMatch(c -> c.getDirection().equals(mc.getDirection()));
             if (hasConfig){
                 Optional<MQConfig> mqConfigOld = currMqConfig.stream().filter(c -> c.getDirection().equals(mc.getDirection())).findFirst();
+                if (!mqConfigOld.get().getUser().equals(mc.getUser())){
+                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
                 BeanUtils.copyProperties(mc, mqConfigOld.get(), ObjectHelper.getNullPropertyNames(mqConfigOld.get()));
+                // Also changes the password on the MQ server
+                if (!mqConfigOld.get().getPassword().equals(mc.getPassword())){
+                    rtnHttp = rabbitSvc.createUser(mc.getUser(), mc.getPassword()).getStatusCode();
+                }
+                if (!HttpStatus.OK.equals(rtnHttp) && !HttpStatus.CREATED.equals(rtnHttp)){
+                    throw new HttpClientErrorException(rtnHttp);
+                }
                 conf.addMqConfig(mc);
+
                 rtnHttp = HttpStatus.OK;
             } else {
+                rtnHttp = rabbitSvc.createUser(mc.getUser(), mc.getPassword()).getStatusCode();
+                if (!HttpStatus.OK.equals(rtnHttp) && !HttpStatus.CREATED.equals(rtnHttp)){
+                    throw new HttpClientErrorException(rtnHttp);
+                }
+                rtnHttp = rabbitSvc.createQueue(mc.getMqName()).getStatusCode();
+                if (!HttpStatus.OK.equals(rtnHttp) && !HttpStatus.CREATED.equals(rtnHttp)){
+                    throw new HttpClientErrorException(rtnHttp);
+                }
+                rtnHttp = rabbitSvc.addPermission(mc.getUser(), mc.getMqName()).getStatusCode();
+                if (!HttpStatus.OK.equals(rtnHttp) && !HttpStatus.CREATED.equals(rtnHttp)){
+                    throw new HttpClientErrorException(rtnHttp);
+                }
                 conf.addMqConfig(mc);
                 rtnHttp = HttpStatus.CREATED;
             }
             
         }
-
+        
         confRep.save(conf);
 
         return new ResponseEntity<>(rtnHttp);
      }
-         /**
+    /**
      * Document Application association - Create technology behind the document, which allows the communication
      * between other applications
      * 
@@ -217,7 +261,7 @@ public class ConfigurationController {
 
      @GetMapping("document/{documentId}/application/{applicationId}/sftp")     
      public ResponseEntity getAssociationSFTPConfiguration(@PathVariable String documentId, @PathVariable String applicationId){
-        System.out.println("Called getAssociationMQConfiguration " + documentId + ", " + applicationId);
+        System.out.println("Called getAssociationSFTPConfiguration " + documentId + ", " + applicationId);
 
         Optional<Application> app = appRep.findById(applicationId);
         Optional<DocumentData> doc = docRep.findById(documentId);
@@ -286,5 +330,84 @@ public class ConfigurationController {
         return new ResponseEntity<>(rtnHttp);
      }
 
+    /**
+     * Document Application association - Create technology behind the document, which allows the communication
+     * between other applications
+     * 
+     * URLs:
+     * GET  /document/{documentId}/application/{applicationId}/grpc
+     * PUT  /document/{documentId}/application/{applicationId}/grpc
+     * 
+     */
+
+     @GetMapping("document/{documentId}/application/{applicationId}/grpc")     
+     public ResponseEntity getAssociationGRPCConfiguration(@PathVariable String documentId, @PathVariable String applicationId){
+        System.out.println("Called getAssociationGRPCConfiguration " + documentId + ", " + applicationId);
+
+        Optional<Application> app = appRep.findById(applicationId);
+        Optional<DocumentData> doc = docRep.findById(documentId);
+
+        if (!app.isPresent() || !doc.isPresent()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        
+        Configuration conf = confSvc.getConfigurationByDocApp(doc.get(),app.get());
+
+        if (conf != null){
+            return new ResponseEntity<>(conf.getGrpcConfig(),HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+     }
+
+     @PutMapping("document/{documentId}/application/{applicationId}/grpc")     
+     public ResponseEntity changeAssociationGRPCConfiguration(@PathVariable String documentId, 
+        @PathVariable String applicationId, @RequestBody List<GRPCConfig> grpcConfig){
+        System.out.println("Called changeAssociationGRPCConfiguration " + documentId + ", " + applicationId);
+
+        Optional<Application> app = appRep.findById(applicationId);
+        Optional<DocumentData> doc = docRep.findById(documentId);
+
+        if (!app.isPresent() || !doc.isPresent() ){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (grpcConfig == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        
+        Configuration conf = confSvc.getConfigurationByDocApp(doc.get(),app.get());
+        if (conf == null) {
+            conf = new Configuration(doc.get(),app.get());
+            confRep.save(conf);
+        }
+        HttpStatus rtnHttp = HttpStatus.BAD_REQUEST;
+        for (GRPCConfig grpc : grpcConfig) {
+            
+            List<GRPCConfig> currGrpcConfig = null;
+
+            if (conf.getGrpcConfig() == null){
+                currGrpcConfig = new ArrayList<>();
+            } else {
+                currGrpcConfig = conf.getGrpcConfig();
+            }
+
+            boolean hasConfig = currGrpcConfig.stream().anyMatch(c -> c.getDirection().equals(grpc.getDirection()));
+            if (hasConfig){
+                Optional<GRPCConfig> grpcConfigOld = currGrpcConfig.stream().filter(c -> c.getDirection().equals(grpc.getDirection())).findFirst();
+                BeanUtils.copyProperties(grpc, grpcConfigOld.get(), ObjectHelper.getNullPropertyNames(grpcConfigOld.get()));
+                conf.addGrpcConfig(grpc);
+                rtnHttp = HttpStatus.OK;
+            } else {
+                conf.addGrpcConfig(grpc);
+                rtnHttp = HttpStatus.CREATED;
+            }
+            
+        }
+
+        confRep.save(conf);
+
+        return new ResponseEntity<>(rtnHttp);
+     }
 
 }

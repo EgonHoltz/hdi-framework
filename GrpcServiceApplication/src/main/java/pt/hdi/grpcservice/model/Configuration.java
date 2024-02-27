@@ -1,30 +1,29 @@
 package pt.hdi.grpcservice.model;
 
+import java.util.ArrayList;
 import java.util.Date;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.Document;
+import java.util.List;
+import java.util.Optional;
 
-@Document
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+
+import pt.hdi.grpcservice.utils.ApplicationEnums;
+
+
 public class Configuration {
 	
 	private String id;
+	private String documentDataId;
+	private String applicationId;
+	private String documentDataName; 
 
-	@LastModifiedDate
-	private Date lastModificationDate;
-	
-	@CreatedDate
-	private Date createDate;
-	private String documentName;
-	
-	
-	
+	private List<GRPCConfig> grpcConfig;
+		
 	public Configuration() {
 		super();
-	}
-	public Configuration(String documentName) {
-		super();
-		this.documentName = documentName;
 	}
 	public String getId() {
 		return id;
@@ -32,32 +31,35 @@ public class Configuration {
 	public void setId(String id) {
 		this.id = id;
 	}
-	
-	public Date getLastModificationDate() {
-		return lastModificationDate;
+	public List<GRPCConfig> getGrpcConfig() {
+		return grpcConfig;
 	}
-	public void setLastModificationDate(Date lastModificationDate) {
-		this.lastModificationDate = lastModificationDate;
+	public void setGrpcConfig(List<GRPCConfig> grpcConfig) {
+		this.grpcConfig = grpcConfig;
 	}
-	public Date getCreateDate() {
-		return createDate;
+	public String getDocumentDataId() {
+		return documentDataId;
 	}
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
+	public void setDocumentDataId(String documentDataId) {
+		this.documentDataId = documentDataId;
 	}
-	public String getDocumentName() {
-		return documentName;
+	public String getApplicationId() {
+		return applicationId;
 	}
-	public void setDocumentName(String documentName) {
-		this.documentName = documentName;
+	public void setApplicationId(String applicationId) {
+		this.applicationId = applicationId;
 	}
-	
+	public String getDocumentDataName() {
+		return documentDataName;
+	}
+	public void setDocumentDataName(String documentDataName) {
+		this.documentDataName = documentDataName;
+	}
 	@Override
 	public String toString() {
-		return "Configuration [id=" + id + ", lastModificationDate=" + lastModificationDate + ", createDate="
-				+ createDate + ", documentName=" + documentName + "]";
+		return "Configuration [id=" + id + ", documentDataId=" + documentDataId + ", applicationId=" + applicationId
+				+ ", documentDataName=" + documentDataName + ", grpcConfig=" + grpcConfig + "]";
 	}
-	
-	
+
 
 }

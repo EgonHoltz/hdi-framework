@@ -43,6 +43,11 @@ const routes = [
         component: () => import(/* webpackChunkName: "demo" */ '../views/DocumentApplication/DocumentApplicationAssociation.vue')
       },
       {
+        path: '/document-data/:id',
+        name: 'documentDataDeletion',
+        component: () => import(/* webpackChunkName: "demo" */ '../views/DocumentData/DocumentDataTable.vue')
+      },
+      {
         path: '/icons',
         name: 'icons',
         component: () => import(/* webpackChunkName: "demo" */ '../views/Icons.vue')

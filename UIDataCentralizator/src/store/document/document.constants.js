@@ -8,10 +8,12 @@ export const EDIT_DOCUMENT_STRUCTURE = "editDocumentStructure";
 export const ADD_DOCUMENT_STRUCTURE = "addDocumentStructure";
 export const GET_STATUS = "getDocumentDbStatus";
 export const PUSH_DB_CHANGES = "pushDocumentUpdateToDb";
+export const FETCH_COLUMNS = "fetchColumns";
 
 // Mutations
 export const SET_DOCUMENT = "setDocument";
 export const SET_DOCUMENTS = "setDocuments";
 export const SET_DOCUMENT_STRUCTURE = "setDocumentStructure";
 export const SET_DOCUMENT_STATUS = "setDocumentStatus";
+export const SET_COLUMNS = "setColumns";
 export const SET_MESSAGE = "setMessage";

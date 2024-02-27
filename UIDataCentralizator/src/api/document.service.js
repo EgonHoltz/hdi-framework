@@ -127,7 +127,7 @@ export const docService = {
   },
   async getDocumentStatus (/*token,*/ payload) {
     const id = payload;
-    const response = await fetch(`${API_URL}/document/${id}/dbStatus`, {
+    const response = await fetch(`${API_URL}/document/${id}/dbstatus`, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ export const docService = {
   async pushDocumentUpdateToDb(/*token,*/ payload) {
     const id = payload.id;
     delete payload.id;
-    const response = await fetch(`${API_URL}/document/${id}/dbStatus`, {
+    const response = await fetch(`${API_URL}/document/${id}/dbstatus`, {
       method: "PUT",
       headers: {
         'Content-Type': 'application/json',
@@ -153,6 +153,22 @@ export const docService = {
     });
     if (response.ok) {
       return await response;
+    } else {
+      throw Error(handleResponses(response.status));
+    }
+  },
+  async getColumns(/*token,*/ payload) {
+    console.log("calling getColumns");
+    let response = await fetch(`${API_URL}/document/${payload}/dbstatus/structure/`, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        //'Authorization': token
+      }
+    });
+    if (response.ok) {
+      console.log("Service called: " + response)
+      return await response.json();
     } else {
       throw Error(handleResponses(response.status));
     }
