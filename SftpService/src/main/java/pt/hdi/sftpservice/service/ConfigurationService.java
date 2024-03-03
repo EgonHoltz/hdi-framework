@@ -1,18 +1,11 @@
 package pt.hdi.sftpservice.service;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -39,7 +32,7 @@ public class ConfigurationService {
 	private final String baseUrl = "http://localhost:8002/configuration";
 
 	
-	public ResponseEntity getAllConfigs(){
+	public ResponseEntity<List<Configuration>> getAllConfigs(){
 		String otherServiceUrl = baseUrl + "/sftp";
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(otherServiceUrl);
         
@@ -53,7 +46,7 @@ public class ConfigurationService {
         }
 	}
 
-	public ResponseEntity getByDocumentName(String fileName){
+	public ResponseEntity<Configuration> getByDocumentName(String fileName){
 		String otherServiceUrl = baseUrl + "/sftp/" + fileName;
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(otherServiceUrl);
         

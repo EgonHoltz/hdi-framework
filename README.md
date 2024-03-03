@@ -35,11 +35,19 @@ Creating Minio1 server to store received files
 docker pull minio/minio
 
 docker run -p 9000:9000 -p 9001:9001 --name minio \
-  -e "MINIO_ROOT_USER=yourAccessKey" \
-  -e "MINIO_ROOT_PASSWORD=yourSecretKey" \
+  -e "MINIO_ROOT_USER=provisoryUser" \
+  -e "MINIO_ROOT_PASSWORD=provisoryUser" \
   -v /home/egonh/projects/docker/minio/data:/data \
   minio/minio server /data --console-address ":9001"
   ```
+After the server creation, access the application by the webpage: http://localhost:9001/
+
+Go to "Access keys" and create a new one;
+Save the the key and its secret;
+Go to the services listed below and change the access keys and secrets variables
+ - BdCentralizatorService/centralizator/minioOperations.js
+ - BdRejectionCentralizatorService/centralizator/minioOperations.js
+
 
 ### Testing suite
 

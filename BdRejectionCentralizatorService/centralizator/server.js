@@ -1,11 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const { checkDuplicationAndAmend } = require('./dbOperations');
-const { updateCache, getCachedCollection } = require('./cacheManager');
-const { addFileToAccepted } = require('./minioOperations');
+const { addToRejection } = require('./dbOperations');
+const { addFileToRejection } = require('./minioOperations');
 const { connectToRabbitMQ, listenForMessages, listenForFiles } = require('./rabbitMq');
-const PORT = process.env.PORT || 8022;
+const PORT = process.env.PORT || 8052;
 
 const app = express();
 app.use(bodyParser.json());
@@ -16,7 +15,6 @@ mongoose.connect('mongodb://localhost/hdi-database', { useUnifiedTopology: true 
     console.log('MongoDB connected');
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
-      updateCache().then(() => console.log('Cache initialized at startup.'));
     });
 })
 
@@ -27,20 +25,21 @@ connectToRabbitMQ().then(() => {
 });
 
 // Process message from RabbitMQ
-async function processMessage(message,collection) {
+async function processMessage(message,collection,reason) {
   try {
-    const messageObject = JSON.parse(message.content.toString());
-    const collectionName = collection;
+    const messageBuffer = message.content.toString('utf-8')
+    console.log("Message Buffer: " + messageBuffer);
+    const messageObject = JSON.parse(messageBuffer);
 
-    console.log(`Collection Name: ${collectionName}`);
+    console.log(`Collection Name: ${collection} with reason: ${reason}`);
     console.log(`JSON Object:`, messageObject);
-    await await checkDuplicationAndAmend(collectionName, messageObject);
+    await addToRejection(collection,reason, messageObject);
   } catch (error) {
       console.error('Error processing message:', error);
   }
 }
 
-async function processFile(message,collection, fileName) {
+async function processFile(message,fileName) {
   try {
     const fileContent = message.content;
     const parts = fileName.split('.');
@@ -52,21 +51,11 @@ async function processFile(message,collection, fileName) {
         .replace(/-/g, '')
         .replace('T', '-') 
         .split('.')[0];
-    const newFileName = `${baseName}_${collection}_${timestamp}.${extension}`;
+    const newFileName = `${baseName}_${timestamp}.${extension}`;
 
-    console.log(`[INFO] ***File Name: ${newFileName}`);
-    await addFileToAccepted(newFileName, fileContent);
+    console.log(`File Name: ${newFileName}`);
+    await addFileToRejection(newFileName, fileContent);
   } catch (error) {
       console.error('Error processing message:', error);
   }
 }
-
-app.post('/updateCache', async (req, res) => {
-  try {
-
-    await updateCache();
-    res.send('Cache updated successfully');
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
