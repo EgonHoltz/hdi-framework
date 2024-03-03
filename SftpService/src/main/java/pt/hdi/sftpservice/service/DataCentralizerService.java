@@ -1,6 +1,7 @@
 package pt.hdi.sftpservice.service;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import com.rabbitmq.client.Channel;
 
 import pt.hdi.sftpservice.bean.MQConnectionBean;
 import pt.hdi.sftpservice.model.Configuration;
+import pt.hdi.sftpservice.utils.ObjectHelper;
 
 @Service
 public class DataCentralizerService {
@@ -100,6 +102,52 @@ public class DataCentralizerService {
         System.out.println("Close connection with rejection centralizator");
         connection.resetConnection();
      }
+    }
+
+    public void sendFileToCentralizer(Configuration conf, Path filePath, boolean isFileOk){
+        CachingConnectionFactory connection = null;
+        System.out.println("I will open the connection with rejection centralizator");
+        try {
+        
+            String collectionName = conf != null ? conf.getDocumentDataName().replaceAll("\\s", "").toLowerCase() : "";
+
+            String queueName = isFileOk ? "file-accepted" : "file-rejection";
+
+            byte[] zippedFileContent = ObjectHelper.compressFile(filePath.toString());
+            if (zippedFileContent == null){
+                throw new Exception("Failled to create the ZIP file");
+            }
+            connection = connectionFactory();
+            Channel channel = connection.createConnection().createChannel(false);
+
+            // Add a header with the queue name
+            Map<String, Object> headers = new HashMap<>();
+            headers.put("collection", collectionName);
+            headers.put("file-name", filePath.getFileName().toString());
+
+            BasicProperties props = new BasicProperties.Builder()
+                    .headers(headers)
+                    .build();
+
+            // Publish the message
+            channel.basicPublish("", queueName, props, zippedFileContent);
+            System.out.println(" [X] File Sent '" + filePath + "' to queue: " + queueName +" with header: " + headers.toString());
+
+        // Implement the ACK mechanism as needed.
+        // This example does not cover consumer-side logic, including ACKs, as it focuses on message publishing.
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Error sending msg to queue");
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            System.out.println("Error on ZIP the file");
+        }
+        finally {
+            System.out.println("Close connection with rejection centralizator");
+            connection.resetConnection();
+        }
     }
 	
 }
