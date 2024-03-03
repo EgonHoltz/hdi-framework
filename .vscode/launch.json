@@ -30,7 +30,16 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/BdCentralizatorService/centralizator/server.js"
-        }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Rejection centralizator",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/BdRejectionCentralizatorService/centralizator/server.js"
+        },
         {
             "type": "node",
             "request": "launch",
@@ -52,7 +61,8 @@
             "name": "GrpcServiceApplication",
             "request": "launch",
             "mainClass": "pt.hdi.grpcservice.GrpcServiceApplication",
-            "projectName": "GrpcServiceApplication"
+            "projectName": "GrpcServiceApplication",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=46325 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=GrpcServiceApplication"
         },
         {
             "type": "java",
@@ -89,7 +99,8 @@
             "mainClass": "pt.hdi.datamanagement.DatamanagementApplication",
             "projectName": "DatamanagementApplication",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=33053 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=DatamanagementApplication"
         },
         {
             "type": "java",
@@ -98,6 +109,17 @@
             "cwd": "${workspaceFolder}",
             "mainClass": "pt.hdi.mqservice.MqServiceApplication",
             "projectName": "mqservice",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=44499 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=mqservice"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SftpServiceApplication<sftpservice>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "pt.hdi.sftpservice.SftpServiceApplication",
+            "projectName": "sftpservice",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }

@@ -1,5 +1,5 @@
 {
-  "name": "db-centralizator",
+  "name": "db-rejection-centralizator",
   "version": "1.0.0",
   "description": "",
   "main": "./centralizator/server.js",

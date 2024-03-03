@@ -51,6 +51,7 @@ public class MessageController extends ReceiveDataServiceImplBase {
 			responseObserver.onNext(response);
 			responseObserver.onCompleted();
 		} else {
+			dcService.sendRejectedMessage(conf, msg);
 			ServiceDataResponse response = ServiceDataResponse.newBuilder().setClientId(clientId).setJsonMsg("INVALID_DATA").build();
 			responseObserver.onNext(response);
 			responseObserver.onCompleted();

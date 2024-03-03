@@ -28,7 +28,6 @@ public class MessageListener implements org.springframework.amqp.core.MessageLis
 
 	@Override
 	public void onMessage(Message message) {
-		System.out.println("Did I created a new thread before onMessage?");
         String body = new String(message.getBody());
         String rcvId= message.getMessageProperties().getConsumerQueue();
 		ResponseEntity resConf = confService.getByRqName(rcvId);
@@ -39,7 +38,9 @@ public class MessageListener implements org.springframework.amqp.core.MessageLis
 		Configuration conf = (Configuration) resConf.getBody();
 		if (confService.isValidMessageAndQueue(conf, rcvId, body)){
 			dcService.sendMessage(conf, body);
-		} // What to do if is not valid?
+		} else {
+			dcService.sendRejectedMessage(conf, body);
+		}
 	}
 
 }

@@ -14,6 +14,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import pt.hdi.sftpservice.exceptions.InvalidFileException;
 import pt.hdi.sftpservice.model.Configuration;
 import pt.hdi.sftpservice.service.ConfigurationService;
 import pt.hdi.sftpservice.service.DataCentralizerService;
@@ -45,8 +46,12 @@ public class FileProcessor implements Runnable {
         String firstLine = "";
         String lastLine = "";
         // Before start to process the file, it will validate if it can be processed
-        if (!Files.exists(fileP)){
-            System.out.println("File was not found on the path: " +fileP.toString());
+        try {
+            if (!Files.exists(fileP)){
+                System.out.println("File was not found on the path: " +fileP.toString());
+                throw new InvalidFileException("File not found");
+            }
+        } catch (InvalidFileException e) {
             return;
         }
 
@@ -57,17 +62,14 @@ public class FileProcessor implements Runnable {
             firstLine = reader.readLine(); // Read the first line
 
             if (firstLine == null) {
-                // File is empty, handle accordingly
-                System.out.println("File is empty");
-                return;
+                throw new InvalidFileException("File is empty");
             }
             lastLine = getLastLine(fileAbsolutePath);
 
             Long qtLinesByTrailler = Long.parseLong(lastLine);
             Long fileLines = reader.lines().count() - 1;
             if (qtLinesByTrailler != fileLines){
-                System.out.println("Quantity of lines on the file ("+ fileLines +") does not match with Trailler (" +qtLinesByTrailler+")");
-                return;
+                throw new InvalidFileException("Quantity of lines on the file ("+ fileLines +") does not match with Trailler (" +qtLinesByTrailler+")");
             }
 
             // Header has its format:
@@ -78,27 +80,33 @@ public class FileProcessor implements Runnable {
                 fileName = firstLine.substring(start, end);
                 System.out.println("Found the following filename on the file: " +fileName);
             } else {
-                System.out.println("The input does not have the expected format.");
-                return;
-            }    
+                throw new InvalidFileException("The input does not have the expected format.");
+            }
             ResponseEntity resConf = confService.getByDocumentName(fileName);
             if (!resConf.getStatusCode().equals(HttpStatus.OK)){
-                System.out.println("Configuration not found for: " + fileName);
-                throw new HttpClientErrorException(resConf.getStatusCode());
+                throw new InvalidFileException("Configuration not found for: " + fileName);
             }
 
             System.out.println("Configuration found for the file");
             conf = (Configuration) resConf.getBody();
             if (conf == null || conf.getSftpConfig() == null) {
-                System.out.println("No config found for this file");
-                if (Files.exists(fileP)) {
-                    Files.delete(fileP);
-                }
-                return;
+                throw new InvalidFileException("No SFTP config found for this file");
             }
         }
         catch (IOException e) {
             e.printStackTrace();
+        } catch (InvalidFileException e) {
+            System.out.println(e.getMessage());
+            dcService.sendFileToCentralizer(conf, fileP, false);
+            try {
+                if (Files.exists(fileP)) {
+                    Files.delete(fileP);
+                }
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            return;
         }
 
         try (BufferedReader reader = new BufferedReader(new FileReader(fileAbsolutePath))) {
@@ -113,11 +121,14 @@ public class FileProcessor implements Runnable {
                 // Assuming the JSON lines are mapped to a class called JsonDataClass
                 if (confService.isValidMessageAndQueue(conf, fileName, line)){
                     dcService.sendMessage(conf, line);
-                } // What to do if is not valid?
+                } else {
+                    dcService.sendRejectedMessage(conf, line);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            dcService.sendFileToCentralizer(conf, fileP, true);
             if (Files.exists(fileP)) {
                 try {
                     Files.delete(fileP);
