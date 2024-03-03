@@ -11,6 +11,7 @@ public class Structure {
     Boolean mandatory;
     String regExp;
     String linkedDocument;
+    String fieldNameCamel;
     
     public Structure() {
     }
@@ -62,12 +63,17 @@ public class Structure {
         this.linkedDocument = linkedDocument;
     }
 
+    public String getFieldNameCamel() {
+        return fieldNameCamel;
+    }
 
+    public void setFieldNameCamel(String fieldNameCamel) {
+        this.fieldNameCamel = fieldNameCamel;
+    }
     @Override
     public String toString() {
         return "Structure [fieldName=" + fieldName + ", type=" + type + ", mandatory=" + mandatory + ", regExp="
                 + regExp + ", linkedDocument=" + linkedDocument + "]";
     }
-
     
 }

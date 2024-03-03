@@ -68,5 +68,38 @@ public class DataCentralizerService {
 		 }
     }
 
-	
+    public void sendRejectedMessage(Configuration conf, String message){
+        CachingConnectionFactory connection = null;
+        System.out.println("I will open the connection with rejection centralizator");
+        try {
+            String collectionName = conf.getDocumentDataName().replaceAll("\\s", "").toLowerCase();
+            String queueName = "rejection";
+            connection = connectionFactory();
+            Channel channel = connection.createConnection().createChannel(false);
+
+            // Add a header with the queue name
+            Map<String, Object> headers = new HashMap<>();
+            headers.put("collection", collectionName);
+            headers.put("reason", "INVALID");
+
+            BasicProperties props = new BasicProperties.Builder()
+                    .headers(headers)
+                    .build();
+
+            // Publish the message
+            channel.basicPublish("", queueName, props, message.getBytes("UTF-8"));
+            System.out.println(" [xXx] Rejection Sent '" + message + "' to queue: " + queueName +" with header: " + headers.toString());
+
+        // Implement the ACK mechanism as needed.
+        // This example does not cover consumer-side logic, including ACKs, as it focuses on message publishing.
+
+    } catch (IOException e) {
+        e.printStackTrace();
+        System.out.println("Error sending msg to queue");
+    }
+     finally {
+        System.out.println("Close connection with rejection centralizator");
+        connection.resetConnection();
+     }
+    }
 }

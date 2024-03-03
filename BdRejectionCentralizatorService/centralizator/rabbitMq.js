@@ -4,7 +4,7 @@ async function connectToRabbitMQ() {
     try {
         const connection = await amqp.connect('amqp://localhost:5672'); // Update your RabbitMQ server URI if needed
         const channel = await connection.createChannel();
-        await channel.assertQueue('centralizator', {
+        await channel.assertQueue('rejection', {
             durable: true
         });
         console.log('Connected to RabbitMQ and queue ensured');
@@ -18,14 +18,14 @@ async function listenForMessages(processMessageCallback) {
     const { channel } = await connectToRabbitMQ(); // Ensure connection to RabbitMQ and get channel
     if (!channel) return;
 
-    const queue = 'centralizator'; // The name of the queue to listen to
+    const queue = 'rejection'; // The name of the queue to listen to
 
     channel.consume(queue, (msg) => {
         if (msg !== null) {
             console.log('Received a message from RabbitMQ:', msg.content.toString());
             const headers = msg.properties.headers;
             const message = msg;
-            processMessageCallback(message,headers["collection"]);
+            processMessageCallback(message,headers["collection"],headers["reason"]);
             channel.ack(msg); // Acknowledge message as processed
         }
     }, {

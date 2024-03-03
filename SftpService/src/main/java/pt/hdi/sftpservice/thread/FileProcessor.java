@@ -113,7 +113,9 @@ public class FileProcessor implements Runnable {
                 // Assuming the JSON lines are mapped to a class called JsonDataClass
                 if (confService.isValidMessageAndQueue(conf, fileName, line)){
                     dcService.sendMessage(conf, line);
-                } // What to do if is not valid?
+                } else {
+                    dcService.sendRejectedMessage(conf, line);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

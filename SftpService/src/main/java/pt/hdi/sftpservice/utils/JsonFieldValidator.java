@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pt.hdi.sftpservice.model.Structure;
+import pt.hdi.sftpservice.utils.ObjectHelper;
 
 public class JsonFieldValidator {
    private static final ObjectMapper objectMapper = new ObjectMapper();
