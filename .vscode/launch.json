@@ -43,6 +43,15 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch Send Response Query",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/BdSendResponseQuery/centralizator/server.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Serve dev UI",
             "program": "${workspaceFolder}/UIDataCentralizator/node_modules/@vue/cli-service/bin/vue-cli-service.js",
             "args": [

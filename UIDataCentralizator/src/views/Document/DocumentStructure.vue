@@ -27,10 +27,10 @@
             <b-form-input v-model="row.item.regExp"></b-form-input>
           </template>
         </template>
-        <template #cell(linkedDocument)="row">
+        <template #cell(useAsQuery)="row">
           <template v-if="!row.item.editing">{{ row.value }}</template>
           <template v-else>
-            <b-form-input v-model="row.item.linkedDocument"></b-form-input>
+            <b-form-checkbox v-model="row.item.useAsQuery"></b-form-checkbox>
           </template>
         </template>
         <template #cell(actions)="row">
@@ -63,12 +63,10 @@
           { key: 'type', label: 'Type', editable: true, formatter: this.typeFormatter },
           { key: 'mandatory', label: 'Mandatory' },
           { key: 'regExp', label: 'RegExp' },
-          { key: 'linkedDocument', label: 'Linked Document' },
+          { key: 'useAsQuery', label: 'Use this field on query' },
           { key: 'actions', label: 'Actions' },
         ],
         tableData: [
-        //   { fieldName: 'Field1', type: 'String', mandatory: true, regExp: '', linkedDocument: '', editing: false },
-        //   { fieldName: 'Field2', type: 'Number', mandatory: false, regExp: '', linkedDocument: '', editing: false },
         ],
         creatingMode: false,
       };
@@ -148,7 +146,7 @@
                 type: 'Fill the type',
                 mandatory: false,
                 regExp: '',
-                linkedDocument: '',
+                useAsQuery: false,
                 editing: true,
                 isNewLine: true
             };

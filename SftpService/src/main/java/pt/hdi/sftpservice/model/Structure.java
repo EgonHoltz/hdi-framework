@@ -1,19 +1,18 @@
 package pt.hdi.sftpservice.model;
 
-import java.util.Date;
-
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-
 public class Structure {
     String fieldName;
     String type;
     Boolean mandatory;
     String regExp;
-    String linkedDocument;
-    String fieldNameCamel;
+    Boolean useAsQuery;
     
-    public Structure() {
+    public Structure(String fieldName, String type, Boolean mandatory, String regExp, Boolean useAsQuery) {
+        this.fieldName = fieldName;
+        this.type = type;
+        this.mandatory = mandatory;
+        this.regExp = regExp;
+        this.useAsQuery = useAsQuery;
     }
 
     public String getFieldName() {
@@ -36,17 +35,15 @@ public class Structure {
         return mandatory;
     }
 
+    public void setMandatory(Boolean mandatory) {
+        this.mandatory = mandatory;
+    }
     public boolean isMandatory() {
         if (mandatory == null){
             return false;
         }
         return mandatory.booleanValue();
     }
-
-    public void setMandatory(Boolean mandatory) {
-        this.mandatory = mandatory;
-    }
-
     public String getRegExp() {
         return regExp;
     }
@@ -55,27 +52,66 @@ public class Structure {
         this.regExp = regExp;
     }
 
-    public String getLinkedDocument() {
-        return linkedDocument;
+    public Boolean getUseAsQuery() {
+        return this.useAsQuery;
     }
 
-    public void setLinkedDocument(String linkedDocument) {
-        this.linkedDocument = linkedDocument;
-    }
-    
-    public String getFieldNameCamel() {
-        return fieldNameCamel;
+    public void setUseAsQuery(Boolean useAsQuery) {
+        this.useAsQuery = useAsQuery;
     }
 
-    public void setFieldNameCamel(String fieldNameCamel) {
-        this.fieldNameCamel = fieldNameCamel;
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((fieldName == null) ? 0 : fieldName.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        result = prime * result + ((mandatory == null) ? 0 : mandatory.hashCode());
+        result = prime * result + ((regExp == null) ? 0 : regExp.hashCode());
+        result = prime * result + ((useAsQuery == null) ? 0 : useAsQuery.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Structure other = (Structure) obj;
+        if (fieldName == null) {
+            if (other.fieldName != null)
+                return false;
+        } else if (!fieldName.equals(other.fieldName))
+            return false;
+        if (type == null) {
+            if (other.type != null)
+                return false;
+        } else if (!type.equals(other.type))
+            return false;
+        if (mandatory == null) {
+            if (other.mandatory != null)
+                return false;
+        } else if (!mandatory.equals(other.mandatory))
+            return false;
+        if (regExp == null) {
+            if (other.regExp != null)
+                return false;
+        } else if (!regExp.equals(other.regExp))
+            return false;
+        if (useAsQuery == null) {
+            if (other.useAsQuery != null)
+                return false;
+        } else if (!useAsQuery.equals(other.useAsQuery))
+            return false;
+        return true;
     }
 
     @Override
     public String toString() {
         return "Structure [fieldName=" + fieldName + ", type=" + type + ", mandatory=" + mandatory + ", regExp="
-                + regExp + ", linkedDocument=" + linkedDocument + "]";
+                + regExp + ", useAsQuery=" + useAsQuery + "]";
     }
-
-    
 }
