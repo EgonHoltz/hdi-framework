@@ -130,6 +130,17 @@
             "mainClass": "pt.hdi.sftpservice.SftpServiceApplication",
             "projectName": "sftpservice",
             "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=38559 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=sftpservice"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SendMqServiceApplication<SendMqService>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "pt.hdi.sendmqservice.SendMqServiceApplication",
+            "projectName": "SendMqService",
+            "args": "",
             "envFile": "${workspaceFolder}/.env"
         }
     ]
