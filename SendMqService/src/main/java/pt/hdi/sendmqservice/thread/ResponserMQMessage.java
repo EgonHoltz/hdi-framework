@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import pt.hdi.sendmqservice.bean.MQConnectionBean;
 import pt.hdi.sendmqservice.config.MessageSendListener;
 
-//@Component
+@Component
 public class ResponserMQMessage implements Runnable{
 
 	private ApplicationContext ctx;
@@ -58,7 +58,7 @@ public class ResponserMQMessage implements Runnable{
 			System.out.println("I finished the thread with exception:");
 			e.printStackTrace();
 			Executor exec = Executors.newFixedThreadPool(1);
-			exec.execute(new ReadMQMessage(qName, ctx));
+			exec.execute(new ResponserMQMessage(qName, ctx));
 		}
 		
 	}

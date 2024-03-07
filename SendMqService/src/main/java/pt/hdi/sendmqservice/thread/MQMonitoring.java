@@ -69,11 +69,7 @@ public class MQMonitoring implements Runnable{
 				for (MQConfig mq : mqConfigs) {
 					if (mq.hasStarted()) {
 						String queue = mq.getMqName();
-						if (FLOW_DIRECTION.RECEIVE.equals(mq.getDirection())){
-							Executor exec = Executors.newSingleThreadExecutor();
-							exec.execute(new ReadMQMessage(queue, ctx));
-							System.out.println("Started queue: " + queue);
-						} else {
+						if (FLOW_DIRECTION.SEND.equals(mq.getDirection())){
 							Executor exec = Executors.newSingleThreadExecutor();
 							exec.execute(new ResponserMQMessage(queue, ctx));
 							System.out.println("Started queue: " + queue);
@@ -113,10 +109,7 @@ public class MQMonitoring implements Runnable{
 						.collect(Collectors.toList());
 				for (MQConfig queue : rabbitQueuesNotStarted) {
 					if (queue != null) {
-						if (FLOW_DIRECTION.RECEIVE.equals(queue.getDirection())){
-							Executor exec = Executors.newSingleThreadExecutor();
-							exec.execute(new ReadMQMessage(queue.getMqName(), ctx));
-						} else {
+						if (FLOW_DIRECTION.SEND.equals(queue.getDirection())){
 							Executor exec = Executors.newSingleThreadExecutor();
 							exec.execute(new ResponserMQMessage(queue.getMqName(), ctx));
 						}
