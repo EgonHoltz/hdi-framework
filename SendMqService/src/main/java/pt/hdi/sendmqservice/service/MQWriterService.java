@@ -15,16 +15,14 @@ import pt.hdi.sendmqservice.bean.MQConnectionBean;
 public class MQWriterService {
 
 	public boolean sendMQMessageByQueue(String qName, MQConnectionBean mqConConfig, String msg) {
-		
-		
+			
 		ConnectionFactory cnFactory = new ConnectionFactory();
 		cnFactory.setHost(mqConConfig.getHost());
 		cnFactory.setUsername(mqConConfig.getUsername());
 		cnFactory.setPassword(mqConConfig.getPassword());
 		
 		try(Connection cn = cnFactory.newConnection();
-				Channel chnl = cn.createChannel()){
-			
+				Channel chnl = cn.createChannel()){	
 			
 			chnl.queueDeclare(qName,true,false,false,null);
 			chnl.basicPublish("", qName, null, msg.getBytes());

@@ -60,7 +60,7 @@ public class ConfigurationService {
         }
 	}
 
-    public boolean isValidMessageAndClientId(Configuration conf, String clientId, String message) {
+    public boolean isValidMessageAndClientId(Configuration conf, String clientId, String message, boolean isRetriveQuery) {
         boolean isValid = false;
 
         //start validating if configuration exists
@@ -112,7 +112,10 @@ public class ConfigurationService {
             return isValid;
         }
 
-        if (JsonFieldValidator.validate(message, structure)){
+        boolean validationRes = isRetriveQuery ? 
+            JsonFieldValidator.validateInformedQuery(message, structure)  : JsonFieldValidator.validate(message, structure);
+
+        if (validationRes){
             System.out.println("Validated with success!!");
             isValid = true;
         } else {

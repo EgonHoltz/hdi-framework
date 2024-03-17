@@ -8,6 +8,9 @@ public class Structure {
     Boolean useAsQuery;
     String fieldNameCamel;
 
+    public Structure() {
+    }
+
     public Structure(String fieldName, String type, Boolean mandatory, String regExp, Boolean useAsQuery,
             String fieldNameCamel) {
         this.fieldName = fieldName;
@@ -69,6 +72,13 @@ public class Structure {
 
     public void setFieldNameCamel(String fieldNameCamel) {
         this.fieldNameCamel = fieldNameCamel;
+    }
+
+    public boolean isUseAsQuery() {
+        if (this.useAsQuery == null) {
+            return false;
+        }
+        return useAsQuery;
     }
 
     @Override

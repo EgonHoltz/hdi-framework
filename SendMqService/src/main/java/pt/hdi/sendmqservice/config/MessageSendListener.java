@@ -15,14 +15,14 @@ import pt.hdi.sendmqservice.model.Configuration;
 import pt.hdi.sendmqservice.service.ConfigurationService;
 import pt.hdi.sendmqservice.service.DataCentralizerService;
 import pt.hdi.sendmqservice.service.MQWriterService;
-import pt.hdi.sendmqservice.service.SendResponseService;
+import pt.hdi.sendmqservice.service.RetrieveQueryService;
 
 @Component
 public class MessageSendListener implements org.springframework.amqp.core.MessageListener{
 
 	private ApplicationContext ctx;
 	
-	private SendResponseService srService;
+	private RetrieveQueryService srService;
 	
 	private ConfigurationService confService;
 
@@ -33,7 +33,7 @@ public class MessageSendListener implements org.springframework.amqp.core.Messag
 	public MessageSendListener(ApplicationContext ctx) {
 		this.ctx = ctx;
 		this.confService = ctx.getBean(ConfigurationService.class);
-		this.srService = ctx.getBean(SendResponseService.class);
+		this.srService = ctx.getBean(RetrieveQueryService.class);
 		this.mqResService = ctx.getBean(MQWriterService.class);
 		this.rt = ctx.getBean(RabbitTemplate.class);
 	}
