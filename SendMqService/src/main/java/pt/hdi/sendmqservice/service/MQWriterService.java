@@ -26,7 +26,7 @@ public class MQWriterService {
 				Channel chnl = cn.createChannel()){
 			
 			
-			chnl.queueDeclare(qName,false,false,false,null);
+			chnl.queueDeclare(qName,true,false,false,null);
 			chnl.basicPublish("", qName, null, msg.getBytes());
 			System.out.println("Message sent: " + msg);
 			return true;

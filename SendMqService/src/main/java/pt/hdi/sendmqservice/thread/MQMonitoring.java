@@ -125,7 +125,7 @@ public class MQMonitoring implements Runnable{
 		} finally {
 			System.out.println("MQMonitoring finished");
 			//Executor exec = Executors.newFixedThreadPool(1);
-			//exec.execute(new MQMonitoring());
+			//exec.execute(new MQMonitoring(ctx));
 		}
 	}
 

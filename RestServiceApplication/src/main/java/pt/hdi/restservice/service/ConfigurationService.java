@@ -131,5 +131,19 @@ public class ConfigurationService {
 		return grpcConfig;
 	}
 
+	public void updateMqOnConfiguration(Configuration conf, MQConfig mc){
+		for (MQConfig confMq : conf.getMqConfig()){
+			if (confMq.getDirection().equals(mc.getDirection())){
+				confMq.setActive(mc.getActive());
+				confMq.setHasAck(mc.getHasAck());
+				confMq.setMqName(mc.getMqName());
+				confMq.setUser(mc.getUser());
+				confMq.setPassword(mc.getPassword());
+			}
+		}
+		confRep.save(conf);
+	}
+
+	// TODO: gRPC and SFTP
 
 }

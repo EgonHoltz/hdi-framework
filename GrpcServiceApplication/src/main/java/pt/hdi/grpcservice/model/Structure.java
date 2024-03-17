@@ -6,13 +6,16 @@ public class Structure {
     Boolean mandatory;
     String regExp;
     Boolean useAsQuery;
-    
-    public Structure(String fieldName, String type, Boolean mandatory, String regExp, Boolean useAsQuery) {
+    String fieldNameCamel;
+
+    public Structure(String fieldName, String type, Boolean mandatory, String regExp, Boolean useAsQuery,
+            String fieldNameCamel) {
         this.fieldName = fieldName;
         this.type = type;
         this.mandatory = mandatory;
         this.regExp = regExp;
         this.useAsQuery = useAsQuery;
+        this.fieldNameCamel = fieldNameCamel;
     }
 
     public String getFieldName() {
@@ -58,6 +61,14 @@ public class Structure {
 
     public void setUseAsQuery(Boolean useAsQuery) {
         this.useAsQuery = useAsQuery;
+    }
+    
+    public String getFieldNameCamel() {
+        return fieldNameCamel;
+    }
+
+    public void setFieldNameCamel(String fieldNameCamel) {
+        this.fieldNameCamel = fieldNameCamel;
     }
 
     @Override

@@ -212,19 +212,19 @@ public class ConfigurationController {
             boolean hasConfig = currMqConfig.stream().anyMatch(c -> c.getDirection().equals(mc.getDirection()));
             if (hasConfig){
                 Optional<MQConfig> mqConfigOld = currMqConfig.stream().filter(c -> c.getDirection().equals(mc.getDirection())).findFirst();
+                String currentPassword = mqConfigOld.get().getPassword();
                 if (!mqConfigOld.get().getUser().equals(mc.getUser())){
                     return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
                 }
                 BeanUtils.copyProperties(mc, mqConfigOld.get(), ObjectHelper.getNullPropertyNames(mqConfigOld.get()));
                 // Also changes the password on the MQ server
-                if (!mqConfigOld.get().getPassword().equals(mc.getPassword())){
+                if (!currentPassword.equals(mc.getPassword())){
                     rtnHttp = rabbitSvc.createUser(mc.getUser(), mc.getPassword()).getStatusCode();
+                    if (!HttpStatus.OK.equals(rtnHttp) && !HttpStatus.CREATED.equals(rtnHttp)){
+                        throw new HttpClientErrorException(rtnHttp);
+                    }
                 }
-                if (!HttpStatus.OK.equals(rtnHttp) && !HttpStatus.CREATED.equals(rtnHttp)){
-                    throw new HttpClientErrorException(rtnHttp);
-                }
-                conf.addMqConfig(mc);
-
+                confSvc.updateMqOnConfiguration(conf, mc);
                 rtnHttp = HttpStatus.OK;
             } else {
                 rtnHttp = rabbitSvc.createUser(mc.getUser(), mc.getPassword()).getStatusCode();

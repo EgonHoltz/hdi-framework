@@ -6,15 +6,21 @@ public class Structure {
     Boolean mandatory;
     String regExp;
     Boolean useAsQuery;
+    String fieldNameCamel;
     
-    public Structure(String fieldName, String type, Boolean mandatory, String regExp, Boolean useAsQuery) {
+    public Structure() {
+    }
+
+    public Structure(String fieldName, String type, Boolean mandatory, String regExp, Boolean useAsQuery,
+            String fieldNameCamel) {
         this.fieldName = fieldName;
         this.type = type;
         this.mandatory = mandatory;
         this.regExp = regExp;
         this.useAsQuery = useAsQuery;
+        this.fieldNameCamel = fieldNameCamel;
     }
-
+    
     public String getFieldName() {
         return fieldName;
     }
@@ -120,5 +126,13 @@ public class Structure {
     public String toString() {
         return "Structure [fieldName=" + fieldName + ", type=" + type + ", mandatory=" + mandatory + ", regExp="
                 + regExp + ", useAsQuery=" + useAsQuery + "]";
+    }
+
+    public String getFieldNameCamel() {
+        return fieldNameCamel;
+    }
+
+    public void setFieldNameCamel(String fieldNameCamel) {
+        this.fieldNameCamel = fieldNameCamel;
     }
 }
