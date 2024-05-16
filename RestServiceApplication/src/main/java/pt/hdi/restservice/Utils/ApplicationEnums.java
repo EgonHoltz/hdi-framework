@@ -38,4 +38,28 @@ public class ApplicationEnums {
         }
     }
 
+    public enum SEND_FILE_TYPE{
+        JSON("JSON");
+        private final String label;
+
+        SEND_FILE_TYPE(String label){
+            this.label = label;
+        }
+        public String getLabel(){
+            return this.label;
+        }
+    }
+
+    public enum SEND_FILE_DATA_MODE{
+        DELTA("Delta"),
+        FULL("Full");
+        private final String label;
+        SEND_FILE_DATA_MODE(String label){
+            this.label = label;
+        }
+        public String getLabel(){
+            return this.label;
+        }
+    }
+
 }

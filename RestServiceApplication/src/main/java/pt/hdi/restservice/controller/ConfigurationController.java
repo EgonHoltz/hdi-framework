@@ -22,6 +22,7 @@ import pt.hdi.restservice.model.DocumentData;
 import pt.hdi.restservice.model.GRPCConfig;
 import pt.hdi.restservice.model.MQConfig;
 import pt.hdi.restservice.model.SFTPConfig;
+import pt.hdi.restservice.model.SftpFileSchedulerConfig;
 import pt.hdi.restservice.repository.ApplicationRepository;
 import pt.hdi.restservice.repository.ConfigurationRepository;
 import pt.hdi.restservice.repository.DocumentRepository;
@@ -145,6 +146,82 @@ public class ConfigurationController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
      }
 
+    /**
+     * Configuration - Get all configurations
+     * 
+     * URLs:
+     * GET  /scheduler/sftp/application/{applicationId}
+     * GET  /scheduler/application/{applicationId}/document/{documentId}
+     * PUT  /scheduler/application/{applicationId}/document/{documentId}
+     * 
+     */
+
+     @GetMapping("scheduler/sftp/application/{applicationId}")     
+     public ResponseEntity getDocumentsByApplicationOnSftp(@PathVariable String applicationId){
+        System.out.println("Called getDocumentsByApplicationOnSftp " + applicationId);
+
+        Optional<Application> app = appRep.findById(applicationId);
+
+        if (!app.isPresent()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        List<DocumentData> docs = confSvc.getDocumentDataByApplicationWithSftp(applicationId);
+
+        if (docs != null){
+            return new ResponseEntity<>(docs,HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+     }
+
+     @GetMapping("scheduler/application/{applicationId}/document/{documentId}")     
+     public ResponseEntity getSftpSchedulerConfiguration(@PathVariable String applicationId,
+     @PathVariable String documentId){
+        System.out.println("Called getSftpSchedulerConfiguration " + applicationId);
+
+        if (applicationId == null || documentId == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Configuration config = confRep.findByDocumentApplication(documentId, applicationId);
+
+
+        if (config == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        SftpFileSchedulerConfig sftpSchdlrConfig = config.getSftpSchedulerConfig();
+
+        if (sftpSchdlrConfig == null){
+            return new ResponseEntity<>(new SftpFileSchedulerConfig(),HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(config.getSftpSchedulerConfig(),HttpStatus.OK);
+        }
+     }
+
+     @PutMapping("scheduler/application/{applicationId}/document/{documentId}")     
+     public ResponseEntity upsertSftpSchedulerConfiguration(@PathVariable String applicationId,
+     @PathVariable String documentId, @RequestBody SftpFileSchedulerConfig sftpSchedulerConfig){
+        System.out.println("Called upsertSftpSchedulerConfiguration " + applicationId);
+
+        if (applicationId == null || documentId == null || sftpSchedulerConfig == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Configuration config = confRep.findByDocumentApplication(documentId, applicationId);
+
+
+        if (config == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        try{
+            confSvc.upsertSftpSendFileConfig(config, sftpSchedulerConfig);
+            
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+     }
 
     /**
      * Document Application association - Create technology behind the document, which allows the communication

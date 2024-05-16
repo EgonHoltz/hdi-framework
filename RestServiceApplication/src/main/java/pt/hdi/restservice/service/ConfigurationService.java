@@ -11,6 +11,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import pt.hdi.restservice.Utils.ApplicationEnums.FLOW_DIRECTION;
 import pt.hdi.restservice.bean.ConfigurationGrpcBean;
 import pt.hdi.restservice.bean.ConfigurationMQBean;
 import pt.hdi.restservice.bean.ConfigurationSFTPBean;
@@ -18,6 +19,8 @@ import pt.hdi.restservice.model.Application;
 import pt.hdi.restservice.model.Configuration;
 import pt.hdi.restservice.model.DocumentData;
 import pt.hdi.restservice.model.MQConfig;
+import pt.hdi.restservice.model.SFTPConfig;
+import pt.hdi.restservice.model.SftpFileSchedulerConfig;
 import pt.hdi.restservice.repository.ConfigurationRepository;
 
 @Service
@@ -129,6 +132,35 @@ public class ConfigurationService {
 			}
 		}
 		return grpcConfig;
+	}
+
+
+	public List<DocumentData> getDocumentDataByApplicationWithSftp(String applicationId){
+		
+		List<Configuration> configs = confRep.findConfigurationsByApplication(applicationId);
+
+		List<DocumentData> docs = new ArrayList<>(); 
+		if (configs == null || CollectionUtils.isEmpty(configs) ){
+			return docs;
+		}
+		// for all configurations by application, find which
+		// one has SFTP with sending configuration
+		for (Configuration configuration : configs) {
+			if (configuration.getSftpConfig() != null){
+				for (SFTPConfig sftp : configuration.getSftpConfig()){
+					if (FLOW_DIRECTION.SEND.equals(sftp.getDirection())){
+						docs.add(configuration.getDocumentData());
+					}
+				}
+			}
+		}
+		return docs;
+	}
+
+	public void upsertSftpSendFileConfig(Configuration conf, SftpFileSchedulerConfig newSftpSchedulerConf){
+		conf.setSftpSchedulerConfig(newSftpSchedulerConf);
+
+		confRep.save(conf);
 	}
 
 	public void updateMqOnConfiguration(Configuration conf, MQConfig mc){

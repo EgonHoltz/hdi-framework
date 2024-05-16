@@ -25,6 +25,7 @@ public class Configuration {
 	private List<MQConfig> mqConfig;
 	private List<SFTPConfig> sftpConfig;
 	private List<GRPCConfig> grpcConfig;
+	private SftpFileSchedulerConfig sftpSchedulerConfig;
 	
 	@LastModifiedDate
 	private Date lastModificationDate;	
@@ -106,12 +107,19 @@ public class Configuration {
 	}
 	public void setApplication(Application application) {
 		this.application = application;
+	}	
+	public SftpFileSchedulerConfig getSftpSchedulerConfig() {
+		return sftpSchedulerConfig;
+	}
+	public void setSftpSchedulerConfig(SftpFileSchedulerConfig sftpSchedulerConfig) {
+		this.sftpSchedulerConfig = sftpSchedulerConfig;
 	}
 	@Override
 	public String toString() {
-		return "Configuration [id=" + id + ", lastModificationDate=" + lastModificationDate + ", createDate="
-				+ createDate + ", mqConfig=" + mqConfig + ", sftpConfig="
-				+ sftpConfig + "]";
+		return "Configuration [documentData=" + documentData + ", application=" + application + ", mqConfig=" + mqConfig
+				+ ", sftpConfig=" + sftpConfig + ", grpcConfig=" + grpcConfig + ", sftpSchedulerConfig="
+				+ sftpSchedulerConfig + ", lastModificationDate=" + lastModificationDate + ", createDate=" + createDate
+				+ "]";
 	}
 
 }
