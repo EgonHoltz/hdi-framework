@@ -275,7 +275,6 @@
           let dayOfMonth = '*';
           let month = '*';
           let dayOfWeek = '*';
-          let year = '*';
           if (this.editForm.scheduleType == 1){
             let selectedDays = this.editForm.selectedDays.join(',');
             dayOfMonth = '?';
@@ -287,7 +286,7 @@
           if (this.editForm.selectedTime){
             [hours, minutes] = this.editForm.selectedTime.split(":");
           }
-          let cron = `${seconds} ${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek} ${year}`
+          let cron = `${seconds} ${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`
           return cron;
         },
         transformCronToScheduler(scheduler){
@@ -302,7 +301,6 @@
           let dayOfMonth = parts[3];
           let month = parts[4];
           let dayOfWeek = parts[5];
-          let year = parts[6];
           if (dayOfMonth == '?'){
             this.editForm.scheduleType = 1;
             this.editForm.selectedDays = dayOfWeek.split(",");

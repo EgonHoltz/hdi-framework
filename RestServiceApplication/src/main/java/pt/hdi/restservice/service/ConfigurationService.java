@@ -2,6 +2,7 @@ package pt.hdi.restservice.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import pt.hdi.restservice.Utils.ApplicationEnums.FLOW_DIRECTION;
 import pt.hdi.restservice.bean.ConfigurationGrpcBean;
 import pt.hdi.restservice.bean.ConfigurationMQBean;
 import pt.hdi.restservice.bean.ConfigurationSFTPBean;
+import pt.hdi.restservice.bean.ConfigurationSFTPSchedulerBean;
 import pt.hdi.restservice.model.Application;
 import pt.hdi.restservice.model.Configuration;
 import pt.hdi.restservice.model.DocumentData;
@@ -113,6 +115,38 @@ public class ConfigurationService {
 		return sftpConfig;
 	}
 	
+	public List<ConfigurationSFTPSchedulerBean> getAllSftpSchedulerConfigs() {
+		List<Configuration> allConfig = confRep.findAll();
+		List<ConfigurationSFTPSchedulerBean> sftpConfig = new ArrayList<>();
+		// What if there is no config?
+		for (Configuration cfg : allConfig) {
+			if (cfg.getSftpConfig() != null){
+				sftpConfig.add(new ConfigurationSFTPSchedulerBean(cfg));
+			}
+		}
+		return sftpConfig;
+	}
+
+	public ConfigurationSFTPSchedulerBean getSftpSchedulerDeltaId(String configId){
+		Optional<Configuration> config = confRep.findById(configId);
+		if (config.isPresent()){
+			return new ConfigurationSFTPSchedulerBean(config.get());
+		} else {
+			return null;
+		}
+	}
+
+	public ConfigurationSFTPSchedulerBean updateSftpSchedulerDeltaId(String configId, String lastDocId){
+		Optional<Configuration> config = confRep.findById(configId);
+		if (config.isPresent()){
+			Configuration foundConfig = config.get();
+			foundConfig.getSftpSchedulerConfig().setLastObjectId(lastDocId);
+			confRep.save(foundConfig);
+			return new ConfigurationSFTPSchedulerBean(foundConfig);
+		} else {
+			return null;
+		}
+	}
 
     public ConfigurationGrpcBean getByGrpcClientId(String clientId) {
 		Configuration conf = confRep.findByGrpcConfigClientId(clientId);

@@ -7,6 +7,10 @@ public class Structure {
     String regExp;
     Boolean useAsQuery;
     String fieldNameCamel;
+
+    public Structure(){
+        super();
+    }
     
     public Structure(String fieldName, String type, Boolean mandatory, String regExp, Boolean useAsQuery,
             String fieldNameCamel) {

@@ -35,7 +35,7 @@ public class JsonFieldValidator {
                 }
 
                 // Check regular expression
-                if (!structure.getRegExp().isEmpty() && !Pattern.matches(structure.getRegExp(), (String) value)) {
+                if (value != null && !structure.getRegExp().isEmpty() && !Pattern.matches(structure.getRegExp(), (String) value)) {
                     System.out.println("Field does not match the regular expression: " + fieldName);
                     return false;
                 }

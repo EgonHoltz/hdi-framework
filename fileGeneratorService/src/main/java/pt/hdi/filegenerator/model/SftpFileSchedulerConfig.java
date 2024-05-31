@@ -1,7 +1,7 @@
-package pt.hdi.restservice.model;
+package pt.hdi.filegenerator.model;
 
-import pt.hdi.restservice.Utils.ApplicationEnums.SEND_FILE_DATA_MODE;
-import pt.hdi.restservice.Utils.ApplicationEnums.SEND_FILE_TYPE;
+import pt.hdi.filegenerator.Utils.ApplicationEnums.SEND_FILE_DATA_MODE;
+import pt.hdi.filegenerator.Utils.ApplicationEnums.SEND_FILE_TYPE;
 
 public class SftpFileSchedulerConfig {
     private SEND_FILE_TYPE fileType;
@@ -30,6 +30,7 @@ public class SftpFileSchedulerConfig {
     public void setCron(String cron) {
         this.cron = cron;
     }
+
     public String getLastObjectId() {
         return lastObjectId;
     }
@@ -43,7 +44,6 @@ public class SftpFileSchedulerConfig {
         return "SftpFileSchedulerConfig [fileType=" + fileType + ", dataMode=" + dataMode + ", cron=" + cron
                 + ", lastObjectId=" + lastObjectId + "]";
     }
-
 
 
 }

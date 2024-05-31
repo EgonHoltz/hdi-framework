@@ -3,7 +3,6 @@ package pt.hdi.restservice.bean;
 import java.util.List;
 
 import pt.hdi.restservice.model.Configuration;
-import pt.hdi.restservice.model.MQConfig;
 import pt.hdi.restservice.model.SFTPConfig;
 
 public class ConfigurationSFTPBean {

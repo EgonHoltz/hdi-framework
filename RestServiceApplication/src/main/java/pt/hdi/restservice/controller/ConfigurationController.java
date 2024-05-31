@@ -10,12 +10,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 
 import pt.hdi.restservice.Utils.ObjectHelper;
+import pt.hdi.restservice.bean.ConfigurationSFTPSchedulerBean;
 import pt.hdi.restservice.model.Application;
 import pt.hdi.restservice.model.Configuration;
 import pt.hdi.restservice.model.DocumentData;
@@ -57,7 +60,8 @@ public class ConfigurationController {
      * GET  /configuration/mqqueue/{mqName}
      * POST /configuration/mqqueue/{mqName}
      * GET  /configuration/sftp
-     * GET  /configuration/sftp/{mqName}
+     * GET  /configuration/sftp/schedulers
+     * GET  /configuration/sftp/{filename}
      * GET  /configuration/grpc
      * GET  /configuration/grpc/{mqName}
      * 
@@ -98,10 +102,32 @@ public class ConfigurationController {
 		return new ResponseEntity<>(confSvc.getAllSftpConfigs(),HttpStatus.OK);
 	}
 
+	@GetMapping("configuration/sftp/schedulers")
+	public ResponseEntity getAllSftpSchedulersConfiguration(){
+        System.out.println("Called getAllSftpSchedulersConfiguration ");
+		return new ResponseEntity<>(confSvc.getAllSftpSchedulerConfigs(),HttpStatus.OK);
+	}
+
 	@GetMapping("configuration/sftp/{fileName}")
 	public ResponseEntity getSftpConfigurationByFileName(@PathVariable String fileName){
         System.out.println("Called getSftpConfigurationByFileName " + fileName);
 		return new ResponseEntity<>(confSvc.getByFileName(fileName),HttpStatus.OK);
+	}
+
+    @GetMapping("configuration/sftp/{configurationId}/scheduler")
+	public ResponseEntity getSftpConfigurationLastIdForDelta(@PathVariable String configurationId){
+        System.out.println("Called getSftpConfigurationLastIdForDelta " + configurationId);
+		return new ResponseEntity<>(confSvc.getSftpSchedulerDeltaId(configurationId),HttpStatus.OK);
+	}
+
+    @PutMapping("configuration/sftp/{configurationId}/scheduler")
+	public ResponseEntity<String> updateSftpConfigurationLastIdForDelta(@PathVariable String configurationId, @RequestParam String lastDocId){
+        System.out.println("Called updateSftpConfigurationLastIdForDelta " + configurationId);
+        ConfigurationSFTPSchedulerBean rtn = confSvc.updateSftpSchedulerDeltaId(configurationId, lastDocId);
+        if (rtn == null) {
+            return new ResponseEntity<>("NOK",HttpStatus.BAD_REQUEST);
+        }
+		return ResponseEntity.ok("OK");
 	}
 
     @GetMapping("configuration/grpc")
