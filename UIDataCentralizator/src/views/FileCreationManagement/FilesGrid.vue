@@ -18,7 +18,9 @@
   
         <el-table-column label="File name" min-width="110px" prop="fileName">
         </el-table-column>
-        <el-table-column label="Date" min-width="110px" prop="date">
+        <el-table-column label="Lines" min-width="50px" prop="fileLines">
+        </el-table-column>
+        <el-table-column label="Creation Date" min-width="110px" prop="creationDate">
         </el-table-column>
 
         <el-table-column label="Actions" width="150">
@@ -109,6 +111,8 @@
   // Components
   import { TableColumn, Table, Button, FormItem, Dialog, Form, RadioGroup, Select, Checkbox, CheckboxGroup, Radio, TimeSelect, Option} from 'element-ui';
   import {FETCH_SEND_SFTP_SCHEDULER, UPSERT_SEND_SFTP_SCHEDULER} from '@/store/document-application/document-application.constants';
+  import {FETCH_FILES_AUDIT_LOGGER} from '@/store/audit-logger/audit-logger.constants';
+  import format from 'date-fns/format'
 
   export default {
     components: {
@@ -150,10 +154,18 @@
       },
       informationSelectedObject: {
         handler(newValue) {
+          if (newValue.documentSelected == null){
+            return;
+          }
           this.documentDataId = newValue.documentSelected.value;
           this.applicationId = newValue.applicationSelected.value;
           this.editForm.appName = newValue.applicationSelected.label;
           this.editForm.document = newValue.documentSelected.label;
+          if (this.key !== newValue.key){
+            console.log("Load data on the grid, different key was found: " + newValue.key);
+            this.afterRender();
+            this.isButtonDisabled();
+          }
         },
         deep: true,
       }
@@ -194,6 +206,7 @@
           editDialogVisible: false,
           applications: [],
           documents: [],
+          key: "", 
           editForm: {
             scheduleType: 1,// 1 for Daily, 2 for Monthly
             fileType: 'JSON',
@@ -210,11 +223,37 @@
         };
     },
     methods: {
-        afterRender(){
+      formatDate(value) {
+        return format(value, 'DD/MM/YYYY HH:mm:ss');
+      },
+      afterRender(){
             this.fetchFilesData();
         },
         fetchFilesData(){
-            console.log("fetch fetchFilesData");
+          console.log("fetch fetchFilesData");
+          let payload = [];
+          payload.appId = this.applicationId;
+          payload.docId = this.documentDataId;
+          this.$store.dispatch(`auditLogger/${FETCH_FILES_AUDIT_LOGGER}`,payload).then( 
+            (res) => {
+              let resData = this.$store.getters['auditLogger/getFileAuditLogs'];
+              this.tableData = this.transformResDataToTable(resData);
+            }, err => {
+              console.log("Error while fetch")
+              this.alertTitle = "Error while fetch"
+            }
+          );
+        },
+        transformResDataToTable(resData){
+          let tableDt = [];
+          tableDt = resData.map(audit =>({
+            docName: audit.configuration.documentData.documentName,
+            appName: audit.configuration.application.appAbrv + " - " + audit.configuration.application.appName,
+            fileName: audit.fileName,
+            fileLines: audit.lineQuantity,
+            creationDate: this.formatDate(new Date(audit.creationDate))
+          }));
+          return tableDt;
         },
         isSendDirection(){
           return this.viewDirection == 'SEND';
@@ -230,14 +269,15 @@
           payload.appId = this.applicationId;
           payload.docId = this.documentDataId;
           this.$store.dispatch(`documentApplication/${FETCH_SEND_SFTP_SCHEDULER}`,payload).then( 
-                (res) => {
-                    this.editDialogVisible = true;
-                    let sftpScheduler = this.$store.getters['documentApplication/getSftpScheduler'];
-                    this.transformCronToScheduler(sftpScheduler);
-                }, err => {
-                    console.log("Error while fetch")
-                    this.alertTitle = "Error while fetch"
-                });
+            (res) => {
+                this.editDialogVisible = true;
+                let sftpScheduler = this.$store.getters['documentApplication/getSftpScheduler'];
+                this.transformCronToScheduler(sftpScheduler);
+            }, err => {
+                console.log("Error while fetch")
+                this.alertTitle = "Error while fetch"
+            }
+          );
         },
         closeEditDialog() {
           // Close the edit dialog without saving
