@@ -77,7 +77,6 @@ public class FileGenerationSchedulerService {
             thread.run();
         } catch (Exception e) {
             System.err.println("Failed to generate file for application: " + config.getApplicationAbreviation() + ", document: " + config.getDocumentDataName());
-            // Handle the failure (e.g., log it, notify someone, retry, etc.)
         }
     }
 
