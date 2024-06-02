@@ -217,9 +217,7 @@
             appName: '',
             document: ''
           },
-          tableData: [
-            {docName: "Company", appName: "AAE - Application AAE", fileName: "company_aee_20200505.json", date: "01/05/2024 15:34" }
-          ]
+          tableData: []
         };
     },
     methods: {

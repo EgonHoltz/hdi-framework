@@ -1,7 +1,6 @@
-package pt.hdi.restservice.Utils;
+package pt.hdi.sftpservice.utils;
 
 public class ApplicationEnums {
-
     public enum SEND_SFTP_STATUS {
         FILE_GENERATED("file_generated","File has generated"),
         PREPARING_SFTP("preparing_sftp","Preparing to send by SFTP"),
@@ -43,44 +42,4 @@ public class ApplicationEnums {
             return label;
         }
     }
-
-    public enum DOCUMENT_STATUS{
-        INEXISTS("inexists"),
-        FIELDS_OUTDATED("field outdated"),
-        ALL_UPDATED("all updated");
-
-        private final String label;
-
-        DOCUMENT_STATUS(String label){
-            this.label = label;
-        }
-        public String getLabel() {
-            return label;
-        }
-    }
-
-    public enum SEND_FILE_TYPE{
-        JSON("JSON");
-        private final String label;
-
-        SEND_FILE_TYPE(String label){
-            this.label = label;
-        }
-        public String getLabel(){
-            return this.label;
-        }
-    }
-
-    public enum SEND_FILE_DATA_MODE{
-        DELTA("Delta"),
-        FULL("Full");
-        private final String label;
-        SEND_FILE_DATA_MODE(String label){
-            this.label = label;
-        }
-        public String getLabel(){
-            return this.label;
-        }
-    }
-
 }

@@ -5,6 +5,8 @@ import java.util.Date;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
+import pt.hdi.restservice.Utils.ApplicationEnums.SEND_SFTP_STATUS;
+
 public class FileAuditLogger {
     @Id
     String id;
@@ -15,6 +17,8 @@ public class FileAuditLogger {
     String minioLink;
     Date creationDate;
     Long lineQuantity;
+    Date fileSentDate;
+    SEND_SFTP_STATUS sftpStatus;
     public FileAuditLogger() {
     }
     public String getId() {
@@ -59,13 +63,24 @@ public class FileAuditLogger {
     public void setLineQuantity(Long lineQuantity) {
         this.lineQuantity = lineQuantity;
     }
+    public Date getFileSentDate() {
+        return fileSentDate;
+    }
+    public void setFileSentDate(Date fileSentDate) {
+        this.fileSentDate = fileSentDate;
+    }
+    public SEND_SFTP_STATUS getSftpStatus() {
+        return sftpStatus;
+    }
+    public void setSftpStatus(SEND_SFTP_STATUS sftpStatus) {
+        this.sftpStatus = sftpStatus;
+    }
     @Override
     public String toString() {
         return "FileAuditLogger [id=" + id + ", configurationId=" + configurationId + ", configuration=" + configuration
                 + ", fileName=" + fileName + ", minioLink=" + minioLink + ", creationDate=" + creationDate
-                + ", lineQuantity=" + lineQuantity + "]";
+                + ", lineQuantity=" + lineQuantity + ", fileSentDate=" + fileSentDate + ", sftpStatus=" + sftpStatus
+                + "]";
     }
-
-
     
 }

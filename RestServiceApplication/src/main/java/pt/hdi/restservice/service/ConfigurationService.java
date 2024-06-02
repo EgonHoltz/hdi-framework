@@ -210,6 +210,14 @@ public class ConfigurationService {
 		confRep.save(conf);
 	}
 
+    public Configuration getConfigurationById(String configId) {
+		Optional<Configuration> conf = confRep.findById(configId);
+		if (conf.isPresent()){
+			return conf.get();
+		}
+		return null;
+    }
+
 	// TODO: gRPC and SFTP
 
 }

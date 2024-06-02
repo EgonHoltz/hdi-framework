@@ -67,6 +67,13 @@ public class ConfigurationController {
      * 
      */
 
+     @GetMapping("/configuration/{configId}")
+     public ResponseEntity getMethodName(@RequestParam String configId) {
+        System.out.println("Called getMethodName ");
+        return new ResponseEntity<>(confSvc.getConfigurationById(configId), HttpStatus.OK);
+     }
+     
+
 	@GetMapping("configuration/mqqueue")
 	public ResponseEntity getAllMqConfiguration(){
         System.out.println("Called getAllConfiguration ");

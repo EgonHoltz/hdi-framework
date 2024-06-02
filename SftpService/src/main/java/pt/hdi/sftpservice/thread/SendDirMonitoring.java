@@ -16,8 +16,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
-import org.springframework.data.util.Optionals;
-import pt.hdi.sftpservice.model.Configuration;
 import pt.hdi.sftpservice.service.ConfigurationService;
 import pt.hdi.sftpservice.service.SftpService;
 
@@ -59,6 +57,8 @@ public class SendDirMonitoring implements Runnable {
 						if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
 							Path fileP = fpath.resolve((Path) event.context());
 							System.out.println("new file found: " + fileP);
+							Thread thread = new Thread(new FileSendProcessor(fileP, ctx));
+							thread.start();
 						}
 					}
 					wk.reset();

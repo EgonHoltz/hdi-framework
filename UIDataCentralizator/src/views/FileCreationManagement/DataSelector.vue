@@ -127,8 +127,7 @@
                 this.showFileGrid = false;
                 this.viewDirection = "SEND";
                 this.informationSelectedObject['direction'] = "SEND"
-                let generatedRndKey = this.generateKeyToRefreshGrid(8);
-                this.informationSelectedObject['key']= generatedRndKey;
+                this.informationSelectedObject['key']=  this.generateKeyToRefreshGrid(8);
                 this.showFileGrid = true;
             },
             openReceiveGrid() {
@@ -136,8 +135,7 @@
                 console.log("show receive file grid");
                 this.viewDirection = "RECV"
                 this.informationSelectedObject['direction'] = "RECV"
-                let generatedRndKey = this.generateKeyToRefreshGrid(8);
-                this.informationSelectedObject['key']= generatedRndKey;
+                this.informationSelectedObject['key']=  this.generateKeyToRefreshGrid(8);
                 this.showFileGrid = true;
             },
             generateKeyToRefreshGrid(length){
