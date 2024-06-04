@@ -7,7 +7,7 @@ public class StructureWithCamel extends Structure {
     private String fieldNameCamel;
 
     public StructureWithCamel(Structure structure) {
-        super(structure.getFieldName(), structure.getType(), structure.getMandatory(),structure.getRegExp(), structure.getLinkedDocument());
+        super(structure.getFieldName(), structure.getType(), structure.getMandatory(),structure.getRegExp(), structure.getUseAsQuery());
         this.fieldNameCamel = ObjectHelper.getCamelFieldName(structure.getFieldName());
     }
 

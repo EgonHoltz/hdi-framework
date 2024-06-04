@@ -40,7 +40,7 @@ public class RabbitMQService {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
 
-            String jsonBody = "{\"auto_delete\":false, \"durable\":false, \"arguments\":{}}";
+            String jsonBody = "{\"auto_delete\":false, \"durable\":true, \"arguments\":{}}";
 
             HttpEntity<String> request = new HttpEntity<>(jsonBody, headers);
             try {
@@ -58,13 +58,30 @@ public class RabbitMQService {
             String finalUrl= URL + "users/" + user;
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
-
             String jsonBody = String.format("{\"password\":\"%s\", \"tags\": []}",pass);
             HttpEntity<String> request = new HttpEntity<>(jsonBody, headers);
-            try {
-                return restTemplate.exchange(finalUrl, HttpMethod.PUT, request, String.class);
-            } catch (Exception e){
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+            try{
+                ResponseEntity resGet = restTemplate.exchange(finalUrl, HttpMethod.GET, null, String.class);
+
+                // Verify if the user exists
+                if (HttpStatus.OK.equals(resGet.getStatusCode())){
+                    // User is already there, delete it to create again with new password
+                    ResponseEntity resDelete = restTemplate.exchange(finalUrl, HttpMethod.DELETE, null, String.class);
+                    if (HttpStatus.NO_CONTENT.equals(resDelete.getStatusCode())){
+                        return restTemplate.exchange(finalUrl, HttpMethod.PUT, request, String.class);
+                    } else {
+                        return resDelete;
+                    }
+                }
+                return resGet;
+            } catch (HttpClientErrorException e) {
+                if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                    return restTemplate.exchange(finalUrl, HttpMethod.PUT, request, String.class);
+                } 
+                return new ResponseEntity<>(e.getStatusCode());                
+            } catch(Exception e){
+                return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
             }
         }
 

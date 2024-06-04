@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "pt.hdi.sendmqservice";
+option java_outer_classname = "DataServiceProto";
+
+package data;
+
+// The data service definition.
+service DataService {
+  // Sends a request to get data
+  rpc GetData (GetDataRequest) returns (GetDataResponse) {}
+}
+
+// The request message containing the collection name and fields.
+message GetDataRequest {
+  string collection = 1;
+  string fields = 2; // JSON string of the fields to query
+}
+
+// The response message containing the retrieved data.
+message GetDataResponse {
+  string data = 1; // JSON string of the data retrieved
+}

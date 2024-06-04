@@ -48,6 +48,11 @@ const routes = [
         component: () => import(/* webpackChunkName: "demo" */ '../views/DocumentData/DocumentDataTable.vue')
       },
       {
+        path: '/file-creation',
+        name: 'fileCreationManagement',
+        component: () => import(/* webpackChunkName: "demo" */ '../views/FileCreationMain.vue')
+      },
+      {
         path: '/icons',
         name: 'icons',
         component: () => import(/* webpackChunkName: "demo" */ '../views/Icons.vue')

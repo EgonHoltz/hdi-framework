@@ -19,6 +19,7 @@ public class ThreadsInitializator implements ApplicationListener<ContextRefreshe
 		ExecutorService executor = Executors.newFixedThreadPool(3);
 		executor.execute(new SendDirMonitoring(ctx));
 		executor.execute(new ReceiveDirMonitoring(ctx));
+		executor.execute(new FetchNewFilesFromNio(ctx));
 	}
 	
 }

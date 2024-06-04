@@ -19,7 +19,7 @@ import pt.hdi.sftpservice.model.Configuration;
 import pt.hdi.sftpservice.service.ConfigurationService;
 import pt.hdi.sftpservice.service.DataCentralizerService;
 
-public class FileProcessor implements Runnable {
+public class FileRecvProcessor implements Runnable {
     private final Path fileP;
 
     private ApplicationContext ctx;
@@ -28,7 +28,7 @@ public class FileProcessor implements Runnable {
 	
 	private DataCentralizerService dcService;
 
-    public FileProcessor(Path fileP, ApplicationContext appCtx) {
+    public FileRecvProcessor(Path fileP, ApplicationContext appCtx) {
         this.ctx = appCtx;
         this.fileP = fileP;
         if (!Files.exists(fileP)){

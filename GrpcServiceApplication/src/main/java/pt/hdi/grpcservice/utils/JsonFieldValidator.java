@@ -46,4 +46,30 @@ public class JsonFieldValidator {
             return false;
         }
     }
+
+    public static boolean validateInformedQuery(String json, List<Structure> structures) {
+        try {
+            Map<String, Object> dataMap = objectMapper.readValue(json, Map.class);
+            for (Structure structure : structures) {
+                String fieldName = ObjectHelper.getCamelFieldName(structure.getFieldName());
+                Object value = dataMap.get(fieldName);
+
+                // Check if mandatory field is present
+                if (structure.isUseAsQuery() && value == null) {
+                    System.out.println("Missing mandatory field: " + fieldName);
+                    return false;
+                }
+
+                // Check type
+                if (!"String".equals(structure.getType()) && !(value instanceof String)) {
+                    System.out.println("Invalid type for field: " + fieldName);
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

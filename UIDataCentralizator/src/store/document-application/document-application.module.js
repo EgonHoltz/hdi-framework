@@ -8,26 +8,35 @@ import {
     UPSERT_SFTP,
     FETCH_GRPC,
     UPSERT_GRPC,
+    FETCH_DOCUMENTS_COMBO,
+    UPSERT_SEND_SFTP_SCHEDULER,
+    FETCH_SEND_SFTP_SCHEDULER,
     //mutations
     SET_DOCUMENT_APPLICATION,
     SET_MQ_RABBIT,
     SET_SFTP,
     SET_GRPC,
-    SET_MESSAGE
+    SET_MESSAGE,
+    SET_SFTP_SCHEDULER,
+    SET_DOCUMENT_SFTP
 } from "./document-application.constants";
 
 const state = {
     docApp: {},
     mqRabbit: [],
     sftp: [],
-    grpc: []
+    grpc: [],
+    sftpScheduler: {},
+    docSftp: []
 };
 
 const getters = {
     getDocumentApplication: state => state.docApp,
     getRabbitMq: state => state.mqRabbit,
     getSftp: state => state.sftp,
-    getGrpc: state => state.grpc
+    getGrpc: state => state.grpc,
+    getDocSftp: state => state.docSftp,
+    getSftpScheduler: state => state.sftpScheduler
 };
 
 const actions = {
@@ -104,7 +113,7 @@ const actions = {
               reject(err)
             });
       });
-  },
+    },
   [FETCH_GRPC]: ({ commit, rootState }, payload) => {
     console.log("action FETCH_GRPC")
       return new Promise((resolve, reject) => {
@@ -132,6 +141,50 @@ const actions = {
               commit(SET_MESSAGE, err.message)
               reject(err)
             });
+          });
+        },
+  [FETCH_DOCUMENTS_COMBO]: ({ commit, rootState }, payload) => {
+    console.log("action FETCH_DOCUMENTS_COMBO")
+      return new Promise((resolve, reject) => {
+        docAppService.getDocumentWithSftpByApplication(/*rootState.auth.token,*/ payload)
+          .then(
+            res => {
+              console.log("on response module " + res)
+              commit(SET_DOCUMENT_SFTP, res);
+              resolve(res)
+            }, err => {
+              commit(SET_MESSAGE, err.message)
+              reject(err)
+            });
+      });
+  },
+  [FETCH_SEND_SFTP_SCHEDULER]: ({ commit, rootState }, payload) => {
+    console.log("action FETCH_SEND_SFTP_SCHEDULER")
+      return new Promise((resolve, reject) => {
+        docAppService.getSftpSchedulerConfiguration(/*rootState.auth.token,*/ payload)
+          .then(
+            res => {
+              console.log("on response module " + res)
+              commit(SET_SFTP_SCHEDULER, res);
+              resolve(res)
+            }, err => {
+              commit(SET_MESSAGE, err.message)
+              reject(err)
+            });
+      });
+  },
+  [UPSERT_SEND_SFTP_SCHEDULER]: ({ commit, rootState }, payload) => {
+    console.log("action UPSERT_SEND_SFTP_SCHEDULER")
+      return new Promise((resolve, reject) => {
+        docAppService.upsertSftpSchedulerConfiguration(/*rootState.auth.token,*/ payload)
+          .then(
+            res => {
+              commit(SET_MESSAGE, `Scheduler added with success!`);
+              resolve(res)
+            }, err => {
+              commit(SET_MESSAGE, err.message)
+              reject(err)
+            });
       });
   },
 };
@@ -148,6 +201,12 @@ export const mutations = {
     },
     [SET_GRPC]: (state, grpc) => {
       state.grpc = grpc;
+    },
+    [SET_DOCUMENT_SFTP]: (state, docSftp) => {
+      state.docSftp = docSftp;
+    },
+    [SET_SFTP_SCHEDULER]: (state, sftpScheduler) => {
+      state.sftpScheduler = sftpScheduler;
     },
     [SET_MESSAGE]: (state, message) => {
       state.message = message;

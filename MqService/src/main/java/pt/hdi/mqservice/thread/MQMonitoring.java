@@ -18,6 +18,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import pt.hdi.mqservice.Utils.ApplicationEnums.FLOW_DIRECTION;
 import pt.hdi.mqservice.model.Configuration;
 import pt.hdi.mqservice.model.MQConfig;
 import pt.hdi.mqservice.service.ConfigurationService;
@@ -71,18 +72,15 @@ public class MQMonitoring implements Runnable{
 				}
 				for (MQConfig mq : mqConfigs) {
 					if (mq.hasStarted()) {
-						rabbitQueuesNames.add(mq.getMqName());
+						String queue = mq.getMqName();
+						if (FLOW_DIRECTION.RECEIVE.equals(mq.getDirection())){
+							Executor exec = Executors.newSingleThreadExecutor();
+							exec.execute(new ReadMQMessage(queue, ctx));
+							System.out.println("Started queue: " + queue);
+						}
 					}
 				}
 			}
-			rabbitQueuesNames.stream().forEach(queueNames -> {
-				Optional.ofNullable(queueNames).ifPresent(queue -> {
-					Executor exec = Executors.newSingleThreadExecutor();
-					exec.execute(new ReadMQMessage(queue, ctx));
-					System.out.println("Started queue: " + queue);
-				});
-			});
-
 			
 			while(true) {
 				//Wait 10 seconds
@@ -114,9 +112,11 @@ public class MQMonitoring implements Runnable{
 						.filter(mq -> !mq.hasStarted())
 						.collect(Collectors.toList());
 				for (MQConfig queueName : rabbitQueuesNotStarted) {
-					if (queueName != null) { // Replace Optional.ofNullable with an explicit null check
-						Executor exec = Executors.newSingleThreadExecutor();
-						exec.execute(new ReadMQMessage(queueName.getMqName(), ctx));
+					if (queueName != null) {
+						if (FLOW_DIRECTION.RECEIVE.equals(queueName.getDirection())){
+							Executor exec = Executors.newSingleThreadExecutor();
+							exec.execute(new ReadMQMessage(queueName.getMqName(), ctx));
+						}
 						findQueueAndDeclareStarted(findConfigurationByQueue(queueName.getMqName(), mqNotStarted),
 								queueName.getMqName());
 						System.out.println("Added new queue and started: " + queueName);
@@ -128,8 +128,6 @@ public class MQMonitoring implements Runnable{
 			e.printStackTrace();
 		} finally {
 			System.out.println("MQMonitoring finished");
-			//Executor exec = Executors.newFixedThreadPool(1);
-			//exec.execute(new MQMonitoring());
 		}
 	}
 

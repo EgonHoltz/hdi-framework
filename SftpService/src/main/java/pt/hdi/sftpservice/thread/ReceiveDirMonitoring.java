@@ -50,7 +50,7 @@ public class ReceiveDirMonitoring implements Runnable{
 						if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
 							Path fileP = fpath.resolve((Path) event.context());
 							System.out.println("new file found: " + fileP);
-							Thread thread = new Thread( new FileProcessor(fileP, ctx) );
+							Thread thread = new Thread( new FileRecvProcessor(fileP, ctx) );
 							thread.start();
 						}
 					}

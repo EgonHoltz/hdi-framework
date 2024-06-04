@@ -188,14 +188,14 @@
                 if (this.editForm.sendClientId.trim() != ""){
                     this.newGRPCConfig.push({
                         active: this.editForm.sendActive,
-                        clienId: this.editForm.sendClientId,
+                        clientId: this.editForm.sendClientId,
                         direction: 'SEND'
                     })
                 }
                 if (this.editForm.recvClientId.trim() != ""){
                     this.newGRPCConfig.push({
                         active: this.editForm.recvActive,
-                        clienId: this.editForm.recvClientId,
+                        clientId: this.editForm.recvClientId,
                         direction: 'RECEIVE'
                     })
                 }

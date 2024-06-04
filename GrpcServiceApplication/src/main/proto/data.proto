@@ -2,20 +2,30 @@ syntax = "proto3";
 
 option java_multiple_files = true;
 option java_package = "pt.hdi.grpcservice";
-option java_outer_classname = "DataReceiveProto";
+option java_outer_classname = "DataSendReceiveProto";
 
 package grpc;
 
-service ReceiveDataService {
-	rpc receiveRqst(ServiceDataRequest) returns(ServiceDataResponse){
-	}
+service SendRetrieveDataService {
+	rpc sendRqst(SendDataRequest) returns(SendDataResponse){}
+  rpc retrieveRqst(RetrieveDataRequest) returns(RetrieveDataResponse) {}
 }
-message ServiceDataRequest {
+message SendDataRequest {
   string clientId = 1;
   string jsonMsg = 2;
 }
 
-message ServiceDataResponse {
+message SendDataResponse {
+  string clientId = 1;
+  string jsonMsg = 2;
+}
+
+message RetrieveDataRequest {
+  string clientId = 1;
+  string jsonMsg = 2;
+}
+
+message RetrieveDataResponse {
   string clientId = 1;
   string jsonMsg = 2;
 }
