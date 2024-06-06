@@ -1,6 +1,5 @@
-package pt.hdi.restservice.service;
+package pt.hdi.loggerservice.service;
 
-import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -9,27 +8,36 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import pt.hdi.restservice.Utils.ApplicationEnums.FLOW_DIRECTION;
-import pt.hdi.restservice.Utils.ApplicationEnums.SEND_SFTP_STATUS;
-import pt.hdi.restservice.Utils.ApplicationEnums.TECHNOLOGY;
-import pt.hdi.restservice.model.AuditLogger;
-import pt.hdi.restservice.model.Configuration;
-import pt.hdi.restservice.model.FileAuditLogger;
-import pt.hdi.restservice.repository.AuditLoggerRepository;
-import pt.hdi.restservice.repository.ConfigurationRepository;
+import pt.hdi.loggerservice.model.AuditLogger;
+import pt.hdi.loggerservice.model.Configuration;
+import pt.hdi.loggerservice.model.FileAuditLogger;
+import pt.hdi.loggerservice.repository.AuditLoggerRepository;
+import pt.hdi.loggerservice.repository.ConfigurationRepository;
+import pt.hdi.loggerservice.utils.ApplicationEnums.FLOW_DIRECTION;
+import pt.hdi.loggerservice.utils.ApplicationEnums.SEND_SFTP_STATUS;
+import pt.hdi.loggerservice.utils.ApplicationEnums.TECHNOLOGY;
 
 @Service
 public class AuditLoggerService {
-    
+
     @Autowired
     private AuditLoggerRepository auditLogRep;
 
     @Autowired
     private ConfigurationRepository confRep;
 
-
     public List<AuditLogger> getAllFileAuditLogger(){
         return auditLogRep.findAll();
+    }
+
+    public void addNewAuditLogger(AuditLogger audit){
+        if (audit.getConfiguration() == null){
+            Optional<Configuration> conf = confRep.findById(audit.getConfigurationId());
+            if (conf.isPresent()){
+                audit.setConfiguration(conf.get());
+            }
+        }
+        auditLogRep.save(audit);
     }
 
     public FileAuditLogger addNewFileAuditLogger(FileAuditLogger fileAuditLogger){
@@ -57,12 +65,8 @@ public class AuditLoggerService {
                 .collect(Collectors.toList());
     }
 
-    public List<FileAuditLogger> getAllFilesOnFileGenerateStatus(){        
-        List<AuditLogger> logs = auditLogRep.findBySftpStatus(SEND_SFTP_STATUS.FILE_GENERATED);
-        return logs.stream()
-            .filter(l -> l instanceof FileAuditLogger)
-            .map(l -> (FileAuditLogger) l)
-            .collect(Collectors.toList());
+    public List<FileAuditLogger> getAllFilesOnFileGenerateStatus(){
+        return auditLogRep.findFileAuditLoggerBySftpStatus(SEND_SFTP_STATUS.FILE_GENERATED);
     }
 
     public void moveStatus(FileAuditLogger audit, SEND_SFTP_STATUS newStatus) {
@@ -82,11 +86,6 @@ public class AuditLoggerService {
     }
 
     public FileAuditLogger getAuditByFileName(String minioLink){
-        AuditLogger log = auditLogRep.findByMinioLink(minioLink);
-        if (log instanceof FileAuditLogger){
-            return (FileAuditLogger) log;
-        } 
-        return null;
+        return auditLogRep.findFileAuditLoggerByMinioLink(minioLink);
     }
-
 }

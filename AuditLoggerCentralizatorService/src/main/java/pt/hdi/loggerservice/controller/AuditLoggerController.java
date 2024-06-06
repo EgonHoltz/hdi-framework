@@ -1,18 +1,18 @@
-package pt.hdi.restservice.controller;
+package pt.hdi.loggerservice.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriUtils;
 
-import pt.hdi.restservice.Utils.ApplicationEnums.SEND_SFTP_STATUS;
-import pt.hdi.restservice.model.Application;
-import pt.hdi.restservice.model.Configuration;
-import pt.hdi.restservice.model.DocumentData;
-import pt.hdi.restservice.model.FileAuditLogger;
-import pt.hdi.restservice.repository.ApplicationRepository;
-import pt.hdi.restservice.repository.DocumentRepository;
-import pt.hdi.restservice.service.AuditLoggerService;
-import pt.hdi.restservice.service.ConfigurationService;
+import pt.hdi.loggerservice.utils.ApplicationEnums.SEND_SFTP_STATUS;
+import pt.hdi.loggerservice.model.Application;
+import pt.hdi.loggerservice.model.Configuration;
+import pt.hdi.loggerservice.model.DocumentData;
+import pt.hdi.loggerservice.model.FileAuditLogger;
+import pt.hdi.loggerservice.repository.ApplicationRepository;
+import pt.hdi.loggerservice.repository.DocumentRepository;
+import pt.hdi.loggerservice.service.AuditLoggerService;
+import pt.hdi.loggerservice.service.ConfigurationService;
 
 import java.util.List;
 import java.util.Optional;

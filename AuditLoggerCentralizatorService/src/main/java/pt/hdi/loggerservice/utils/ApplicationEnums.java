@@ -1,4 +1,4 @@
-package pt.hdi.restservice.Utils;
+package pt.hdi.loggerservice.utils;
 
 public class ApplicationEnums {
 

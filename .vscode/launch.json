@@ -4,7 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
         {
             "type": "java",
             "name": "DatamanagementApplication",
@@ -151,6 +150,16 @@
             "cwd": "${workspaceFolder}",
             "mainClass": "pt.hdi.filegenerator.FileGeneratorServiceApplication",
             "projectName": "fileGeneratorService",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AuditLoggerCentralizatorServiceApplication<AuditLoggerCentralizatorService>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "pt.hdi.loggerservice.AuditLoggerCentralizatorServiceApplication",
+            "projectName": "AuditLoggerCentralizatorService",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }

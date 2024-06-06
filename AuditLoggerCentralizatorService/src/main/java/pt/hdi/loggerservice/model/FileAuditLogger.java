@@ -1,11 +1,11 @@
-package pt.hdi.restservice.model;
+package pt.hdi.loggerservice.model;
 
 import java.util.Date;
 
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import pt.hdi.restservice.Utils.ApplicationEnums.SEND_SFTP_STATUS;
+import pt.hdi.loggerservice.utils.ApplicationEnums.SEND_SFTP_STATUS;
 
 @Document(collection = "auditLogger")
 @TypeAlias("FileAuditLogger")
@@ -80,5 +80,6 @@ public class FileAuditLogger extends AuditLogger {
                 + ", lineQuantity=" + lineQuantity + ", fileSentDate=" + fileSentDate + ", sftpStatus=" + sftpStatus
                 + "]";
     }
+    
     
 }
