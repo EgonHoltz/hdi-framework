@@ -8,6 +8,9 @@ public class Structure {
     Boolean useAsQuery;
     String fieldNameCamel;
     
+    public Structure() {
+    }
+
     public Structure(String fieldName, String type, Boolean mandatory, String regExp, Boolean useAsQuery,
             String fieldNameCamel) {
         this.fieldName = fieldName;
