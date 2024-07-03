@@ -31,7 +31,7 @@ public class AuditLoggerService {
     @Autowired
 	private RestTemplate restTemplate;
 
-    private final String baseUrl = "http://localhost:8002/auditLogger";
+    private final String baseUrl = "http://localhost:8072/auditLogger";
 
     public ResponseEntity getNotSentFilesFromNio(){
         String uri = baseUrl + "/sftp/filesNotSent";        

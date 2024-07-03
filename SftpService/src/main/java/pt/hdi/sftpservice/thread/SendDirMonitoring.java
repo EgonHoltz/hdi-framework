@@ -43,7 +43,7 @@ public class SendDirMonitoring implements Runnable {
 		sendPath = env.getProperty("spring.sftp.sendpath");
 		Path fpath = Paths.get(sendPath);
 		if (!Files.exists(fpath)) {
-			System.out.println("Directory does not exists: "+sendPath);
+			System.out.println("[FileSend] Directory does not exists: "+sendPath);
 			return;
 		}
 		
@@ -56,7 +56,7 @@ public class SendDirMonitoring implements Runnable {
 					for (WatchEvent<?> event: wk.pollEvents()) {
 						if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
 							Path fileP = fpath.resolve((Path) event.context());
-							System.out.println("new file found: " + fileP);
+							System.out.println("[FileSend] new file found: " + fileP);
 							Thread thread = new Thread(new FileSendProcessor(fileP, ctx));
 							thread.start();
 						}
@@ -65,13 +65,13 @@ public class SendDirMonitoring implements Runnable {
 				}
 			}
 		} catch (IOException e) {
-			System.err.println("Problems with IO: "+e.getStackTrace());
+			System.err.println("[FileSend] Problems with IO: "+e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
-			System.err.println("Problems with WatchEvent: "+e.getStackTrace());
+			System.err.println("[FileSend] Problems with WatchEvent: "+e.getStackTrace());
 			e.printStackTrace();
 		} finally {
-			System.out.println("Finished SendDirMonitoring, removing all files");
+			System.out.println("[FileSend] Finished SendDirMonitoring, removing all files");
 			File exclDir = new File(sendPath);
 			if (exclDir.exists() && exclDir.isDirectory()) {
 				File[] files = exclDir.listFiles();

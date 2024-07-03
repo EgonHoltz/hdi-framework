@@ -32,7 +32,7 @@ public class FileRecvProcessor implements Runnable {
         this.ctx = appCtx;
         this.fileP = fileP;
         if (!Files.exists(fileP)){
-            System.out.println("File was not found on the path: " +fileP.toString());
+            System.out.println("[FileRecv] File was not found on the path: " +fileP.toString());
             return;
         }
         confService = ctx.getBean(ConfigurationService.class);
@@ -45,11 +45,12 @@ public class FileRecvProcessor implements Runnable {
         String fileName = "";
         String firstLine = "";
         String lastLine = "";
+        System.out.println("[FileRecv] Service started");
         // Before start to process the file, it will validate if it can be processed
         try {
             if (!Files.exists(fileP)){
-                System.out.println("File was not found on the path: " +fileP.toString());
-                throw new InvalidFileException("File not found");
+                System.out.println("[FileRecv] File was not found on the path: " +fileP.toString());
+                throw new InvalidFileException("[FileRecv] File not found");
             }
         } catch (InvalidFileException e) {
             return;
@@ -57,19 +58,19 @@ public class FileRecvProcessor implements Runnable {
 
         String fileAbsolutePath = fileP.toAbsolutePath().toString();
 
-        System.out.println("Starting to read the file on: " + fileAbsolutePath);
+        System.out.println("[FileRecv] Starting to read the file on: " + fileAbsolutePath);
         try (BufferedReader reader = new BufferedReader(new FileReader(fileAbsolutePath))) {
             firstLine = reader.readLine(); // Read the first line
 
             if (firstLine == null) {
-                throw new InvalidFileException("File is empty");
+                throw new InvalidFileException("[FileRecv] File is empty");
             }
             lastLine = getLastLine(fileAbsolutePath);
 
             Long qtLinesByTrailler = Long.parseLong(lastLine);
             Long fileLines = reader.lines().count() - 1;
             if (qtLinesByTrailler != fileLines){
-                throw new InvalidFileException("Quantity of lines on the file ("+ fileLines +") does not match with Trailler (" +qtLinesByTrailler+")");
+                throw new InvalidFileException("[FileRecv] Quantity of lines on the file ("+ fileLines +") does not match with Trailler (" +qtLinesByTrailler+")");
             }
 
             // Header has its format:
@@ -78,19 +79,19 @@ public class FileRecvProcessor implements Runnable {
             int end = firstLine.indexOf("_", start); // Find the next underscore after the start
             if (start >= 0 && end > start) { // Make sure the indices are valid
                 fileName = firstLine.substring(start, end);
-                System.out.println("Found the following filename on the file: " +fileName);
+                System.out.println("[FileRecv] Found the following filename on the file: " +fileName);
             } else {
-                throw new InvalidFileException("The input does not have the expected format.");
+                throw new InvalidFileException("[FileRecv] The input does not have the expected format.");
             }
             ResponseEntity resConf = confService.getByDocumentName(fileName);
             if (!resConf.getStatusCode().equals(HttpStatus.OK)){
-                throw new InvalidFileException("Configuration not found for: " + fileName);
+                throw new InvalidFileException("[FileRecv] Configuration not found for: " + fileName);
             }
 
-            System.out.println("Configuration found for the file");
+            System.out.println("[FileRecv] Configuration found for the file");
             conf = (Configuration) resConf.getBody();
             if (conf == null || conf.getSftpConfig() == null) {
-                throw new InvalidFileException("No SFTP config found for this file");
+                throw new InvalidFileException("[FileRecv] No SFTP config found for this file");
             }
         }
         catch (IOException e) {
@@ -111,7 +112,7 @@ public class FileRecvProcessor implements Runnable {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(fileAbsolutePath))) {
             // Process the file received
-            System.out.println("Will start to read file and send content");
+            System.out.println("[FileRecv] Will start to read file and send content");
             String line;
             ObjectMapper mapper = new ObjectMapper();
             while ((line = reader.readLine()) != null) {
@@ -158,7 +159,7 @@ public class FileRecvProcessor implements Runnable {
             sb.reverse();
             return sb.toString();
         } catch (NumberFormatException e) {
-            System.out.println("The string on Trailler does not contain a valid number.");
+            System.out.println("[FileRecv] The string on Trailler does not contain a valid number.");
             return null;
         } catch (Exception e) {
             e.printStackTrace();
