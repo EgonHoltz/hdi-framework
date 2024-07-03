@@ -11,12 +11,6 @@
           <b-nav-item href="https://www.creative-tim.com"  target="_blank">
             Creative Tim
           </b-nav-item>
-          <b-nav-item href="https://www.creative-tim.com/presentation" target="_blank">
-           About Us
-          </b-nav-item>
-          <b-nav-item href="http://blog.creative-tim.com" target="_blank">
-            Blog
-          </b-nav-item>
           <b-nav-item href="https://www.creative-tim.com/license" target="_blank">
             License
           </b-nav-item>

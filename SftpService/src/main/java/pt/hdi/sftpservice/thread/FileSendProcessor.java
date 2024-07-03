@@ -39,12 +39,13 @@ public class FileSendProcessor implements Runnable {
     public void run() {
 
         String minioBucket = env.getProperty("minio.bucket.name");
+        System.out.println("[FileSend] Service started");
         try {
             // Load configuration of file
-            System.out.println("Loading the information of file " + fileP.getFileName());
+            System.out.println("[FileSend] Loading the information of file " + fileP.getFileName());
             ResponseEntity resAudit = auditSvc.getFileAuditLoggerByFileName(minioBucket + "/" + fileP.getFileName());
             if (!HttpStatus.OK.equals(resAudit.getStatusCode())){
-                System.out.println("No information found about the requested file on the centralization");
+                System.out.println("[FileSend] No information found about the requested file on the centralization");
                 if (Files.exists(fileP)) {
                     Files.delete(fileP);
                 }
@@ -53,7 +54,7 @@ public class FileSendProcessor implements Runnable {
             FileAuditLogger audit = (FileAuditLogger) resAudit.getBody();
 
             // Get SFTP configurations
-            System.out.println("Loading the information of file by config ID "+ audit.getConfigurationId());
+            System.out.println("[FileSend] Loading the information of file by config ID "+ audit.getConfigurationId());
 
             Configuration config = audit.getConfiguration();
 
@@ -66,35 +67,35 @@ public class FileSendProcessor implements Runnable {
             }
             
             if (sendConf == null) {
-                System.out.println("No SFTP Configuration found about the requested file on the centralization");
+                System.out.println("[FileSend] No SFTP Configuration found about the requested file on the centralization");
                 if (Files.exists(fileP)) {
                     Files.delete(fileP);
                 }
                 return ;
             }
-            System.out.println("Loaded destination to " + sendConf.getHost() + " on path " + sendConf.getDestinationPath());
+            System.out.println("[FileSend] Loaded destination to " + sendConf.getHost() + " on path " + sendConf.getDestinationPath());
             // Send SFTP to destination
-            System.out.println("Starting the process to send the file");
+            System.out.println("[FileSend] Starting the process to send the file");
 
             boolean resSend = sftpSvc.doSftpSendFile(sendConf, fileP);
 
             if (resSend){
-                System.out.println("File sent with success!");
+                System.out.println("[FileSend] File sent with success!");
             } else {
-                System.out.println("Something went wrong while the file was sent");
+                System.out.println("[FileSend] Something went wrong while the file was sent");
             }
 
             // Log SFTP with success
 
             ResponseEntity resUpdateAudit = auditSvc.setFileSentBySftp(audit);
             if (!HttpStatus.OK.equals(resUpdateAudit.getStatusCode())){
-                System.out.println("Error on update the file status on the centralizator");
+                System.out.println("[FileSend] Error on update the file status on the centralizator");
                 if (Files.exists(fileP)) {
                     Files.delete(fileP);
                 }
             }
 
-            System.out.println("End of send SFTP operation");
+            System.out.println("[FileSend] End of send SFTP operation");
 
         } catch (Exception e){
             e.printStackTrace();

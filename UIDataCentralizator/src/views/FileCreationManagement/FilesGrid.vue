@@ -31,7 +31,7 @@
       </el-table>
 
       <el-dialog
-      title="Edit Row"
+      title="Edit Scheduler"
       :visible.sync="editDialogVisible"
       width="50%"
       @close="closeEditDialog"

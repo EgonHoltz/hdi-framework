@@ -38,16 +38,13 @@
               }"
             >
         </sidebar-item>
-
         <sidebar-item
-            :link="{
-              name: 'Settings',
-              path: '/icons',
-              icon: 'ni ni-settings text-blue'
-              }"
-            >
+                :link="{
+                  name: 'Audit tables',
+                  path: '/audit',
+                  icon: 'ni ni-bullet-list-67 text-red'
+                }">
         </sidebar-item>
-
         <sidebar-item
               :link="{
                 name: 'User Management',
@@ -55,9 +52,6 @@
                 icon: 'ni ni-single-02 text-blue'
                 }">
         </sidebar-item>
-
-
-
         <sidebar-item
               :link="{
                 name: 'User Profile',
@@ -65,27 +59,11 @@
                 icon: 'ni ni-single-02 text-yellow'
                 }">
         </sidebar-item>
-
-        <sidebar-item
-                :link="{
-                  name: 'Tables',
-                  path: '/tables',
-                  icon: 'ni ni-bullet-list-67 text-red'
-                }">
-        </sidebar-item>
-
         <sidebar-item
                   :link="{
                     name: 'Login',
                     path: '/login',
                     icon: 'ni ni-key-25 text-info'
-                  }">
-        </sidebar-item>
-        <sidebar-item
-                  :link="{
-                    name: 'Register',
-                    path: '/register',
-                    icon: 'ni ni-circle-08 text-pink'
                   }">
         </sidebar-item>
       </template>
@@ -96,18 +74,14 @@
 
         <b-nav class="navbar-nav mb-md-3">
           <b-nav-item
-               href="https://www.creative-tim.com/learning-lab/bootstrap-vue/quick-start/argon-dashboard"
+               href="https://github.com/EgonHoltz/hdi-framework"
                >
               <i class="ni ni-spaceship"></i>
-              <b-nav-text class="p-0">Getting started</b-nav-text>
+              <b-nav-text class="p-0">HDI Application GitHub</b-nav-text>
           </b-nav-item>
           <b-nav-item href="https://www.creative-tim.com/learning-lab/bootstrap-vue/colors/argon-dashboard">
               <i class="ni ni-palette"></i>
-              <b-nav-text class="p-0">Foundation</b-nav-text>
-          </b-nav-item>
-          <b-nav-item href="https://www.creative-tim.com/learning-lab/bootstrap-vue/avatar/argon-dashboard">
-              <i class="ni ni-ui-04"></i>
-              <b-nav-text class="p-0">Components</b-nav-text>
+              <b-nav-text class="p-0">UI Creative Tim Foundation</b-nav-text>
           </b-nav-item>
         </b-nav>
       </template>

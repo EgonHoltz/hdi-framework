@@ -14,11 +14,6 @@ import pt.hdi.restservice.repository.DocumentRepository;
 import pt.hdi.restservice.service.AuditLoggerService;
 import pt.hdi.restservice.service.ConfigurationService;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,9 +27,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
-
-
-
 
 @RestController
 @RequestMapping("/auditLogger")
@@ -85,7 +77,6 @@ public class AuditLoggerController {
 
         List<FileAuditLogger> audits = auditLogSvc.getAllFileAuditLoggerByConfiguration(conf);
         
-
         return new ResponseEntity<>(audits,HttpStatus.OK);
     }
     

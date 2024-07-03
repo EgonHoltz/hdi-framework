@@ -2,23 +2,21 @@ package pt.hdi.restservice.model;
 
 import java.util.Date;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import pt.hdi.restservice.Utils.ApplicationEnums.SEND_SFTP_STATUS;
 
-public class FileAuditLogger {
-    @Id
-    String id;
-    String configurationId;
-    @DBRef
-    Configuration configuration;
-    String fileName;
-    String minioLink;
-    Date creationDate;
-    Long lineQuantity;
-    Date fileSentDate;
-    SEND_SFTP_STATUS sftpStatus;
+@Document(collection = "auditLogger")
+@TypeAlias("FileAuditLogger")
+public class FileAuditLogger extends AuditLogger {
+
+    private String fileName;
+    private String minioLink;
+    private Long lineQuantity;
+    private Date fileSentDate;
+    private SEND_SFTP_STATUS sftpStatus;
+    
     public FileAuditLogger() {
     }
     public String getId() {

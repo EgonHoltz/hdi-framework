@@ -13,7 +13,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import pt.hdi.sendmqservice.bean.MQConnectionBean;
 import pt.hdi.sendmqservice.model.Configuration;
 import pt.hdi.sendmqservice.service.ConfigurationService;
-import pt.hdi.sendmqservice.service.DataCentralizerService;
 import pt.hdi.sendmqservice.service.MQWriterService;
 import pt.hdi.sendmqservice.service.RetrieveQueryService;
 
@@ -26,15 +25,12 @@ public class MessageSendListener implements org.springframework.amqp.core.Messag
 	
 	private ConfigurationService confService;
 
-	private MQWriterService mqResService;
-
 	private RabbitTemplate rt;
 	
 	public MessageSendListener(ApplicationContext ctx) {
 		this.ctx = ctx;
 		this.confService = ctx.getBean(ConfigurationService.class);
 		this.srService = ctx.getBean(RetrieveQueryService.class);
-		this.mqResService = ctx.getBean(MQWriterService.class);
 		this.rt = ctx.getBean(RabbitTemplate.class);
 	}
 

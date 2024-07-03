@@ -4,7 +4,7 @@
       <template v-slot:header>
         <b-row align-v="center">
           <b-col>
-            <h3 class="mb-0">Documents adminsitration</h3>
+            <h3 class="mb-0">Application adminsitration</h3>
           </b-col>
           <!-- <b-col class="text-right">
             <base-button size="sm" type="primary">See all</base-button>
@@ -37,9 +37,9 @@
   
         <el-table-column label="App Owner" min-width="110px" prop="owner">
         </el-table-column>
-        <el-table-column label="Received Docs" min-width="110px" prop="rcvd">
+        <el-table-column label="Received Docs" min-width="110px" prop="recvData">
         </el-table-column>
-        <el-table-column label="Sent docs" min-width="110px" prop="sent">
+        <el-table-column label="Sent docs" min-width="110px" prop="sentData">
         </el-table-column>
   
         <el-table-column label="Errors percentage" min-width="220px" prop="errorsPercentage">

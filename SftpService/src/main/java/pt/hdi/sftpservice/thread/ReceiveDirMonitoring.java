@@ -35,7 +35,7 @@ public class ReceiveDirMonitoring implements Runnable{
 		String recvPath = env.getProperty("spring.sftp.recvpath");
 		Path fpath = Paths.get(recvPath);
 		if (!Files.exists(fpath)) {
-			System.out.println("Directory does not exists: "+recvPath);
+			System.out.println("[FileRecv] Directory does not exists: "+recvPath);
 			return;
 		}
 
@@ -49,7 +49,7 @@ public class ReceiveDirMonitoring implements Runnable{
 					for (WatchEvent<?> event: wk.pollEvents()) {
 						if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
 							Path fileP = fpath.resolve((Path) event.context());
-							System.out.println("new file found: " + fileP);
+							System.out.println("[FileRecv] new file found: " + fileP);
 							Thread thread = new Thread( new FileRecvProcessor(fileP, ctx) );
 							thread.start();
 						}
@@ -58,20 +58,20 @@ public class ReceiveDirMonitoring implements Runnable{
 				}
 			}	
 		} catch (IOException e) {
-			System.err.println("Problems with IO: "+e.getStackTrace());
+			System.err.println("[FileRecv] Problems with IO: "+e.getStackTrace());
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			System.err.println("Problems with WatchEvent: "+e.getStackTrace());
+			System.err.println("[FileRecv] Problems with WatchEvent: "+e.getStackTrace());
 		} catch (RestClientException e) {
-			System.err.println("Problems with RestClientException: "+e.getStackTrace());
+			System.err.println("[FileRecv] Problems with RestClientException: "+e.getStackTrace());
 		} catch (StringIndexOutOfBoundsException e) {
-			System.out.println("File found has unaccepted format name: " +e.getStackTrace());
+			System.out.println("[FileRecv] File found has unaccepted format name: " +e.getStackTrace());
 		} catch (Exception e) {
-			System.out.println("Generic exception, please verify: "+e.getStackTrace());
+			System.out.println("[FileRecv] Generic exception, please verify: "+e.getStackTrace());
 			e.printStackTrace();
 		}
 		finally {
-			System.out.println("Finished ReceiveDirMonitoring, removing all files");
+			System.out.println("[FileRecv] Finished ReceiveDirMonitoring, removing all files");
 			File exclDir = new File(recvPath);
 			if (exclDir.exists() && exclDir.isDirectory()) {
 				File[] files = exclDir.listFiles();

@@ -46,7 +46,23 @@ async function checkDuplicationAndAmend(collectionName, data, cachedFields) {
 }
 
 async function sendToCatchedCollection(type,collectionName, data) {
-  const catchedModel = mongoose.model('catched', new mongoose.Schema({ type: String, collectionName: String, data: Object }, { strict: false }));
+  let catchedModel;
+  
+  try {
+    // Check if the model already exists
+    catchedModel = mongoose.model('catcheds');
+  } catch (error) {
+    // Define the model if it does not exist
+    const schema = new mongoose.Schema({
+      type: String,
+      collectionName: String,
+      data: Object
+    }, { strict: false });
+    
+    catchedModel = mongoose.model('catcheds', schema);
+  }
+
+  // Create a new document in the collection
   await catchedModel.create({ type, collectionName, data });
 }
 

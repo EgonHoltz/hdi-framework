@@ -37,31 +37,32 @@ public class FetchNewFilesFromNio implements Runnable {
     public void run() {
         try{
             String sendPath = env.getProperty("spring.sftp.sendpath");
+            System.out.println("[FetchNewFiles] service started");
             while (true) {
                 // Verify if it finds a file
                 ResponseEntity res = auditLoggerService.getNotSentFilesFromNio();
                 if (!HttpStatus.OK.equals(res.getStatusCode())){
-                    System.out.println("Something went wrong when try to load data from server. It will try again in 2 minutes");
+                    System.out.println("[FetchNewFiles] Something went wrong when try to load data from server. It will try again in 2 minutes");
                     Thread.sleep(120000);
                     continue;
                 }
                 List<FileAuditLogger> files = (List<FileAuditLogger>) res.getBody();
                 
                 if (CollectionUtils.isEmpty(files)){
-                    System.out.println("No file found. Will try again in 2 minutes");
+                    System.out.println("[FetchNewFiles] No file found. Will try again in 2 minutes");
                     Thread.sleep(30000);
                     continue;
                 }
-                System.out.println(files.size() + " new(s) file(s) found!");
+                System.out.println("[FetchNewFiles] "+files.size() + " new(s) file(s) found!");
 
                 // get the file from MINIO
                 for (FileAuditLogger f : files){
                     String[] filePathOnMinio = f.getMinioLink().split("/");
-                    System.out.println("Will retrieve the file " + filePathOnMinio[1] +" from Minio bucket " + filePathOnMinio[0]);
+                    System.out.println("[FetchNewFiles] Will retrieve the file " + filePathOnMinio[1] +" from Minio bucket " + filePathOnMinio[0]);
                     InputStream fileIS = minioService.getFile(filePathOnMinio[0], filePathOnMinio[1]);
 
                     // put it on the local path to send
-                    System.out.println("Put file to the path " + sendPath);
+                    System.out.println("[FetchNewFiles] Put file to the path " + sendPath);
                     Path destinationPath = Paths.get(sendPath + "/" + filePathOnMinio[1]);
                     Files.copy(fileIS, destinationPath, StandardCopyOption.REPLACE_EXISTING);
                     fileIS.close();
