@@ -48,6 +48,11 @@ const routes = [
         component: () => import(/* webpackChunkName: "demo" */ '../views/DocumentData/DocumentDataTable.vue')
       },
       {
+        path: '/file-creation',
+        name: 'fileCreationManagement',
+        component: () => import(/* webpackChunkName: "demo" */ '../views/FileCreationMain.vue')
+      },
+      {
         path: '/icons',
         name: 'icons',
         component: () => import(/* webpackChunkName: "demo" */ '../views/Icons.vue')
@@ -58,9 +63,9 @@ const routes = [
         component: () => import(/* webpackChunkName: "demo" */ '../views/Pages/UserProfile.vue')
       },
       {
-        path: '/tables',
-        name: 'tables',
-        component: () => import(/* webpackChunkName: "demo" */ '../views/RegularTables.vue')
+        path: '/audit',
+        name: 'audit',
+        component: () => import(/* webpackChunkName: "demo" */ '../views/AuditTableMain.vue')
       }
     ]
   },

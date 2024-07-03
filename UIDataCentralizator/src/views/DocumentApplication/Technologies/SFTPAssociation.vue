@@ -85,7 +85,7 @@
                     </el-col>
                 </el-row>
                 <el-form-item class="p-4">
-                                <el-button type="primary" @click="submitForm">Save</el-button>
+                    <el-button type="primary" @click="submitForm">Save</el-button>
                 </el-form-item>
             </el-form>
         </b-collapse>
@@ -290,7 +290,8 @@
                         this.editDialogVisible = false;
                         this.alertTitle = "Error on creation. Please contact the IT team"
                         this.showErrorAlert();
-                    });
+                    }
+                );
 
             },
             handleAppFromTable(application){

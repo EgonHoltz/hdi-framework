@@ -3,15 +3,12 @@ package pt.hdi.restservice.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import pt.hdi.restservice.Utils.ApplicationEnums;
 
 @Document
 public class Configuration {
@@ -28,6 +25,7 @@ public class Configuration {
 	private List<MQConfig> mqConfig;
 	private List<SFTPConfig> sftpConfig;
 	private List<GRPCConfig> grpcConfig;
+	private SftpFileSchedulerConfig sftpSchedulerConfig;
 	
 	@LastModifiedDate
 	private Date lastModificationDate;	
@@ -109,12 +107,19 @@ public class Configuration {
 	}
 	public void setApplication(Application application) {
 		this.application = application;
+	}	
+	public SftpFileSchedulerConfig getSftpSchedulerConfig() {
+		return sftpSchedulerConfig;
+	}
+	public void setSftpSchedulerConfig(SftpFileSchedulerConfig sftpSchedulerConfig) {
+		this.sftpSchedulerConfig = sftpSchedulerConfig;
 	}
 	@Override
 	public String toString() {
-		return "Configuration [id=" + id + ", lastModificationDate=" + lastModificationDate + ", createDate="
-				+ createDate + ", mqConfig=" + mqConfig + ", sftpConfig="
-				+ sftpConfig + "]";
+		return "Configuration [documentData=" + documentData + ", application=" + application + ", mqConfig=" + mqConfig
+				+ ", sftpConfig=" + sftpConfig + ", grpcConfig=" + grpcConfig + ", sftpSchedulerConfig="
+				+ sftpSchedulerConfig + ", lastModificationDate=" + lastModificationDate + ", createDate=" + createDate
+				+ "]";
 	}
 
 }

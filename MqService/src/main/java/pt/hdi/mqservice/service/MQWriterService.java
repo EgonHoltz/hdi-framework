@@ -16,10 +16,6 @@ public class MQWriterService {
 
 	public boolean sendMQMessageByQueue(String qName, MQConnectionBean mqConConfig, String msg) {
 		
-		if(msg.isBlank()) {
-			msg = "{ClientId:'Client1',ClientFName:'FirstName',ClientLName:'LastName',Docs:[DocType:NIF,DocNumber:'21651654']}";
-		}
-		
 		ConnectionFactory cnFactory = new ConnectionFactory();
 		cnFactory.setHost(mqConConfig.getHost());
 		cnFactory.setUsername(mqConConfig.getUsername());

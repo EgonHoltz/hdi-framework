@@ -43,6 +43,15 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch Send Response Query",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/BdSendResponseQuery/centralizator/server.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Serve dev UI",
             "program": "${workspaceFolder}/UIDataCentralizator/node_modules/@vue/cli-service/bin/vue-cli-service.js",
             "args": [
@@ -120,6 +129,37 @@
             "cwd": "${workspaceFolder}",
             "mainClass": "pt.hdi.sftpservice.SftpServiceApplication",
             "projectName": "sftpservice",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=38559 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=sftpservice"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SendMqServiceApplication<SendMqService>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "pt.hdi.sendmqservice.SendMqServiceApplication",
+            "projectName": "SendMqService",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-FileGeneratorServiceApplication<fileGeneratorService>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "pt.hdi.filegenerator.FileGeneratorServiceApplication",
+            "projectName": "fileGeneratorService",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AuditLoggerCentralizatorServiceApplication<AuditLoggerCentralizatorService>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "pt.hdi.loggerservice.AuditLoggerCentralizatorServiceApplication",
+            "projectName": "AuditLoggerCentralizatorService",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }

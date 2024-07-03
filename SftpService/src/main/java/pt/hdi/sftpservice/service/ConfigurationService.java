@@ -120,6 +120,20 @@ public class ConfigurationService {
         }
 
         return isValid;
+    }
+
+    public ResponseEntity getDocumentById(String configurationId) {
+		String otherServiceUrl = baseUrl + "/configuration/" + configurationId;
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(otherServiceUrl);
+        
+		try {
+            Configuration configuration = new Configuration();
+            configuration = restTemplate.getForObject(builder.toUriString(), Configuration.class);
+            return new ResponseEntity<>(configuration,HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }	
 	
 }

@@ -10,7 +10,7 @@ public class Structure {
     String type;
     Boolean mandatory;
     String regExp;
-    String linkedDocument;
+    Boolean useAsQuery;
 
     @LastModifiedDate
 	private Date lastModificationDate;
@@ -18,12 +18,12 @@ public class Structure {
 	private Date createDate;
 
     
-    public Structure(String fieldName, String type, Boolean mandatory, String regExp, String linkedDocument) {
+    public Structure(String fieldName, String type, Boolean mandatory, String regExp, Boolean useAsQuery) {
         this.fieldName = fieldName;
         this.type = type;
         this.mandatory = mandatory;
         this.regExp = regExp;
-        this.linkedDocument = linkedDocument;
+        this.useAsQuery = useAsQuery;
     }
 
     public String getFieldName() {
@@ -58,12 +58,12 @@ public class Structure {
         this.regExp = regExp;
     }
 
-    public String getLinkedDocument() {
-        return linkedDocument;
+    public Boolean getUseAsQuery() {
+        return this.useAsQuery;
     }
 
-    public void setLinkedDocument(String linkedDocument) {
-        this.linkedDocument = linkedDocument;
+    public void setUseAsQuery(Boolean useAsQuery) {
+        this.useAsQuery = useAsQuery;
     }
 
     @Override
@@ -74,7 +74,6 @@ public class Structure {
         result = prime * result + ((type == null) ? 0 : type.hashCode());
         result = prime * result + ((mandatory == null) ? 0 : mandatory.hashCode());
         result = prime * result + ((regExp == null) ? 0 : regExp.hashCode());
-        result = prime * result + ((linkedDocument == null) ? 0 : linkedDocument.hashCode());
         return result;
     }
 
@@ -107,10 +106,10 @@ public class Structure {
                 return false;
         } else if (!regExp.equals(other.regExp))
             return false;
-        if (linkedDocument == null) {
-            if (other.linkedDocument != null)
+        if (useAsQuery == null) {
+            if (other.useAsQuery != null)
                 return false;
-        } else if (!linkedDocument.equals(other.linkedDocument))
+        } else if (!useAsQuery.equals(other.useAsQuery))
             return false;
         return true;
     }
@@ -118,7 +117,7 @@ public class Structure {
     @Override
     public String toString() {
         return "Structure [fieldName=" + fieldName + ", type=" + type + ", mandatory=" + mandatory + ", regExp="
-                + regExp + ", linkedDocument=" + linkedDocument + "]";
+                + regExp + ", useAsQuery=" + useAsQuery + "]";
     }
 
     

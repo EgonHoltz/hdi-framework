@@ -2,6 +2,27 @@ package pt.hdi.restservice.Utils;
 
 public class ApplicationEnums {
 
+    public enum SEND_SFTP_STATUS {
+        FILE_GENERATED("file_generated","File has generated"),
+        PREPARING_SFTP("preparing_sftp","Preparing to send by SFTP"),
+        SENT("sent","File sent to destination");
+
+        private final String value;
+        private final String label;
+        
+        SEND_SFTP_STATUS(String value, String label){
+            this.value = value;
+            this.label = label;            
+        }
+        public String getValue() {
+            return value;
+        }
+
+        public String getLabel() {
+            return label;
+        }        
+    }
+
     public enum FLOW_DIRECTION {
         SEND("send", "Send"),
         RECEIVE("recv", "Receive");
@@ -35,6 +56,56 @@ public class ApplicationEnums {
         }
         public String getLabel() {
             return label;
+        }
+    }
+
+    public enum SEND_FILE_TYPE{
+        JSON("JSON");
+        private final String label;
+
+        SEND_FILE_TYPE(String label){
+            this.label = label;
+        }
+        public String getLabel(){
+            return this.label;
+        }
+    }
+
+    public enum SEND_FILE_DATA_MODE{
+        DELTA("Delta"),
+        FULL("Full");
+        private final String label;
+        SEND_FILE_DATA_MODE(String label){
+            this.label = label;
+        }
+        public String getLabel(){
+            return this.label;
+        }
+    }
+
+    public enum TECHNOLOGY{
+        SFTP("SFTP"),
+        GRPC("gRPC"),
+        MQQUEUE("MQ Queue");
+        private final String label;
+        TECHNOLOGY(String label){
+            this.label = label;
+        }
+        public String getLabel(){
+            return this.label;
+        }
+    }
+
+    public enum DATA_STATUS{
+        OK("OK"),
+        INVALID_DATA("Invalid Data"),
+        DUPLICATED("duplicated");
+        private final String label;
+        DATA_STATUS(String label){
+            this.label = label;
+        }
+        public String getLabel(){
+            return this.label;
         }
     }
 

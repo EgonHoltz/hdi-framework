@@ -16,8 +16,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
-import org.springframework.data.util.Optionals;
-import pt.hdi.sftpservice.model.Configuration;
 import pt.hdi.sftpservice.service.ConfigurationService;
 import pt.hdi.sftpservice.service.SftpService;
 
@@ -45,7 +43,7 @@ public class SendDirMonitoring implements Runnable {
 		sendPath = env.getProperty("spring.sftp.sendpath");
 		Path fpath = Paths.get(sendPath);
 		if (!Files.exists(fpath)) {
-			System.out.println("Directory does not exists: "+sendPath);
+			System.out.println("[FileSend] Directory does not exists: "+sendPath);
 			return;
 		}
 		
@@ -58,40 +56,22 @@ public class SendDirMonitoring implements Runnable {
 					for (WatchEvent<?> event: wk.pollEvents()) {
 						if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
 							Path fileP = fpath.resolve((Path) event.context());
-							System.out.println("new file found: " + fileP);
-							// String fn = fileP.getFileName().toString();
-							// String inferedDoc = fn.substring(fn.indexOf("N_") +2, fn.indexOf("_N"));
-							// Configuration conf = confService.getByDocumentName(inferedDoc);
-							// if (conf == null || conf.getSftpConfig() == null) {
-							// 	System.out.println("No config found for this file");
-							// 	if (Files.exists(fileP)) {
-							// 		Files.delete(fileP);
-							// 	}
-							// 	continue;
-							// }
-							// if (Optionals.isAnyPresent(conf.getFirstSendSftpConfig())) {
-							// 	//sftpService.sendFile(conf.getFirstSendSftpConfig().get(), fileP, ctx);
-							// 	boolean success = sftpService.doSftpSendFile(conf.getFirstSendSftpConfig().get(), fileP);
-							// 	if (success) {
-							// 		System.out.println("SFTP done with success");
-							// 		if (Files.exists(fileP)) {
-							// 			Files.delete(fileP);
-							// 		}
-							// 	}
-							// }
+							System.out.println("[FileSend] new file found: " + fileP);
+							Thread thread = new Thread(new FileSendProcessor(fileP, ctx));
+							thread.start();
 						}
 					}
 					wk.reset();
 				}
 			}
 		} catch (IOException e) {
-			System.err.println("Problems with IO: "+e.getStackTrace());
+			System.err.println("[FileSend] Problems with IO: "+e.getStackTrace());
 			e.printStackTrace();
 		} catch (Exception e) {
-			System.err.println("Problems with WatchEvent: "+e.getStackTrace());
+			System.err.println("[FileSend] Problems with WatchEvent: "+e.getStackTrace());
 			e.printStackTrace();
 		} finally {
-			System.out.println("Finished SendDirMonitoring, removing all files");
+			System.out.println("[FileSend] Finished SendDirMonitoring, removing all files");
 			File exclDir = new File(sendPath);
 			if (exclDir.exists() && exclDir.isDirectory()) {
 				File[] files = exclDir.listFiles();

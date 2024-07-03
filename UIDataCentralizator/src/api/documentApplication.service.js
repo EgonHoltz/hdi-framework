@@ -138,6 +138,64 @@ export const docAppService = {
       throw Error(handleResponses(response.status));
     }
   },
+  async getDocumentWithSftpByApplication(/*token,*/ payload) {
+    console.log("calling getDocumentWithSftpByApplication " + payload);
+    let response = await fetch(`${API_URL}/scheduler/sftp/application/${payload.applicationId}`, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        //'Authorization': token
+      }
+    });
+    if (response.ok) {
+      console.log("Service called: " + response)
+      return await response.json();
+    } else {
+      throw Error(handleResponses(response.status));
+    }
+  },
+  async getSftpSchedulerConfiguration(/*token,*/ payload) {
+    let appId = payload.appId;
+    let docId = payload.docId;
+    console.log("calling getDocumentWithSftpByApplication " + payload);
+    let response = await fetch(`${API_URL}/scheduler/application/${appId}/document/${docId}`, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        //'Authorization': token
+      }
+    });
+    if (response.ok) {
+      console.log("Service called: " + response)
+      return await response.json();
+    } else {
+      console.log("Error on service : " + response)
+      throw Error(handleResponses(response.status));
+    }
+  },
+  async upsertSftpSchedulerConfiguration(/*token,*/ payload) {
+    let appId = payload.appId;
+    let docId = payload.docId;
+    let sftpSchedulerConfig = {};
+    sftpSchedulerConfig.dataMode = payload.dataMode;
+    sftpSchedulerConfig.fileType = payload.fileType;
+    sftpSchedulerConfig.cron = payload.cron;
+    console.log("calling upsertSftpSchedulerConfiguration " + payload);
+    let response = await fetch(`${API_URL}/scheduler/application/${appId}/document/${docId}`, {
+      method: "PUT",
+      headers: {
+        'Content-Type': 'application/json',
+        //'Authorization': token
+      },
+      body: JSON.stringify(sftpSchedulerConfig)
+    });
+    if (response.ok) {
+      console.log("Service called: " + response)
+      return await response.json();
+    } else {
+      throw Error(handleResponses(response.status));
+    }
+  },
 };
 
 function handleResponses(code) {
@@ -146,11 +204,11 @@ function handleResponses(code) {
       case 401:
         message = "You are not allowed to proceed with this operation!"
         break;
-      case 400:
-        message = "Invalid data was informed, please review"
-        break;
-      default:
-        message = "Unknow error, ask for IT support"
+        case 400:
+          message = "Invalid data was informed, please review"
+          break;
+          default:
+            message = "Unknow error, ask for IT support"
         break;
     }
     return message

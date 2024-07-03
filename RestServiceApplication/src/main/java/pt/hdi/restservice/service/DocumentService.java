@@ -55,7 +55,7 @@ public class DocumentService {
         return true;
     }
 
-    public ResponseEntity getDocumentStructureOnDb(DocumentData documentData){
+    public ResponseEntity getDocumentStructureOnDb(DocumentData documentData, boolean isQueryCheck){
         String collectionName = documentData.getDocumentName().replaceAll("\\s", "").toLowerCase();
         String modelKey = documentData.getModelKey();
 
@@ -79,7 +79,9 @@ public class DocumentService {
        for (Structure s : documentData.getStructures()) {
         String fieldName = ObjectHelper.getCamelFieldName(s.getFieldName());
         if (collStt.contains(fieldName)) {
-            structureCompleteOnDb.add(new StructureWithCamel(s));
+            if (!isQueryCheck || s.getUseAsQuery()){
+                structureCompleteOnDb.add(new StructureWithCamel(s));
+            }
         }
     }
 

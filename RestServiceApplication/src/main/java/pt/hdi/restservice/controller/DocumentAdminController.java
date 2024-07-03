@@ -20,6 +20,8 @@ import pt.hdi.restservice.model.DocumentData;
 import pt.hdi.restservice.model.Structure;
 import pt.hdi.restservice.repository.DocumentRepository;
 import pt.hdi.restservice.service.DocumentService;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -140,9 +142,24 @@ public class DocumentAdminController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        return docSvc.getDocumentStructureOnDb(docFound.get());
+        return docSvc.getDocumentStructureOnDb(docFound.get(), false);
     }
 
+    @GetMapping("/{id}/dbstatus/queryfields")
+    public ResponseEntity getDocumentDbForQuery(@PathVariable String id) {
+        System.out.println("Called getDocumentDbStatus");
+        if (id == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Optional<DocumentData> docFound = docRep.findById(id);
+        
+        if (!docFound.isPresent() ){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return docSvc.getDocumentStructureOnDb(docFound.get(), true);
+    }
+    
 
     /**
      * Structure of document - Work on field , field type and configuration that the

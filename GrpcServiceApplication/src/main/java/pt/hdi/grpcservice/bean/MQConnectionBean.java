@@ -15,8 +15,8 @@ public class MQConnectionBean {
 	public MQConnectionBean(Environment env) {
 		super();
 		this.host = env.getProperty("spring.rabbitmq.host");
-		this.username = env.getProperty("spring.rabbitmq.user");
-		this.password = env.getProperty("spring.rabbitmq.pass");
+		this.username = env.getProperty("spring.rabbitmq.username");
+		this.password = env.getProperty("spring.rabbitmq.password");
 	}
 
 	public String getHost() {
