@@ -56,8 +56,6 @@ To test SFTP, a server was created:
 docker run -p 10022:22 -v /home/egonh/projects/docker/sftp:/home/client/recv -d --name sftp_test_svr -e SFTP_USERS="client:clientPass:1001:100:recv" atmoz/sftp
 ```
 
-docker run -p 6789:6789 --name mage_testing -v /home/egonh/projects/docker/mageai:/home/src/default_repo mageai/mageai:latest
-
 
 ## GrpcService
 Project declared on GrpcServiceApplication folder
